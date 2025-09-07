@@ -11,6 +11,7 @@
 		"typescript": "^5"
 	},
 	"dependencies": {
+		"@drizzle-team/brocli": "^0.11.0",
 		"ink": "^6.2.3",
 		"react": "^19.1.1"
 	}

@@ -1,3 +1,5 @@
-import { renderMain } from "./ui/Main";
+import { run } from "@drizzle-team/brocli";
 
-renderMain();
+import { commands } from "./commands";
+
+run(commands, { name: "marionette", description: "Marionette CLI" });
