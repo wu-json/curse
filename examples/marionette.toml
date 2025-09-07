@@ -1,7 +1,7 @@
 name = "Example Marionette Configuration"
 
-[say hello]
+[hello process]
 command = "echo hello"
 
-[say world]
+[world process]
 command = "echo world"
