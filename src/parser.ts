@@ -1,4 +1,5 @@
 import { type } from "arktype";
+import toml from "toml";
 
 const MarionetteProcessConfig = type({
 	command: "string",
@@ -11,13 +12,15 @@ const MarionetteConfig = type({
 
 export type MarionetteConfig = typeof MarionetteConfig.infer;
 
-async function parseMarionetteConfig(path: string): MarionetteConfig {
+async function parseMarionetteConfig(path: string): Promise<MarionetteConfig> {
+	if (!path.endsWith(".toml")) {
+		throw new Error(`Path must point to toml file: ${path}`);
+	}
+
 	const file = Bun.file(path);
 	const contents = await file.text();
 
-	// TODO toml parser
-
-	const result = MarionetteConfig(contents);
+	const result = MarionetteConfig(toml.parse(contents));
 	if (result instanceof type.errors) {
 		throw new Error("Failed to parse marionette config");
 	}
