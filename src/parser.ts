@@ -15,9 +15,6 @@ export type MarionetteConfig = typeof MarionetteConfig.infer;
 export async function parseMarionetteConfig(
 	path: string,
 ): Promise<MarionetteConfig> {
-	if (!path.endsWith(".toml")) {
-		throw new Error(`Path must point to toml file: ${path}`);
-	}
 	const file = Bun.file(path);
 	const contents = await file.text();
 	const result = MarionetteConfig(toml.parse(contents));
