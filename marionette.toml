@@ -1,0 +1,7 @@
+name = "Example Marionette Configuration"
+
+[say hello]
+command = "echo hello"
+
+[say world]
+command = "echo world"
