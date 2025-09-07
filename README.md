@@ -9,4 +9,4 @@
 - UI-wise would prefer something k9s style as opposed to process-compose; actually enter into a process to see logs
 
 # Stretch Specs
-- Dependencies
+- Dependencies; readiness probes
