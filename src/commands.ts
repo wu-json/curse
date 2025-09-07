@@ -1,3 +1,11 @@
-import { type Command } from "@drizzle-team/brocli";
+import { command, type Command, string } from "@drizzle-team/brocli";
 
-export const commands: Command[] = [];
+const startCmd = command({
+	name: "start",
+	options: {
+		path: string().default("./marionette.toml"),
+	},
+	handler: (opts) => {},
+});
+
+export const commands: Command[] = [startCmd];
