@@ -17,6 +17,6 @@ const Counter = () => {
 	return <Text color="green">{counter} tests passed</Text>;
 };
 
-export const renderMain = () => {
+export const renderView = () => {
 	render(<Counter />);
 };
