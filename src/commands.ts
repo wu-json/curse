@@ -4,9 +4,11 @@ const startCmd = command({
 	name: "start",
 	desc: "run marionette in your terminal",
 	options: {
-		path: string().default("./marionette.toml"),
+		path: string().alias("p").default("./marionette.toml"),
 	},
-	handler: (opts) => {},
+	handler: (opts) => {
+		console.log(opts.path);
+	},
 });
 
 export const commands: Command[] = [startCmd];
