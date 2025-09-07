@@ -1,1 +1,4 @@
-console.log("Hello via Bun!");
+import { renderMain } from "./ui/Main";
+
+renderMain()
+
