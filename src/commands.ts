@@ -3,6 +3,13 @@ import { resolve } from "path";
 
 import { parseMarionetteConfig } from "./parser";
 
+function makeMarionettePath(rawPath: string): string {
+	if (rawPath.startsWith("/")) {
+		return rawPath;
+	}
+	return resolve(process.cwd(), rawPath);
+}
+
 const startCmd = command({
 	name: "start",
 	desc: "run marionette in your terminal",
@@ -21,12 +28,12 @@ const startCmd = command({
 		console.log(configPath);
 
 		return;
-		const fileExists = await Bun.file(configPath).exists();
-		if (!fileExists) {
-			console.error(`marionette.toml file not found at path: ${configPath}`);
-		}
+		// const fileExists = await Bun.file(configPath).exists();
+		// if (!fileExists) {
+		// 	console.error(`marionette.toml file not found at path: ${configPath}`);
+		// }
 
-		const result = await parseMarionetteConfig(configPath);
+		// const result = await parseMarionetteConfig(configPath);
 	},
 });
 
