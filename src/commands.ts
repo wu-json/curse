@@ -25,13 +25,11 @@ const startCmd = command({
 		}
 
 		const configPath = resolve(opts.path ?? "marionette.toml");
-		console.log(configPath);
 
-		return;
-		// const fileExists = await Bun.file(configPath).exists();
-		// if (!fileExists) {
-		// 	console.error(`marionette.toml file not found at path: ${configPath}`);
-		// }
+		const fileExists = await Bun.file(configPath).exists();
+		if (!fileExists) {
+			console.error(`marionette.toml file not found at path: ${configPath}`);
+		}
 
 		// const result = await parseMarionetteConfig(configPath);
 	},
