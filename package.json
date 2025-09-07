@@ -1,16 +1,17 @@
 {
-  "name": "marionette",
-  "module": "index.ts",
-  "type": "module",
-  "private": true,
-  "devDependencies": {
-    "@types/bun": "latest"
-  },
-  "peerDependencies": {
-    "typescript": "^5"
-  },
-  "dependencies": {
-    "ink": "^6.2.3",
-    "react": "^19.1.1"
-  }
+	"name": "marionette",
+	"module": "index.ts",
+	"type": "module",
+	"private": true,
+	"devDependencies": {
+		"@biomejs/biome": "^2.2.3",
+		"@types/bun": "latest"
+	},
+	"peerDependencies": {
+		"typescript": "^5"
+	},
+	"dependencies": {
+		"ink": "^6.2.3",
+		"react": "^19.1.1"
+	}
 }
