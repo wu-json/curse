@@ -9,4 +9,4 @@ const MarionetteConfig = type({
 	"[string]": MarionetteProcessConfig,
 });
 
-type MarionetteConfig = typeof MarionetteConfig.infer;
+export type MarionetteConfig = typeof MarionetteConfig.infer;
