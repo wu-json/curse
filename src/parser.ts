@@ -8,3 +8,5 @@ const MarionetteConfig = type({
 	name: "string",
 	"[string]": MarionetteProcessConfig,
 });
+
+type MarionetteConfig = typeof MarionetteConfig.infer;
