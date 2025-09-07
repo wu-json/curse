@@ -7,6 +7,12 @@ const startCmd = command({
 		path: string().alias("p").default("./marionette.toml"),
 	},
 	handler: (opts) => {
+		if (opts.path && !opts.path.endsWith(".toml")) {
+			console.error(
+				`Path does not point to marionette.toml file: ${opts.path}`,
+			);
+			process.exit(1);
+		}
 		console.log(opts.path);
 	},
 });
