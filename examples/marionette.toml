@@ -15,3 +15,7 @@ command = "echo deez"
 [[process]]
 name = "nutz process"
 command = "echo nutz"
+
+[[process]]
+name = "dummy timer process"
+command = "for i in {1..30}; do echo \"Message $i from dummy process\"; sleep 2; done"
