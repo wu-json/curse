@@ -5,6 +5,7 @@ import type { MarionetteConfig } from "./parser";
 import { useAltScreen } from "./hooks";
 import { ProcessManagerProvider } from "./process";
 import { useEffect } from "react";
+import { version } from "./version";
 
 const Colors = {
 	primary: "#a855f7",
@@ -112,9 +113,12 @@ function View(props: { config: MarionetteConfig }) {
 
 	return (
 		<Box flexDirection="column">
-			<Text bold color={Colors.primary}>
-				Marionette 🎭
-			</Text>
+			<Box flexDirection="row">
+				<Text bold color={Colors.primary}>
+					Marionette 🎭
+				</Text>
+				<Text color={Colors.darkGray}> v{version}</Text>
+			</Box>
 			<Box flexDirection="row">
 				<Text color={Colors.primary}>Config: </Text>
 				<Text>{props.config.name}</Text>
