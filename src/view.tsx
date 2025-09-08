@@ -69,17 +69,19 @@ function ProcessTable() {
 							>
 								{process.startedAt
 									? (() => {
-										const ageInSeconds = Math.floor((Date.now() - process.startedAt.getTime()) / 1000);
-										if (ageInSeconds >= 3600) {
-											const hours = Math.floor(ageInSeconds / 3600);
-											return `${hours}h`;
-										} else if (ageInSeconds >= 60) {
-											const minutes = Math.floor(ageInSeconds / 60);
-											return `${minutes}m`;
-										} else {
-											return `${ageInSeconds}s`;
-										}
-									})()
+											const ageInSeconds = Math.floor(
+												(Date.now() - process.startedAt.getTime()) / 1000,
+											);
+											if (ageInSeconds >= 3600) {
+												const hours = Math.floor(ageInSeconds / 3600);
+												return `${hours}h`;
+											} else if (ageInSeconds >= 60) {
+												const minutes = Math.floor(ageInSeconds / 60);
+												return `${minutes}m`;
+											} else {
+												return `${ageInSeconds}s`;
+											}
+										})()
 									: "-"}
 							</Text>
 						</Box>
@@ -124,6 +126,9 @@ function View(props: { config: MarionetteConfig }) {
 				<Text>{props.config.name}</Text>
 			</Box>
 			<ProcessTable />
+			<Box marginTop={1} marginLeft={1}>
+				<Text color={Colors.darkGray}>↑/↓ or j/k to navigate • q to quit</Text>
+			</Box>
 		</Box>
 	);
 }
