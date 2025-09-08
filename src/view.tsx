@@ -34,14 +34,29 @@ function ProcessTable(props: { processes: Process[] }) {
 				<Box width={20}>
 					<Text bold>NAME</Text>
 				</Box>
-				<Text bold>CMD</Text>
+				<Box flexGrow={1}>
+					<Text bold>CMD</Text>
+				</Box>
+				<Box width={8}>
+					<Text bold>AGE</Text>
+				</Box>
 			</Box>
 			{props.processes.map((process) => (
 				<Box key={process.name} flexDirection="row" paddingX={1}>
 					<Box width={20}>
 						<Text color={Colors.blue}>{process.name}</Text>
 					</Box>
-					<Text color={Colors.blue}>{process.command}</Text>
+					<Box flexGrow={1}>
+						<Text color={Colors.blue}>{process.command}</Text>
+					</Box>
+					<Box width={8}>
+						<Text color={Colors.darkGray}>
+							{process.startedAt ? 
+								`${Math.floor((Date.now() - process.startedAt.getTime()) / 1000)}s` : 
+								'-'
+							}
+						</Text>
+					</Box>
 				</Box>
 			))}
 		</Box>
