@@ -26,12 +26,11 @@ function View(props: { config: MarionetteConfig }) {
 	}
 	return (
 		<Box flexDirection="column">
-			<Box borderStyle="single" height={10}>
-				<Text color={Colors.primary}>Marionette: </Text>
+			<Box padding={1} height={10}>
+				<Text bold color={Colors.primary}>
+					Marionette:{" "}
+				</Text>
 				<Text>{props.config.name}</Text>
-			</Box>
-			<Box borderStyle="single" height="100%">
-				<Text>Logs</Text>
 			</Box>
 		</Box>
 	);
