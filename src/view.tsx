@@ -4,7 +4,7 @@ import type { MarionetteConfig } from "./parser";
 import { useAltScreen } from "./hooks";
 
 const Colors = {
-	primary: "#800080",
+	primary: "#a855f7",
 	darkGray: "#374151",
 };
 
