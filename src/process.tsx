@@ -2,7 +2,12 @@ import { createContext, useContext, useState } from "react";
 
 import type { MarionetteConfig } from "./parser";
 
-export type ProcessStatus = "idle" | "error" | "success";
+export enum ProcessStatus {
+	Pending = "pending",
+	Started = "started",
+	Error = "error",
+	Idle = "idle",
+}
 
 export type Process = {
 	name: string;
@@ -34,7 +39,7 @@ export function ProcessManagerProvider(props: {
 		props.config.process.map((p) => ({
 			name: p.name,
 			command: p.command,
-			status: "idle",
+			status: ProcessStatus.Pending,
 		})),
 	);
 	return (
