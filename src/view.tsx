@@ -1,4 +1,5 @@
 import { Box, render, Text } from "ink";
+import { useState } from "react";
 import type { MarionetteConfig } from "./parser";
 import { useAltScreen } from "./hooks";
 
@@ -16,6 +17,13 @@ type Process = {
 
 function View(props: { config: MarionetteConfig }) {
 	const { isReady } = useAltScreen();
+	const [processes, setProcesses] = useState<Process[]>(
+		props.config.process.map((p) => ({
+			name: p.name,
+			command: p.command,
+			status: "idle",
+		})),
+	);
 
 	if (!isReady) {
 		return null;
