@@ -128,10 +128,15 @@ function View(props: { config: MarionetteConfig }) {
 				<Text>{props.config.name}</Text>
 			</Box>
 			<ProcessTable />
-			<Box marginTop={1} marginLeft={1}>
-				<Text color={Colors.darkGray}>
-					↑/↓ or j/k to navigate • l for logs • r to restart process • q to quit
-				</Text>
+			<Box marginTop={1} marginLeft={1} flexDirection="row">
+				<Box flexDirection="column" marginRight={4}>
+					<Text color={Colors.darkGray}>↑/↓ or j/k to navigate</Text>
+					<Text color={Colors.darkGray}>l for logs</Text>
+				</Box>
+				<Box flexDirection="column">
+					<Text color={Colors.darkGray}>r to restart process</Text>
+					<Text color={Colors.darkGray}>q to quit</Text>
+				</Box>
 			</Box>
 		</Box>
 	);
