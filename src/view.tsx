@@ -67,7 +67,18 @@ function ProcessTable() {
 								bold={isSelected}
 							>
 								{process.startedAt
-									? `${Math.floor((Date.now() - process.startedAt.getTime()) / 1000)}s`
+									? (() => {
+										const ageInSeconds = Math.floor((Date.now() - process.startedAt.getTime()) / 1000);
+										if (ageInSeconds >= 3600) {
+											const hours = Math.floor(ageInSeconds / 3600);
+											return `${hours}h`;
+										} else if (ageInSeconds >= 60) {
+											const minutes = Math.floor(ageInSeconds / 60);
+											return `${minutes}m`;
+										} else {
+											return `${ageInSeconds}s`;
+										}
+									})()
 									: "-"}
 							</Text>
 						</Box>
