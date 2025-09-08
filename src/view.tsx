@@ -45,17 +45,17 @@ function ProcessTable() {
 						backgroundColor={isSelected ? Colors.blue : undefined}
 					>
 						<Box width={20}>
-							<Text color={isSelected ? "white" : Colors.blue}>
+							<Text color={isSelected ? "white" : Colors.blue} bold={isSelected}>
 								{process.name}
 							</Text>
 						</Box>
 						<Box flexGrow={1}>
-							<Text color={isSelected ? "white" : Colors.blue}>
+							<Text color={isSelected ? "white" : Colors.blue} bold={isSelected}>
 								{process.command}
 							</Text>
 						</Box>
 						<Box width={8}>
-							<Text color={isSelected ? "white" : Colors.darkGray}>
+							<Text color={isSelected ? "white" : Colors.darkGray} bold={isSelected}>
 								{process.startedAt
 									? `${Math.floor((Date.now() - process.startedAt.getTime()) / 1000)}s`
 									: "-"}
