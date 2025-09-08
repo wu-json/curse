@@ -30,9 +30,15 @@ const startCmd = command({
 		const fileExists = await Bun.file(configPath).exists();
 		if (!fileExists) {
 			console.error(`marionette.toml file not found at path: ${configPath}`);
+			process.exit(1);
 		}
 
 		const config = await parseMarionetteConfig(configPath);
+		if (!config.command.length) {
+			console.error(`marionette.toml file has no commands`);
+			process.exit(1);
+		}
+
 		renderView(config);
 	},
 });
