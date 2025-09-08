@@ -4,8 +4,7 @@ import type { MarionetteConfig } from "./parser";
 import { useAltScreen } from "./hooks";
 
 function View(props: { config: MarionetteConfig }) {
-	useAltScreen();
-
+	const { isOpen } = useAltScreen();
 	const [counter, setCounter] = useState(0);
 
 	useEffect(() => {
@@ -17,6 +16,10 @@ function View(props: { config: MarionetteConfig }) {
 			clearInterval(timer);
 		};
 	}, []);
+
+	if (!isOpen) {
+		return null;
+	}
 
 	return <Text color="green">{counter} tests passed</Text>;
 }
