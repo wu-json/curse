@@ -16,6 +16,15 @@ export type Process = {
 	startedAt?: Date;
 };
 
+async function execProcess({
+	updateProcess,
+}: {
+	updateProcess: (updates: {
+		status?: ProcessStatus;
+		startedAt?: Date;
+	}) => void;
+}) {}
+
 type ProcessManagerCtx = {
 	processes: Process[];
 	selectedProcessIdx: number;
