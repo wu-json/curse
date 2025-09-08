@@ -31,6 +31,9 @@ function ProcessTable() {
 				<Box flexGrow={1}>
 					<Text bold>CMD</Text>
 				</Box>
+				<Box width={10}>
+					<Text bold>STATUS</Text>
+				</Box>
 				<Box width={8}>
 					<Text bold>AGE</Text>
 				</Box>
@@ -58,6 +61,14 @@ function ProcessTable() {
 								bold={isSelected}
 							>
 								{process.command}
+							</Text>
+						</Box>
+						<Box width={10}>
+							<Text
+								color={isSelected ? "white" : Colors.blue}
+								bold={isSelected}
+							>
+								{process.status.toUpperCase()}
 							</Text>
 						</Box>
 						<Box width={8}>
