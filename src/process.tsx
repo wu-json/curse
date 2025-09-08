@@ -45,10 +45,13 @@ export function ProcessManagerProvider(props: {
 		})),
 	);
 
-	const updateProcessStatus = (processIdx: number, status: ProcessStatus) => {
+	const updateProcess = (
+		processIdx: number,
+		updates: { status?: ProcessStatus; startedAt?: Date },
+	) => {
 		setProcesses((prev) =>
 			prev.map((process, i) =>
-				i === processIdx ? { ...process, status } : process,
+				i === processIdx ? { ...process, ...updates } : process,
 			),
 		);
 	};
@@ -57,7 +60,10 @@ export function ProcessManagerProvider(props: {
 		processes.map((p, i) => {
 			if (p.status === ProcessStatus.Pending) {
 				// TODO: actually start the process
-				updateProcessStatus(i, ProcessStatus.Started);
+				updateProcess(i, {
+					status: ProcessStatus.Started,
+					startedAt: new Date(),
+				});
 			}
 		});
 	};
