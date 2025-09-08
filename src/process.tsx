@@ -1,4 +1,4 @@
-import { createContext, useContext, useState } from "react";
+import { createContext, useCallback, useContext, useState } from "react";
 
 import type { MarionetteConfig } from "./parser";
 
@@ -21,6 +21,7 @@ type ProcessManagerCtx = {
 	selectedProcessIdx: number;
 	setProcesses: React.Dispatch<React.SetStateAction<Process[]>>;
 	setSelectedProcessIdx: React.Dispatch<React.SetStateAction<number>>;
+	runPendingProcesses: () => void;
 };
 
 const ProcessManagerCtx = createContext<ProcessManagerCtx>({
@@ -28,6 +29,7 @@ const ProcessManagerCtx = createContext<ProcessManagerCtx>({
 	selectedProcessIdx: 0,
 	setProcesses: () => {},
 	setSelectedProcessIdx: () => {},
+	runPendingProcesses: () => {},
 });
 
 export function ProcessManagerProvider(props: {
@@ -42,6 +44,24 @@ export function ProcessManagerProvider(props: {
 			status: ProcessStatus.Pending,
 		})),
 	);
+
+	const updateProcessStatus = (processIdx: number, status: ProcessStatus) => {
+		setProcesses((prev) =>
+			prev.map((process, i) =>
+				i === processIdx ? { ...process, status } : process,
+			),
+		);
+	};
+
+	const runPendingProcesses = () => {
+		processes.map((p, i) => {
+			if (p.status === ProcessStatus.Pending) {
+				// TODO: actually start the process
+				updateProcessStatus(i, ProcessStatus.Started);
+			}
+		});
+	};
+
 	return (
 		<ProcessManagerCtx.Provider
 			value={{
@@ -49,6 +69,7 @@ export function ProcessManagerProvider(props: {
 				selectedProcessIdx,
 				setProcesses,
 				setSelectedProcessIdx,
+				runPendingProcesses,
 			}}
 		>
 			{props.children}
