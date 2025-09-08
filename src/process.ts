@@ -1,3 +1,7 @@
+import { useState } from "react";
+
+import type { MarionetteConfig } from "./parser";
+
 export type ProcessStatus = "idle" | "error" | "success";
 
 export type Process = {
@@ -6,3 +10,14 @@ export type Process = {
 	status: ProcessStatus;
 	startedAt?: Date;
 };
+
+export function useProcessManager(config: MarionetteConfig) {
+	const [processes, setProcesses] = useState<Process[]>(
+		config.process.map((p) => ({
+			name: p.name,
+			command: p.command,
+			status: "idle",
+		})),
+	);
+	return { processes, setProcesses };
+}

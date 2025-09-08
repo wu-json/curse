@@ -1,7 +1,7 @@
 import { Box, render, Text } from "ink";
 import { useState } from "react";
 
-import { type Process } from "./process";
+import { useProcessManager, type Process } from "./process";
 import type { MarionetteConfig } from "./parser";
 import { useAltScreen } from "./hooks";
 
@@ -57,13 +57,7 @@ function ProcessTable(props: { processes: Process[] }) {
 
 function View(props: { config: MarionetteConfig }) {
 	const { isReady } = useAltScreen();
-	const [processes, setProcesses] = useState<Process[]>(
-		props.config.process.map((p) => ({
-			name: p.name,
-			command: p.command,
-			status: "idle",
-		})),
-	);
+	const { processes } = useProcessManager(props.config);
 
 	if (!isReady) {
 		return null;
