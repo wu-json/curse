@@ -1,4 +1,4 @@
-import { Box, render, Text } from "ink";
+import { Box, render, Text, useInput } from "ink";
 
 import { useProcessManager } from "./process";
 import type { MarionetteConfig } from "./parser";
@@ -45,17 +45,26 @@ function ProcessTable() {
 						backgroundColor={isSelected ? Colors.blue : undefined}
 					>
 						<Box width={20}>
-							<Text color={isSelected ? "white" : Colors.blue} bold={isSelected}>
+							<Text
+								color={isSelected ? "white" : Colors.blue}
+								bold={isSelected}
+							>
 								{process.name}
 							</Text>
 						</Box>
 						<Box flexGrow={1}>
-							<Text color={isSelected ? "white" : Colors.blue} bold={isSelected}>
+							<Text
+								color={isSelected ? "white" : Colors.blue}
+								bold={isSelected}
+							>
 								{process.command}
 							</Text>
 						</Box>
 						<Box width={8}>
-							<Text color={isSelected ? "white" : Colors.darkGray} bold={isSelected}>
+							<Text
+								color={isSelected ? "white" : Colors.darkGray}
+								bold={isSelected}
+							>
 								{process.startedAt
 									? `${Math.floor((Date.now() - process.startedAt.getTime()) / 1000)}s`
 									: "-"}
@@ -70,6 +79,15 @@ function ProcessTable() {
 
 function View(props: { config: MarionetteConfig }) {
 	const { isReady } = useAltScreen();
+	const { processes, selectedProcessIdx, setSelectedProcessIdx } = useProcessManager();
+
+	useInput((input, key) => {
+		if (key.downArrow || input === "j") {
+			setSelectedProcessIdx(prev => Math.min(prev + 1, processes.length - 1));
+		} else if (key.upArrow || input === "k") {
+			setSelectedProcessIdx(prev => Math.max(prev - 1, 0));
+		}
+	});
 
 	if (!isReady) {
 		return null;
