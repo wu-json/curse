@@ -28,9 +28,6 @@ function ProcessTable() {
 				<Box width={20}>
 					<Text bold>NAME</Text>
 				</Box>
-				<Box flexGrow={1}>
-					<Text bold>CMD</Text>
-				</Box>
 				<Box width={10}>
 					<Text bold>STATUS</Text>
 				</Box>
@@ -53,14 +50,6 @@ function ProcessTable() {
 								bold={isSelected}
 							>
 								{process.name}
-							</Text>
-						</Box>
-						<Box flexGrow={1}>
-							<Text
-								color={isSelected ? "white" : Colors.blue}
-								bold={isSelected}
-							>
-								{process.command}
 							</Text>
 						</Box>
 						<Box width={10}>
