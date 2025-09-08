@@ -6,9 +6,12 @@ const Colors = {
 	primary: "#800080",
 };
 
+type ProcessStatus = "idle" | "error" | "success";
+
 type Process = {
 	name: string;
 	command: string;
+	status: ProcessStatus;
 };
 
 function View(props: { config: MarionetteConfig }) {
