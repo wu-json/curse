@@ -27,17 +27,12 @@ function View(props: { config: MarionetteConfig }) {
 	return (
 		<Box flexDirection="column">
 			<Box flexDirection="column" padding={1} height={10}>
+				<Text bold color={Colors.primary}>
+					Marionette 🎭
+				</Text>
 				<Box flexDirection="row">
-					<Text bold color={Colors.primary}>
-						Config:{" "}
-					</Text>
+					<Text color={Colors.primary}>Config: </Text>
 					<Text>{props.config.name}</Text>
-				</Box>
-				<Box flexDirection="row">
-					<Text bold color={Colors.primary}>
-						Process Count:{" "}
-					</Text>
-					<Text>{props.config.command.length}</Text>
 				</Box>
 			</Box>
 		</Box>
