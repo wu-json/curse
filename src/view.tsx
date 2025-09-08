@@ -79,13 +79,13 @@ function ProcessTable() {
 
 function View(props: { config: MarionetteConfig }) {
 	const { isReady } = useAltScreen();
-	const { processes, selectedProcessIdx, setSelectedProcessIdx } = useProcessManager();
+	const { processes, setSelectedProcessIdx } = useProcessManager();
 
 	useInput((input, key) => {
 		if (key.downArrow || input === "j") {
-			setSelectedProcessIdx(prev => Math.min(prev + 1, processes.length - 1));
+			setSelectedProcessIdx((prev) => Math.min(prev + 1, processes.length - 1));
 		} else if (key.upArrow || input === "k") {
-			setSelectedProcessIdx(prev => Math.max(prev - 1, 0));
+			setSelectedProcessIdx((prev) => Math.max(prev - 1, 0));
 		}
 	});
 
