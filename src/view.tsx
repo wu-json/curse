@@ -1,5 +1,4 @@
 import { Box, render, Text } from "ink";
-import { useState } from "react";
 
 import { useProcessManager, type Process } from "./process";
 import type { MarionetteConfig } from "./parser";
