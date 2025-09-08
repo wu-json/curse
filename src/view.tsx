@@ -6,6 +6,7 @@ import { useAltScreen } from "./hooks";
 const Colors = {
 	primary: "#a855f7",
 	darkGray: "#374151",
+	blue: "#3b82f6",
 };
 
 type ProcessStatus = "idle" | "error" | "success";
@@ -29,16 +30,17 @@ function ProcessTable(props: { processes: Process[] }) {
 				borderBottom
 				borderColor={Colors.darkGray}
 			>
-				<Text bold>NAME</Text>
-				<Box width={20} />
+				<Box width={20}>
+					<Text bold>NAME</Text>
+				</Box>
 				<Text bold>CMD</Text>
 			</Box>
 			{props.processes.map((process) => (
 				<Box key={process.name} flexDirection="row" paddingX={1}>
 					<Box width={20}>
-						<Text>{process.name}</Text>
+						<Text color={Colors.blue}>{process.name}</Text>
 					</Box>
-					<Text color={Colors.darkGray}>{process.command}</Text>
+					<Text color={Colors.blue}>{process.command}</Text>
 				</Box>
 			))}
 		</Box>
