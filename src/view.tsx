@@ -3,16 +3,9 @@ import { render, Text } from "ink";
 import type { MarionetteConfig } from "./parser";
 import { useAltScreen } from "./hooks";
 
-const enterAltScreenCommand = "\x1b[?1049h";
-const leaveAltScreenCommand = "\x1b[?1049l";
-
 function View(props: { config: MarionetteConfig }) {
-	useEffect(() => {
-		process.stdout.write(enterAltScreenCommand);
-		return () => {
-			process.stdout.write(leaveAltScreenCommand);
-		};
-	}, []);
+	useAltScreen();
+
 	const [counter, setCounter] = useState(0);
 
 	useEffect(() => {

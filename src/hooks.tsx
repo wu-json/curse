@@ -7,10 +7,8 @@ const leaveAltScreenCommand = "\x1b[?1049l";
 // See: https://github.com/vadimdemedes/ink/issues/263#issuecomment-600927688
 export function useAltScreen() {
 	useEffect(() => {
-		console.log("YO");
 		process.stdout.write(enterAltScreenCommand);
 		return () => {
-			console.log("bye");
 			process.stdout.write(leaveAltScreenCommand);
 		};
 	}, []);
