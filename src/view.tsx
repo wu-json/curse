@@ -1,5 +1,7 @@
 import { Box, render, Text } from "ink";
 import { useState } from "react";
+
+import { type Process } from "./process";
 import type { MarionetteConfig } from "./parser";
 import { useAltScreen } from "./hooks";
 
@@ -7,15 +9,6 @@ const Colors = {
 	primary: "#a855f7",
 	darkGray: "#374151",
 	blue: "#3b82f6",
-};
-
-type ProcessStatus = "idle" | "error" | "success";
-
-type Process = {
-	name: string;
-	command: string;
-	status: ProcessStatus;
-	startedAt?: Date;
 };
 
 function ProcessTable(props: { processes: Process[] }) {
@@ -51,10 +44,9 @@ function ProcessTable(props: { processes: Process[] }) {
 					</Box>
 					<Box width={8}>
 						<Text color={Colors.darkGray}>
-							{process.startedAt ? 
-								`${Math.floor((Date.now() - process.startedAt.getTime()) / 1000)}s` : 
-								'-'
-							}
+							{process.startedAt
+								? `${Math.floor((Date.now() - process.startedAt.getTime()) / 1000)}s`
+								: "-"}
 						</Text>
 					</Box>
 				</Box>
