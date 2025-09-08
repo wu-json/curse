@@ -29,7 +29,7 @@ function ProcessTable() {
 				<Box width={20}>
 					<Text bold>NAME</Text>
 				</Box>
-				<Box width={10}>
+				<Box width={10} marginLeft={2}>
 					<Text bold>STATUS</Text>
 				</Box>
 				<Box width={8}>
@@ -53,7 +53,7 @@ function ProcessTable() {
 								{process.name}
 							</Text>
 						</Box>
-						<Box width={10}>
+						<Box width={10} marginLeft={2}>
 							<Text
 								color={isSelected ? "white" : Colors.blue}
 								bold={isSelected}
