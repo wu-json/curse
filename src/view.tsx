@@ -63,7 +63,7 @@ function ProcessTable() {
 						</Box>
 						<Box width={8}>
 							<Text
-								color={isSelected ? "white" : Colors.darkGray}
+								color={isSelected ? "white" : Colors.blue}
 								bold={isSelected}
 							>
 								{process.startedAt
