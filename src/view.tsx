@@ -3,6 +3,10 @@ import { Box, render, Text } from "ink";
 import type { MarionetteConfig } from "./parser";
 import { useAltScreen } from "./hooks";
 
+const Colors = {
+	primary: "#800080",
+};
+
 function View(props: { config: MarionetteConfig }) {
 	const { isReady } = useAltScreen();
 	const [counter, setCounter] = useState(0);
@@ -23,6 +27,7 @@ function View(props: { config: MarionetteConfig }) {
 	return (
 		<Box flexDirection="column">
 			<Box borderStyle="single" height={10}>
+				<Text color={Colors.primary}>Marionette: </Text>
 				<Text>{props.config.name}</Text>
 			</Box>
 			<Box borderStyle="single" height="100%">

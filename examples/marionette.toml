@@ -1,4 +1,4 @@
-name = "Example Marionette Configuration"
+name = "example configuration"
 
 [[command]]
 name = "hello command"
