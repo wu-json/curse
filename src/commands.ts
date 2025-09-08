@@ -2,6 +2,7 @@ import { command, type Command, string } from "@drizzle-team/brocli";
 import { resolve } from "path";
 
 import { parseMarionetteConfig } from "./parser";
+import { renderView } from "./view";
 
 function makeMarionettePath(rawPath: string): string {
 	if (rawPath.startsWith("/")) {
@@ -31,8 +32,8 @@ const startCmd = command({
 			console.error(`marionette.toml file not found at path: ${configPath}`);
 		}
 
-		const result = await parseMarionetteConfig(configPath);
-		console.log(result);
+		const config = await parseMarionetteConfig(configPath);
+		renderView(config);
 	},
 });
 

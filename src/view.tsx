@@ -1,22 +1,11 @@
 import { useState, useEffect } from "react";
 import { render, Text } from "ink";
+import type { MarionetteConfig } from "./parser";
 
-const Counter = () => {
-	const [counter, setCounter] = useState(0);
+function View(props: { config: MarionetteConfig }) {
+	return <Text color="red">deez nutz</Text>;
+}
 
-	useEffect(() => {
-		const timer = setInterval(() => {
-			setCounter((previousCounter) => previousCounter + 1);
-		}, 100);
-
-		return () => {
-			clearInterval(timer);
-		};
-	}, []);
-
-	return <Text color="green">{counter} tests passed</Text>;
-};
-
-export const renderView = () => {
-	render(<Counter />);
-};
+export function renderView(config: MarionetteConfig) {
+	render(<View config={config} />);
+}
