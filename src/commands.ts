@@ -1,5 +1,4 @@
 import { command, type Command, string } from "@drizzle-team/brocli";
-import toml from "toml";
 import { resolve } from "path";
 
 import { parseMarionetteConfig } from "./parser";
