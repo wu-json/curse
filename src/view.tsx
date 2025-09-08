@@ -1,8 +1,9 @@
 import { Box, render, Text } from "ink";
 
-import { useProcessManager, type Process } from "./process";
+import { useProcessManager } from "./process";
 import type { MarionetteConfig } from "./parser";
 import { useAltScreen } from "./hooks";
+import { ProcessManagerProvider } from "./process";
 
 const Colors = {
 	primary: "#a855f7",
@@ -10,7 +11,8 @@ const Colors = {
 	blue: "#3b82f6",
 };
 
-function ProcessTable(props: { processes: Process[] }) {
+function ProcessTable() {
+	const { processes } = useProcessManager();
 	return (
 		<Box
 			flexDirection="column"
@@ -33,7 +35,7 @@ function ProcessTable(props: { processes: Process[] }) {
 					<Text bold>AGE</Text>
 				</Box>
 			</Box>
-			{props.processes.map((process) => (
+			{processes.map((process) => (
 				<Box key={process.name} flexDirection="row" paddingX={1}>
 					<Box width={20}>
 						<Text color={Colors.blue}>{process.name}</Text>
@@ -56,7 +58,6 @@ function ProcessTable(props: { processes: Process[] }) {
 
 function View(props: { config: MarionetteConfig }) {
 	const { isReady } = useAltScreen();
-	const { processes } = useProcessManager(props.config);
 
 	if (!isReady) {
 		return null;
@@ -71,11 +72,15 @@ function View(props: { config: MarionetteConfig }) {
 				<Text color={Colors.primary}>Config: </Text>
 				<Text>{props.config.name}</Text>
 			</Box>
-			<ProcessTable processes={processes} />
+			<ProcessTable />
 		</Box>
 	);
 }
 
 export function renderView(config: MarionetteConfig) {
-	render(<View config={config} />);
+	render(
+		<ProcessManagerProvider config={config}>
+			<View config={config} />
+		</ProcessManagerProvider>,
+	);
 }
