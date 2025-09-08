@@ -5,6 +5,7 @@ import type { MarionetteConfig } from "./parser";
 export enum ProcessStatus {
 	Pending = "pending",
 	Started = "started",
+	Running = "running",
 	Error = "error",
 	Idle = "idle",
 }
@@ -32,6 +33,13 @@ async function execProcess({
 		status: ProcessStatus.Started,
 		startedAt: new Date(),
 	});
+
+	try {
+		updateProcess({ status: ProcessStatus.Running });
+	} catch (error) {
+		updateProcess({ status: ProcessStatus.Error });
+		return;
+	}
 
 	// TODO: finish implementing this function
 }
