@@ -9,7 +9,7 @@ import { version } from "./version";
 
 const Colors = {
 	primary: "#a855f7",
-	darkGray: "#374151",
+	darkGray: "#6b7280",
 	blue: "#3b82f6",
 };
 
