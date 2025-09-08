@@ -6,6 +6,11 @@ const Colors = {
 	primary: "#800080",
 };
 
+type Process = {
+	name: string;
+	command: string;
+};
+
 function View(props: { config: MarionetteConfig }) {
 	const { isReady } = useAltScreen();
 
@@ -15,14 +20,15 @@ function View(props: { config: MarionetteConfig }) {
 
 	return (
 		<Box flexDirection="column">
-			<Box flexDirection="column" padding={1} height={10}>
-				<Text bold color={Colors.primary}>
-					Marionette 🎭
-				</Text>
-				<Box flexDirection="row">
-					<Text color={Colors.primary}>Config: </Text>
-					<Text>{props.config.name}</Text>
-				</Box>
+			<Text bold color={Colors.primary}>
+				Marionette 🎭
+			</Text>
+			<Box flexDirection="row">
+				<Text color={Colors.primary}>Config: </Text>
+				<Text>{props.config.name}</Text>
+			</Box>
+			<Box borderStyle="single">
+				<Text>hi</Text>
 			</Box>
 		</Box>
 	);
