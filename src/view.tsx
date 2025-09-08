@@ -12,7 +12,7 @@ const Colors = {
 };
 
 function ProcessTable() {
-	const { processes } = useProcessManager();
+	const { processes, selectedProcessIdx } = useProcessManager();
 	return (
 		<Box
 			flexDirection="column"
@@ -35,23 +35,35 @@ function ProcessTable() {
 					<Text bold>AGE</Text>
 				</Box>
 			</Box>
-			{processes.map((process) => (
-				<Box key={process.name} flexDirection="row" paddingX={1}>
-					<Box width={20}>
-						<Text color={Colors.blue}>{process.name}</Text>
+			{processes.map((process, index) => {
+				const isSelected = index === selectedProcessIdx;
+				return (
+					<Box
+						key={process.name}
+						flexDirection="row"
+						paddingX={1}
+						backgroundColor={isSelected ? Colors.blue : undefined}
+					>
+						<Box width={20}>
+							<Text color={isSelected ? "white" : Colors.blue}>
+								{process.name}
+							</Text>
+						</Box>
+						<Box flexGrow={1}>
+							<Text color={isSelected ? "white" : Colors.blue}>
+								{process.command}
+							</Text>
+						</Box>
+						<Box width={8}>
+							<Text color={isSelected ? "white" : Colors.darkGray}>
+								{process.startedAt
+									? `${Math.floor((Date.now() - process.startedAt.getTime()) / 1000)}s`
+									: "-"}
+							</Text>
+						</Box>
 					</Box>
-					<Box flexGrow={1}>
-						<Text color={Colors.blue}>{process.command}</Text>
-					</Box>
-					<Box width={8}>
-						<Text color={Colors.darkGray}>
-							{process.startedAt
-								? `${Math.floor((Date.now() - process.startedAt.getTime()) / 1000)}s`
-								: "-"}
-						</Text>
-					</Box>
-				</Box>
-			))}
+				);
+			})}
 		</Box>
 	);
 }
