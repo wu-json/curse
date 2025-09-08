@@ -129,7 +129,9 @@ function View(props: { config: MarionetteConfig }) {
 			</Box>
 			<ProcessTable />
 			<Box marginTop={1} marginLeft={1}>
-				<Text color={Colors.darkGray}>↑/↓ or j/k to navigate • q to quit</Text>
+				<Text color={Colors.darkGray}>
+					↑/↓ or j/k to navigate • l for logs • r to restart process • q to quit
+				</Text>
 			</Box>
 		</Box>
 	);
