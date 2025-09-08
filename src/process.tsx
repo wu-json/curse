@@ -16,14 +16,23 @@ export type Process = {
 	startedAt?: Date;
 };
 
+type UpdateProcessFields = {
+	status?: ProcessStatus;
+	startedAt?: Date;
+};
+
 async function execProcess({
+	process,
 	updateProcess,
 }: {
-	updateProcess: (updates: {
-		status?: ProcessStatus;
-		startedAt?: Date;
-	}) => void;
-}) {}
+	process: Process;
+	updateProcess: (updates: UpdateProcessFields) => void;
+}): Promise<void> {
+	updateProcess({
+		status: ProcessStatus.Started,
+		startedAt: new Date(),
+	});
+}
 
 type ProcessManagerCtx = {
 	processes: Process[];
@@ -54,13 +63,10 @@ export function ProcessManagerProvider(props: {
 		})),
 	);
 
-	const updateProcess = (
-		processIdx: number,
-		updates: { status?: ProcessStatus; startedAt?: Date },
-	) => {
+	const updateProcess = (processIdx: number, fields: UpdateProcessFields) => {
 		setProcesses((prev) =>
 			prev.map((process, i) =>
-				i === processIdx ? { ...process, ...updates } : process,
+				i === processIdx ? { ...process, ...fields } : process,
 			),
 		);
 	};
@@ -68,10 +74,10 @@ export function ProcessManagerProvider(props: {
 	const runPendingProcesses = () => {
 		processes.map((p, i) => {
 			if (p.status === ProcessStatus.Pending) {
-				// TODO: actually start the process
-				updateProcess(i, {
-					status: ProcessStatus.Started,
-					startedAt: new Date(),
+				execProcess({
+					process: p,
+					updateProcess: (fields: UpdateProcessFields) =>
+						updateProcess(i, fields),
 				});
 			}
 		});
