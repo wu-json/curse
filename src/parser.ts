@@ -4,7 +4,7 @@ import toml from "toml";
 const MarionetteConfig = type({
 	"+": "delete",
 	name: "string",
-	command: type({ command: "string" }).array(),
+	process: type({ command: "string" }).array(),
 });
 
 export type MarionetteConfig = typeof MarionetteConfig.infer;

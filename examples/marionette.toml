@@ -1,9 +1,9 @@
 name = "example configuration"
 
-[[command]]
-name = "hello command"
+[[process]]
+name = "hello process"
 command = "echo hello"
 
-[[command]]
-name = "world command"
+[[process]]
+name = "world process"
 command = "echo world"

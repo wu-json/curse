@@ -34,8 +34,8 @@ const startCmd = command({
 		}
 
 		const config = await parseMarionetteConfig(configPath);
-		if (!config.command.length) {
-			console.error(`marionette.toml file has no commands`);
+		if (!config.process.length) {
+			console.error(`marionette.toml file has no processes`);
 			process.exit(1);
 		}
 
