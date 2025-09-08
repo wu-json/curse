@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { render, Text } from "ink";
+import { Box, render, Text } from "ink";
 import type { MarionetteConfig } from "./parser";
 import { useAltScreen } from "./hooks";
 
@@ -20,8 +20,13 @@ function View(props: { config: MarionetteConfig }) {
 	if (!isReady) {
 		return null;
 	}
-
-	return <Text color="green">{counter} tests passed</Text>;
+	return (
+		<Box flexDirection="column">
+			<Box borderStyle="single" marginRight={2}>
+				<Text>{props.config.name}</Text>
+			</Box>
+		</Box>
+	);
 }
 
 export function renderView(config: MarionetteConfig) {
