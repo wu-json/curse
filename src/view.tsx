@@ -102,6 +102,8 @@ function View(props: { config: MarionetteConfig }) {
 			setSelectedProcessIdx((prev) => Math.min(prev + 1, processes.length - 1));
 		} else if (key.upArrow || input === "k") {
 			setSelectedProcessIdx((prev) => Math.max(prev - 1, 0));
+		} else if (input === "q") {
+			process.exit(0);
 		}
 	});
 
