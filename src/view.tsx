@@ -15,6 +15,7 @@ type Process = {
 	name: string;
 	command: string;
 	status: ProcessStatus;
+	startedAt?: Date;
 };
 
 function ProcessTable(props: { processes: Process[] }) {
