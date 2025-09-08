@@ -57,7 +57,7 @@ function ProcessTable() {
 								color={isSelected ? "white" : Colors.blue}
 								bold={isSelected}
 							>
-								{process.status.toUpperCase()}
+								{process.status}
 							</Text>
 						</Box>
 						<Box width={8}>
