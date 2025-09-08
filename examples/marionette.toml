@@ -7,3 +7,11 @@ command = "echo hello"
 [[process]]
 name = "world process"
 command = "echo world"
+
+[[process]]
+name = "deez process"
+command = "echo deez"
+
+[[process]]
+name = "nutz process"
+command = "echo nutz"
