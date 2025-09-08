@@ -5,15 +5,14 @@ const leaveAltScreenCommand = "\x1b[?1049l";
 
 // Enables use of alternative screen via ansi escape codes.
 // See: https://github.com/vadimdemedes/ink/issues/263#issuecomment-600927688
-export function useAltScreen(): { isOpen: boolean } {
-	const [isOpen, setIsOpen] = useState(false);
+export function useAltScreen(): { isReady: boolean } {
+	const [isReady, setIsReady] = useState(false);
 	useEffect(() => {
 		process.stdout.write(enterAltScreenCommand);
-		setIsOpen(true);
+		setIsReady(true);
 		return () => {
 			process.stdout.write(leaveAltScreenCommand);
-			setIsOpen(false);
 		};
 	}, []);
-	return { isOpen };
+	return { isReady };
 }

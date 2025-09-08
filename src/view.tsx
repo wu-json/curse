@@ -4,7 +4,7 @@ import type { MarionetteConfig } from "./parser";
 import { useAltScreen } from "./hooks";
 
 function View(props: { config: MarionetteConfig }) {
-	const { isOpen } = useAltScreen();
+	const { isReady } = useAltScreen();
 	const [counter, setCounter] = useState(0);
 
 	useEffect(() => {
@@ -17,7 +17,7 @@ function View(props: { config: MarionetteConfig }) {
 		};
 	}, []);
 
-	if (!isOpen) {
+	if (!isReady) {
 		return null;
 	}
 
