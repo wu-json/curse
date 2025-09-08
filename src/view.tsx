@@ -16,6 +16,35 @@ type Process = {
 	status: ProcessStatus;
 };
 
+function ProcessTable(props: { processes: Process[] }) {
+	return (
+		<Box
+			flexDirection="column"
+			borderStyle="single"
+			borderColor={Colors.darkGray}
+		>
+			<Box
+				flexDirection="row"
+				paddingX={1}
+				borderBottom
+				borderColor={Colors.darkGray}
+			>
+				<Text bold>NAME</Text>
+				<Box width={20} />
+				<Text bold>CMD</Text>
+			</Box>
+			{props.processes.map((process) => (
+				<Box key={process.name} flexDirection="row" paddingX={1}>
+					<Box width={20}>
+						<Text>{process.name}</Text>
+					</Box>
+					<Text color={Colors.darkGray}>{process.command}</Text>
+				</Box>
+			))}
+		</Box>
+	);
+}
+
 function View(props: { config: MarionetteConfig }) {
 	const { isReady } = useAltScreen();
 	const [processes, setProcesses] = useState<Process[]>(
@@ -39,9 +68,7 @@ function View(props: { config: MarionetteConfig }) {
 				<Text color={Colors.primary}>Config: </Text>
 				<Text>{props.config.name}</Text>
 			</Box>
-			<Box borderStyle="single" borderColor={Colors.darkGray}>
-				<Text>hi</Text>
-			</Box>
+			<ProcessTable processes={processes} />
 		</Box>
 	);
 }
