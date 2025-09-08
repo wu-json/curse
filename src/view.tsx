@@ -4,6 +4,7 @@ import { useProcessManager } from "./process";
 import type { MarionetteConfig } from "./parser";
 import { useAltScreen } from "./hooks";
 import { ProcessManagerProvider } from "./process";
+import { useEffect } from "react";
 
 const Colors = {
 	primary: "#a855f7",
@@ -79,7 +80,8 @@ function ProcessTable() {
 
 function View(props: { config: MarionetteConfig }) {
 	const { isReady } = useAltScreen();
-	const { processes, setSelectedProcessIdx } = useProcessManager();
+	const { processes, setSelectedProcessIdx, runPendingProcesses } =
+		useProcessManager();
 
 	useInput((input, key) => {
 		if (key.downArrow || input === "j") {
@@ -88,6 +90,10 @@ function View(props: { config: MarionetteConfig }) {
 			setSelectedProcessIdx((prev) => Math.max(prev - 1, 0));
 		}
 	});
+
+	useEffect(() => {
+		runPendingProcesses();
+	}, []);
 
 	if (!isReady) {
 		return null;
