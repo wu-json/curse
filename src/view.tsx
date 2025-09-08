@@ -5,6 +5,7 @@ import { useAltScreen } from "./hooks";
 
 const Colors = {
 	primary: "#800080",
+	darkGray: "#374151",
 };
 
 type ProcessStatus = "idle" | "error" | "success";
@@ -38,7 +39,7 @@ function View(props: { config: MarionetteConfig }) {
 				<Text color={Colors.primary}>Config: </Text>
 				<Text>{props.config.name}</Text>
 			</Box>
-			<Box borderStyle="single">
+			<Box borderStyle="single" borderColor={Colors.darkGray}>
 				<Text>hi</Text>
 			</Box>
 		</Box>
