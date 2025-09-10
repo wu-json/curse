@@ -4,12 +4,12 @@ import { $ } from "bun";
 import type { MarionetteConfig } from "./parser";
 
 export enum ProcessStatus {
-	Done = "done",
 	Error = "error",
 	Idle = "idle",
 	Pending = "pending",
 	Running = "running",
 	Started = "started",
+	Success = "success",
 }
 
 export type Process = {
@@ -45,7 +45,7 @@ async function execProcess({
 
 	const result = await $`sh -c ${process.command}`.quiet();
 	updateProcess({
-		status: result.exitCode === 0 ? ProcessStatus.Done : ProcessStatus.Error,
+		status: result.exitCode === 0 ? ProcessStatus.Success : ProcessStatus.Error,
 	});
 }
 
