@@ -1,4 +1,5 @@
 import { createContext, useContext, useState } from "react";
+import { $ } from "bun";
 
 import type { MarionetteConfig } from "./parser";
 
@@ -41,7 +42,10 @@ async function execProcess({
 		return;
 	}
 
-	// TODO: finish implementing this function
+	const result = await $`${process.command}`.quiet();
+	updateProcess({
+		status: result.exitCode ? ProcessStatus.Idle : ProcessStatus.Error,
+	});
 }
 
 type ProcessManagerCtx = {
