@@ -42,7 +42,7 @@ async function execProcess({
 		return;
 	}
 
-	const result = await $`${process.command}`.quiet();
+	const result = await $`sh -c ${process.command}`.quiet();
 	updateProcess({
 		status: result.exitCode ? ProcessStatus.Idle : ProcessStatus.Error,
 	});
