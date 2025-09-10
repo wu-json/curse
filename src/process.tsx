@@ -4,11 +4,12 @@ import { $ } from "bun";
 import type { MarionetteConfig } from "./parser";
 
 export enum ProcessStatus {
-	Pending = "pending",
-	Started = "started",
-	Running = "running",
+	Complete = "complete",
 	Error = "error",
 	Idle = "idle",
+	Pending = "pending",
+	Running = "running",
+	Started = "started",
 }
 
 export type Process = {
