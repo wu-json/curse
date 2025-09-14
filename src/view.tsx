@@ -162,7 +162,35 @@ function MainPage() {
 }
 
 function LogPage() {
-	return <Text>hello</Text>;
+	const { setPage } = usePage();
+	const [showShortcuts, setShowShortcuts] = useState(false);
+
+	useInput(async (input, key) => {
+		if (key.escape) {
+			setPage(ViewPage.Main);
+		} else if (input === "?") {
+			setShowShortcuts((prev) => !prev);
+		}
+	});
+
+	return (
+		<>
+			<Box marginLeft={1} flexDirection="row">
+				{showShortcuts ? (
+					<>
+						<Box flexDirection="column" marginRight={4}>
+							<Text color={Colors.darkGray}>↑/↓ or j/k to navigate</Text>
+						</Box>
+						<Box flexDirection="column">
+							<Text color={Colors.darkGray}>esc to go back</Text>
+						</Box>
+					</>
+				) : (
+					<Text color={Colors.darkGray}>? for shortcuts</Text>
+				)}
+			</Box>
+		</>
+	);
 }
 
 function View(props: { config: MarionetteConfig }) {
