@@ -1,4 +1,4 @@
-import { Box, render, Text, useInput } from "ink";
+import { Box, render, Text, useInput, useStdout } from "ink";
 import { useEffect, useState } from "react";
 
 import { useProcessManager } from "./process";
@@ -169,6 +169,9 @@ function LogPage() {
 	const [showShortcuts, setShowShortcuts] = useState(false);
 	const { selectedProcess } = useProcessManager();
 
+	const { stdout } = useStdout();
+	const terminalHeight = stdout.rows;
+
 	useInput(async (input, key) => {
 		if (key.escape) {
 			setPage(ViewPage.Main);
@@ -216,7 +219,7 @@ function LogPage() {
 				borderStyle="single"
 				borderColor={Colors.darkGray}
 				paddingX={1}
-				height={30}
+				height={terminalHeight - 5}
 			>
 				{mockLogs.map((log, index) => (
 					<Text
