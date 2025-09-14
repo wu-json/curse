@@ -200,12 +200,13 @@ function LogPage() {
 					<Text color={Colors.teal}>]</Text>
 				</Text>
 			</Box>
-			<LogTable height={terminalHeight - 5} />
+			<LogTable height={terminalHeight - 6} />
 			<Box marginLeft={1} flexDirection="row">
 				{showShortcuts ? (
 					<>
 						<Box flexDirection="column" marginRight={4}>
 							<Text color={Colors.darkGray}>↑/↓ or j/k to navigate</Text>
+							<Text color={Colors.darkGray}>s to toggle autoscroll</Text>
 						</Box>
 						<Box flexDirection="column">
 							<Text color={Colors.darkGray}>esc to go back</Text>
@@ -255,7 +256,10 @@ function LogTable(props: { height: number }) {
 		>
 			<Box justifyContent="center" borderBottom borderColor={Colors.darkGray}>
 				<Text color={Colors.darkGray}>
-					Autoscroll:<Text color={autoScroll ? "green" : "#4b5563"}>{autoScroll ? "on" : "off"}</Text>
+					Autoscroll:
+					<Text color={autoScroll ? "green" : "#4b5563"}>
+						{autoScroll ? "on" : "off"}
+					</Text>
 				</Text>
 			</Box>
 			{logs.map((log, index) => (
