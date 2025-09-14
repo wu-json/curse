@@ -233,6 +233,12 @@ function LogTable(props: { height: number }) {
 		return () => clearInterval(interval);
 	}, []);
 
+	useInput(async (input) => {
+		if (input === "s") {
+			setAutoScroll(!autoScroll);
+		}
+	});
+
 	if (!selectedProcess) {
 		return null;
 	}
