@@ -4,6 +4,77 @@ import { spawn, type Subprocess } from "bun";
 import type { MarionetteConfig } from "./parser";
 import { ENV } from "./env";
 
+class CircularBuffer {
+	private buffer: string[];
+	private head = 0;
+	private size = 0;
+	private readonly capacity: number;
+
+	constructor(capacity: number) {
+		this.capacity = capacity;
+		this.buffer = new Array(capacity);
+	}
+
+	add(line: string): void {
+		this.buffer[this.head] = line;
+		this.head = (this.head + 1) % this.capacity;
+		if (this.size < this.capacity) {
+			this.size++;
+		}
+	}
+
+	getLines(): string[] {
+		if (this.size === 0) return [];
+
+		if (this.size < this.capacity) {
+			return this.buffer.slice(0, this.size);
+		}
+
+		return [
+			...this.buffer.slice(this.head),
+			...this.buffer.slice(0, this.head),
+		];
+	}
+
+	clear(): void {
+		this.head = 0;
+		this.size = 0;
+	}
+}
+
+async function readStreamToBuffer(
+	stream: ReadableStream<Uint8Array> | null,
+	logBuffer: CircularBuffer,
+): Promise<void> {
+	if (!stream) return;
+
+	const decoder = new TextDecoder();
+	const reader = stream.getReader();
+
+	try {
+		let buffer = "";
+		while (true) {
+			const { done, value } = await reader.read();
+			if (done) break;
+
+			buffer += decoder.decode(value, { stream: true });
+			const lines = buffer.split("\n");
+			buffer = lines.pop() || "";
+
+			for (const line of lines) {
+				if (line.trim()) {
+					logBuffer.add(line);
+				}
+			}
+		}
+		if (buffer.trim()) {
+			logBuffer.add(buffer);
+		}
+	} catch (error) {
+		logBuffer.add(`Error reading output: ${error}`);
+	}
+}
+
 export enum ProcessStatus {
 	Error = "error",
 	Pending = "pending",
@@ -20,6 +91,7 @@ export type Process = {
 	status: ProcessStatus;
 	proc?: Subprocess;
 	startedAt?: Date;
+	logBuffer: CircularBuffer;
 };
 
 type UpdateProcessFields = {
@@ -40,8 +112,17 @@ async function execProcess({
 		startedAt: new Date(),
 	});
 
-	const proc = spawn({ cmd: [ENV.SHELL, "-c", process.command] });
+	process.logBuffer.clear();
+
+	const proc = spawn({
+		cmd: [ENV.SHELL, "-c", process.command],
+		stdout: "pipe",
+		stderr: "pipe",
+	});
 	updateProcess({ status: ProcessStatus.Running, proc });
+
+	readStreamToBuffer(proc.stdout, process.logBuffer);
+	readStreamToBuffer(proc.stderr, process.logBuffer);
 
 	const result = await proc.exited;
 	updateProcess({
@@ -83,6 +164,7 @@ export function ProcessManagerProvider(props: {
 			name: p.name,
 			command: p.command,
 			status: ProcessStatus.Pending,
+			logBuffer: new CircularBuffer(500),
 		})),
 	);
 
