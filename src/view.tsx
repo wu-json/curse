@@ -12,6 +12,8 @@ const Colors = {
 	primary: "#a855f7",
 	darkGray: "#6b7280",
 	blue: "#3b82f6",
+	teal: "#4dd0a3",
+	brightPink: "#ff1493",
 };
 
 function ProcessTable() {
@@ -197,10 +199,12 @@ function LogPage() {
 		<>
 			<Box justifyContent="center">
 				<Text>
-					<Text color={Colors.darkGray}>Logs</Text>
-					<Text color={Colors.blue} bold>
-						({selectedProcess.name})
+					<Text color={Colors.teal}>Logs</Text>
+					<Text color={Colors.teal}>(</Text>
+					<Text color={Colors.brightPink} bold>
+						{selectedProcess.name}
 					</Text>
+					<Text color={Colors.teal}>)</Text>
 				</Text>
 			</Box>
 			<Box
