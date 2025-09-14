@@ -105,16 +105,15 @@ function ProcessTable() {
 	);
 }
 
-function View(props: { config: MarionetteConfig }) {
-	const { isReady } = useAltScreen();
+function Main() {
 	const {
 		processes,
 		setSelectedProcessIdx,
-		runPendingProcesses,
 		restartSelectedProcess,
 		killAllProcesses,
 		killSelectedProcess,
 	} = useProcessManager();
+	const [showShortcuts, setShowShortcuts] = useState(false);
 
 	useInput(async (input, key) => {
 		if (key.downArrow || input === "j") {
@@ -125,7 +124,44 @@ function View(props: { config: MarionetteConfig }) {
 			await restartSelectedProcess();
 		} else if (key.shift && input === "K") {
 			await killSelectedProcess();
-		} else if (input === "q" || (key.ctrl && input === "c")) {
+		} else if (input === "q") {
+			await killAllProcesses();
+			process.exit(0);
+		} else if (input === "?") {
+			setShowShortcuts((prev) => !prev);
+		}
+	});
+
+	return (
+		<>
+			<ProcessTable />
+			<Box marginLeft={1} flexDirection="row">
+				{showShortcuts ? (
+					<>
+						<Box flexDirection="column" marginRight={4}>
+							<Text color={Colors.darkGray}>↑/↓ or j/k to navigate</Text>
+							<Text color={Colors.darkGray}>l to show logs</Text>
+						</Box>
+						<Box flexDirection="column">
+							<Text color={Colors.darkGray}>shift+r to restart process</Text>
+							<Text color={Colors.darkGray}>shift+k to kill process</Text>
+							<Text color={Colors.darkGray}>q to quit</Text>
+						</Box>
+					</>
+				) : (
+					<Text color={Colors.darkGray}>? for shortcuts</Text>
+				)}
+			</Box>
+		</>
+	);
+}
+
+function View(props: { config: MarionetteConfig }) {
+	const { isReady } = useAltScreen();
+	const { runPendingProcesses, killAllProcesses } = useProcessManager();
+
+	useInput(async (input, key) => {
+		if (key.ctrl && input === "c") {
 			await killAllProcesses();
 			process.exit(0);
 		}
@@ -151,36 +187,7 @@ function View(props: { config: MarionetteConfig }) {
 				<Text color={Colors.primary}>Config: </Text>
 				<Text>{props.config.name}</Text>
 			</Box>
-			<ProcessTable />
-			<ShortcutDictionary />
-		</Box>
-	);
-}
-
-function ShortcutDictionary() {
-	const [showShortcuts, setShowShortcuts] = useState(false);
-	useInput(async (input) => {
-		if (input === "?") {
-			setShowShortcuts((prev) => !prev);
-		}
-	});
-	return (
-		<Box marginLeft={1} flexDirection="row">
-			{showShortcuts ? (
-				<>
-					<Box flexDirection="column" marginRight={4}>
-						<Text color={Colors.darkGray}>↑/↓ or j/k to navigate</Text>
-						<Text color={Colors.darkGray}>l to show logs</Text>
-					</Box>
-					<Box flexDirection="column">
-						<Text color={Colors.darkGray}>shift+r to restart process</Text>
-						<Text color={Colors.darkGray}>shift+k to kill process</Text>
-						<Text color={Colors.darkGray}>q to quit</Text>
-					</Box>
-				</>
-			) : (
-				<Text color={Colors.darkGray}>? for shortcuts</Text>
-			)}
+			<Main />
 		</Box>
 	);
 }
