@@ -85,10 +85,12 @@ function ProcessTable() {
 											);
 											if (ageInSeconds >= 3600) {
 												const hours = Math.floor(ageInSeconds / 3600);
-												return `${hours}h`;
+												const minutes = Math.floor((ageInSeconds % 3600) / 60);
+												return `${hours}h${minutes}m`;
 											} else if (ageInSeconds >= 60) {
 												const minutes = Math.floor(ageInSeconds / 60);
-												return `${minutes}m`;
+												const seconds = ageInSeconds % 60;
+												return `${minutes}m${seconds}s`;
 											} else {
 												return `${ageInSeconds}s`;
 											}
