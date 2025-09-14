@@ -218,21 +218,14 @@ function LogPage() {
 	);
 }
 
-function LogTable(props: { height?: number }) {
-	const mockLogs = [
-		"[2024-09-14 10:15:32] INFO: Process started successfully",
-		"[2024-09-14 10:15:33] INFO: Loading configuration...",
-		"[2024-09-14 10:15:33] INFO: Configuration loaded from config.json",
-		"[2024-09-14 10:15:34] INFO: Initializing database connection",
-		"[2024-09-14 10:15:34] INFO: Database connection established",
-		"[2024-09-14 10:15:35] INFO: Starting HTTP server on port 3000",
-		"[2024-09-14 10:15:35] INFO: Server is ready to accept connections",
-		"[2024-09-14 10:15:40] INFO: Received GET request for /api/health",
-		"[2024-09-14 10:15:40] INFO: Health check passed",
-		"[2024-09-14 10:15:42] WARN: High memory usage detected (85%)",
-		"[2024-09-14 10:15:45] INFO: Garbage collection completed",
-		"[2024-09-14 10:15:50] INFO: Received POST request for /api/users",
-	];
+function LogTable(props: { height: number }) {
+	const { selectedProcess } = useProcessManager();
+	if (!selectedProcess) {
+		return null;
+	}
+
+	const logs = selectedProcess.logBuffer.getRecentLines(props.height - 2);
+
 	return (
 		<Box
 			flexDirection="column"
@@ -241,8 +234,8 @@ function LogTable(props: { height?: number }) {
 			paddingX={1}
 			height={props.height}
 		>
-			{mockLogs.map((log, index) => (
-				<Text key={index} color={log.includes("WARN") ? "yellow" : Colors.blue}>
+			{logs.map((log, index) => (
+				<Text key={index} color={log.includes("stderr") ? "red" : Colors.blue}>
 					{log}
 				</Text>
 			))}
