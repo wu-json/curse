@@ -6,6 +6,7 @@ import type { MarionetteConfig } from "./parser";
 import { useAltScreen } from "./hooks";
 import { ProcessManagerProvider } from "./process";
 import { version } from "./version";
+import { usePage, PageProvider, ViewPage } from "./usePage";
 
 const Colors = {
 	primary: "#a855f7",
@@ -105,11 +106,6 @@ function ProcessTable() {
 	);
 }
 
-enum ViewPage {
-	Main = "main",
-	Logs = "logs",
-}
-
 function MainPage() {
 	const {
 		processes,
@@ -168,7 +164,7 @@ function LogPage() {
 function View(props: { config: MarionetteConfig }) {
 	const { isReady } = useAltScreen();
 	const { runPendingProcesses, killAllProcesses } = useProcessManager();
-	const [page, setPage] = useState(ViewPage.Main);
+	const { page } = usePage();
 
 	useInput(async (input, key) => {
 		if (key.ctrl && input === "c") {
@@ -209,7 +205,6 @@ function View(props: { config: MarionetteConfig }) {
 						return null;
 				}
 			})()}
-			<MainPage />
 		</Box>
 	);
 }
@@ -217,7 +212,9 @@ function View(props: { config: MarionetteConfig }) {
 export function renderView(config: MarionetteConfig) {
 	render(
 		<ProcessManagerProvider config={config}>
-			<View config={config} />
+			<PageProvider>
+				<View config={config} />
+			</PageProvider>
 		</ProcessManagerProvider>,
 		{ exitOnCtrlC: false },
 	);
