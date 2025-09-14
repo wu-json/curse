@@ -222,6 +222,7 @@ function LogPage() {
 function LogTable(props: { height: number }) {
 	const { selectedProcess } = useProcessManager();
 	const [, forceUpdate] = useState(0);
+	const [autoScroll, setAutoScroll] = useState(true);
 
 	// Force re-render every second to update logs
 	useEffect(() => {
@@ -246,8 +247,16 @@ function LogTable(props: { height: number }) {
 			paddingX={1}
 			height={props.height}
 		>
+			<Box justifyContent="center" borderBottom borderColor={Colors.darkGray}>
+				<Text color={Colors.darkGray}>
+					Autoscroll:{autoScroll ? "on" : "off"}
+				</Text>
+			</Box>
 			{logs.map((log, index) => (
-				<Text key={index} color={log.includes("stderr") ? "red" : Colors.lightBlue}>
+				<Text
+					key={index}
+					color={log.includes("stderr") ? "red" : Colors.lightBlue}
+				>
 					{log}
 				</Text>
 			))}
