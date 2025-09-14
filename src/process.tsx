@@ -36,6 +36,29 @@ class CircularBuffer {
 		];
 	}
 
+	getRecentLines(count: number): string[] {
+		if (count <= 0 || this.size === 0) return [];
+
+		const linesToReturn = Math.min(count, this.size);
+
+		if (this.size < this.capacity) {
+			const startIndex = Math.max(0, this.size - linesToReturn);
+			return this.buffer.slice(startIndex, this.size);
+		}
+
+		const tailPosition = (this.head - 1 + this.capacity) % this.capacity;
+		const startPosition = (tailPosition - linesToReturn + 1 + this.capacity) % this.capacity;
+
+		if (startPosition <= tailPosition) {
+			return this.buffer.slice(startPosition, tailPosition + 1);
+		}
+
+		return [
+			...this.buffer.slice(startPosition),
+			...this.buffer.slice(0, tailPosition + 1),
+		];
+	}
+
 	clear(): void {
 		this.head = 0;
 		this.size = 0;
