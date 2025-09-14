@@ -1,8 +1,102 @@
-import { createContext, useContext, useState } from "react";
+import { createContext, useContext, useMemo, useState } from "react";
 import { spawn, type Subprocess } from "bun";
 
 import type { MarionetteConfig } from "./parser";
 import { ENV } from "./env";
+
+class CircularBuffer {
+	private buffer: string[];
+	private head = 0;
+	private size = 0;
+	private readonly capacity: number;
+
+	constructor(capacity: number) {
+		this.capacity = capacity;
+		this.buffer = new Array(capacity);
+	}
+
+	add(line: string): void {
+		this.buffer[this.head] = line;
+		this.head = (this.head + 1) % this.capacity;
+		if (this.size < this.capacity) {
+			this.size++;
+		}
+	}
+
+	getLines(): string[] {
+		if (this.size === 0) return [];
+
+		if (this.size < this.capacity) {
+			return this.buffer.slice(0, this.size);
+		}
+
+		return [
+			...this.buffer.slice(this.head),
+			...this.buffer.slice(0, this.head),
+		];
+	}
+
+	getRecentLines(count: number): string[] {
+		if (count <= 0 || this.size === 0) return [];
+
+		const linesToReturn = Math.min(count, this.size);
+
+		if (this.size < this.capacity) {
+			const startIndex = Math.max(0, this.size - linesToReturn);
+			return this.buffer.slice(startIndex, this.size);
+		}
+
+		const tailPosition = (this.head - 1 + this.capacity) % this.capacity;
+		const startPosition = (tailPosition - linesToReturn + 1 + this.capacity) % this.capacity;
+
+		if (startPosition <= tailPosition) {
+			return this.buffer.slice(startPosition, tailPosition + 1);
+		}
+
+		return [
+			...this.buffer.slice(startPosition),
+			...this.buffer.slice(0, tailPosition + 1),
+		];
+	}
+
+	clear(): void {
+		this.head = 0;
+		this.size = 0;
+	}
+}
+
+async function readStreamToBuffer(
+	stream: ReadableStream<Uint8Array> | null,
+	logBuffer: CircularBuffer,
+): Promise<void> {
+	if (!stream) return;
+
+	const decoder = new TextDecoder();
+	const reader = stream.getReader();
+
+	try {
+		let buffer = "";
+		while (true) {
+			const { done, value } = await reader.read();
+			if (done) break;
+
+			buffer += decoder.decode(value, { stream: true });
+			const lines = buffer.split("\n");
+			buffer = lines.pop() || "";
+
+			for (const line of lines) {
+				if (line.trim()) {
+					logBuffer.add(line);
+				}
+			}
+		}
+		if (buffer.trim()) {
+			logBuffer.add(buffer);
+		}
+	} catch (error) {
+		logBuffer.add(`Error reading output: ${error}`);
+	}
+}
 
 export enum ProcessStatus {
 	Error = "error",
@@ -20,6 +114,7 @@ export type Process = {
 	status: ProcessStatus;
 	proc?: Subprocess;
 	startedAt?: Date;
+	logBuffer: CircularBuffer;
 };
 
 type UpdateProcessFields = {
@@ -40,8 +135,17 @@ async function execProcess({
 		startedAt: new Date(),
 	});
 
-	const proc = spawn({ cmd: [ENV.SHELL, "-c", process.command] });
+	process.logBuffer.clear();
+
+	const proc = spawn({
+		cmd: [ENV.SHELL, "-c", process.command],
+		stdout: "pipe",
+		stderr: "pipe",
+	});
 	updateProcess({ status: ProcessStatus.Running, proc });
+
+	readStreamToBuffer(proc.stdout, process.logBuffer);
+	readStreamToBuffer(proc.stderr, process.logBuffer);
 
 	const result = await proc.exited;
 	updateProcess({
@@ -51,6 +155,7 @@ async function execProcess({
 
 type ProcessManagerCtx = {
 	processes: Process[];
+	selectedProcess: Process | null;
 	selectedProcessIdx: number;
 	setProcesses: React.Dispatch<React.SetStateAction<Process[]>>;
 	setSelectedProcessIdx: React.Dispatch<React.SetStateAction<number>>;
@@ -62,6 +167,7 @@ type ProcessManagerCtx = {
 
 const ProcessManagerCtx = createContext<ProcessManagerCtx>({
 	processes: [],
+	selectedProcess: null,
 	selectedProcessIdx: 0,
 	setProcesses: () => {},
 	setSelectedProcessIdx: () => {},
@@ -81,8 +187,16 @@ export function ProcessManagerProvider(props: {
 			name: p.name,
 			command: p.command,
 			status: ProcessStatus.Pending,
+			logBuffer: new CircularBuffer(500),
 		})),
 	);
+
+	const selectedProcess = useMemo(() => {
+		if (processes.length === 0) {
+			return null;
+		}
+		return processes[selectedProcessIdx] ?? null;
+	}, [processes, selectedProcessIdx]);
 
 	const updateProcess = (processIdx: number, fields: UpdateProcessFields) => {
 		setProcesses((prev) =>
@@ -153,6 +267,7 @@ export function ProcessManagerProvider(props: {
 		<ProcessManagerCtx.Provider
 			value={{
 				processes,
+				selectedProcess,
 				selectedProcessIdx,
 				setProcesses,
 				setSelectedProcessIdx,

@@ -1,4 +1,4 @@
-import { Box, render, Text, useInput } from "ink";
+import { Box, render, Text, useInput, useStdout } from "ink";
 import { useEffect, useState } from "react";
 
 import { useProcessManager } from "./process";
@@ -6,11 +6,16 @@ import type { MarionetteConfig } from "./parser";
 import { useAltScreen } from "./hooks";
 import { ProcessManagerProvider } from "./process";
 import { version } from "./version";
+import { usePage, PageProvider, ViewPage } from "./usePage";
 
 const Colors = {
 	primary: "#a855f7",
 	darkGray: "#6b7280",
 	blue: "#3b82f6",
+	lightBlue: "#60a5fa",
+	teal: "#4dd0a3",
+	brightTeal: "#5ee8b8",
+	brightPink: "#ff1493",
 };
 
 function ProcessTable() {
@@ -105,16 +110,17 @@ function ProcessTable() {
 	);
 }
 
-function View(props: { config: MarionetteConfig }) {
-	const { isReady } = useAltScreen();
+function MainPage() {
 	const {
 		processes,
 		setSelectedProcessIdx,
-		runPendingProcesses,
 		restartSelectedProcess,
 		killAllProcesses,
 		killSelectedProcess,
 	} = useProcessManager();
+
+	const { setPage } = usePage();
+	const [showShortcuts, setShowShortcuts] = useState(false);
 
 	useInput(async (input, key) => {
 		if (key.downArrow || input === "j") {
@@ -125,7 +131,137 @@ function View(props: { config: MarionetteConfig }) {
 			await restartSelectedProcess();
 		} else if (key.shift && input === "K") {
 			await killSelectedProcess();
-		} else if (input === "q" || (key.ctrl && input === "c")) {
+		} else if (input === "q") {
+			await killAllProcesses();
+			process.exit(0);
+		} else if (input === "?") {
+			setShowShortcuts((prev) => !prev);
+		} else if (input === "l") {
+			setPage(ViewPage.Logs);
+		}
+	});
+
+	return (
+		<>
+			<ProcessTable />
+			<Box marginLeft={1} flexDirection="row">
+				{showShortcuts ? (
+					<>
+						<Box flexDirection="column" marginRight={4}>
+							<Text color={Colors.darkGray}>↑/↓ or j/k to navigate</Text>
+							<Text color={Colors.darkGray}>l to show logs</Text>
+						</Box>
+						<Box flexDirection="column">
+							<Text color={Colors.darkGray}>shift+r to restart process</Text>
+							<Text color={Colors.darkGray}>shift+k to kill process</Text>
+							<Text color={Colors.darkGray}>q to quit</Text>
+						</Box>
+					</>
+				) : (
+					<Text color={Colors.darkGray}>? for shortcuts</Text>
+				)}
+			</Box>
+		</>
+	);
+}
+
+function LogPage() {
+	const { setPage } = usePage();
+	const [showShortcuts, setShowShortcuts] = useState(false);
+	const { selectedProcess } = useProcessManager();
+
+	const { stdout } = useStdout();
+	const terminalHeight = stdout.rows;
+
+	useInput(async (input, key) => {
+		if (key.escape) {
+			setPage(ViewPage.Main);
+		} else if (input === "?") {
+			setShowShortcuts((prev) => !prev);
+		}
+	});
+
+	if (!selectedProcess) {
+		return null;
+	}
+
+	return (
+		<>
+			<Box justifyContent="center">
+				<Text>
+					<Text color={Colors.teal}>Logs</Text>
+					<Text color={Colors.teal}>(</Text>
+					<Text color={Colors.brightPink} bold>
+						{selectedProcess.name}
+					</Text>
+					<Text color={Colors.teal}>)</Text>
+					<Text color={Colors.teal}>[</Text>
+					<Text color={Colors.brightTeal}>tail</Text>
+					<Text color={Colors.teal}>]</Text>
+				</Text>
+			</Box>
+			<LogTable height={terminalHeight - 5} />
+			<Box marginLeft={1} flexDirection="row">
+				{showShortcuts ? (
+					<>
+						<Box flexDirection="column" marginRight={4}>
+							<Text color={Colors.darkGray}>↑/↓ or j/k to navigate</Text>
+						</Box>
+						<Box flexDirection="column">
+							<Text color={Colors.darkGray}>esc to go back</Text>
+						</Box>
+					</>
+				) : (
+					<Text color={Colors.darkGray}>? for shortcuts</Text>
+				)}
+			</Box>
+		</>
+	);
+}
+
+function LogTable(props: { height: number }) {
+	const { selectedProcess } = useProcessManager();
+	const [, forceUpdate] = useState(0);
+
+	// Force re-render every second to update logs
+	useEffect(() => {
+		const interval = setInterval(() => {
+			forceUpdate((prev) => prev + 1);
+		}, 1000);
+
+		return () => clearInterval(interval);
+	}, []);
+
+	if (!selectedProcess) {
+		return null;
+	}
+
+	const logs = selectedProcess.logBuffer.getRecentLines(props.height - 2);
+
+	return (
+		<Box
+			flexDirection="column"
+			borderStyle="single"
+			borderColor={Colors.darkGray}
+			paddingX={1}
+			height={props.height}
+		>
+			{logs.map((log, index) => (
+				<Text key={index} color={log.includes("stderr") ? "red" : Colors.lightBlue}>
+					{log}
+				</Text>
+			))}
+		</Box>
+	);
+}
+
+function View(props: { config: MarionetteConfig }) {
+	const { isReady } = useAltScreen();
+	const { runPendingProcesses, killAllProcesses } = useProcessManager();
+	const { page } = usePage();
+
+	useInput(async (input, key) => {
+		if (key.ctrl && input === "c") {
 			await killAllProcesses();
 			process.exit(0);
 		}
@@ -151,18 +287,18 @@ function View(props: { config: MarionetteConfig }) {
 				<Text color={Colors.primary}>Config: </Text>
 				<Text>{props.config.name}</Text>
 			</Box>
-			<ProcessTable />
-			<Box marginTop={1} marginLeft={1} flexDirection="row">
-				<Box flexDirection="column" marginRight={4}>
-					<Text color={Colors.darkGray}>↑/↓ or j/k to navigate</Text>
-					<Text color={Colors.darkGray}>l for logs</Text>
-				</Box>
-				<Box flexDirection="column">
-					<Text color={Colors.darkGray}>shift+r to restart process</Text>
-					<Text color={Colors.darkGray}>shift+k to kill process</Text>
-					<Text color={Colors.darkGray}>q to quit</Text>
-				</Box>
-			</Box>
+			{(() => {
+				switch (page) {
+					case ViewPage.Main: {
+						return <MainPage />;
+					}
+					case ViewPage.Logs: {
+						return <LogPage />;
+					}
+					default:
+						return null;
+				}
+			})()}
 		</Box>
 	);
 }
@@ -170,7 +306,9 @@ function View(props: { config: MarionetteConfig }) {
 export function renderView(config: MarionetteConfig) {
 	render(
 		<ProcessManagerProvider config={config}>
-			<View config={config} />
+			<PageProvider>
+				<View config={config} />
+			</PageProvider>
 		</ProcessManagerProvider>,
 		{ exitOnCtrlC: false },
 	);
