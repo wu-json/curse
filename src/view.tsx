@@ -164,6 +164,7 @@ function MainPage() {
 function LogPage() {
 	const { setPage } = usePage();
 	const [showShortcuts, setShowShortcuts] = useState(false);
+	const { selectedProcess } = useProcessManager();
 
 	useInput(async (input, key) => {
 		if (key.escape) {
@@ -172,6 +173,10 @@ function LogPage() {
 			setShowShortcuts((prev) => !prev);
 		}
 	});
+
+	if (!selectedProcess) {
+		return null;
+	}
 
 	return (
 		<>

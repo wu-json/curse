@@ -1,4 +1,4 @@
-import { createContext, useContext, useState } from "react";
+import { createContext, useContext, useMemo, useState } from "react";
 import { spawn, type Subprocess } from "bun";
 
 import type { MarionetteConfig } from "./parser";
@@ -51,6 +51,7 @@ async function execProcess({
 
 type ProcessManagerCtx = {
 	processes: Process[];
+	selectedProcess: Process | null;
 	selectedProcessIdx: number;
 	setProcesses: React.Dispatch<React.SetStateAction<Process[]>>;
 	setSelectedProcessIdx: React.Dispatch<React.SetStateAction<number>>;
@@ -62,6 +63,7 @@ type ProcessManagerCtx = {
 
 const ProcessManagerCtx = createContext<ProcessManagerCtx>({
 	processes: [],
+	selectedProcess: null,
 	selectedProcessIdx: 0,
 	setProcesses: () => {},
 	setSelectedProcessIdx: () => {},
@@ -83,6 +85,13 @@ export function ProcessManagerProvider(props: {
 			status: ProcessStatus.Pending,
 		})),
 	);
+
+	const selectedProcess = useMemo(() => {
+		if (processes.length === 0) {
+			return null;
+		}
+		return processes[selectedProcessIdx] ?? null;
+	}, [processes, selectedProcessIdx]);
 
 	const updateProcess = (processIdx: number, fields: UpdateProcessFields) => {
 		setProcesses((prev) =>
@@ -153,6 +162,7 @@ export function ProcessManagerProvider(props: {
 		<ProcessManagerCtx.Provider
 			value={{
 				processes,
+				selectedProcess,
 				selectedProcessIdx,
 				setProcesses,
 				setSelectedProcessIdx,
