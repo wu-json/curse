@@ -105,7 +105,7 @@ function ProcessTable() {
 	);
 }
 
-function Main() {
+function MainPage() {
 	const {
 		processes,
 		setSelectedProcessIdx,
@@ -187,7 +187,7 @@ function View(props: { config: MarionetteConfig }) {
 				<Text color={Colors.primary}>Config: </Text>
 				<Text>{props.config.name}</Text>
 			</Box>
-			<Main />
+			<MainPage />
 		</Box>
 	);
 }
