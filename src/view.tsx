@@ -13,6 +13,7 @@ const Colors = {
 	darkGray: "#6b7280",
 	blue: "#3b82f6",
 	teal: "#4dd0a3",
+	brightTeal: "#5ee8b8",
 	brightPink: "#ff1493",
 };
 
@@ -205,6 +206,9 @@ function LogPage() {
 						{selectedProcess.name}
 					</Text>
 					<Text color={Colors.teal}>)</Text>
+					<Text color={Colors.teal}>[</Text>
+					<Text color={Colors.brightTeal}>tail</Text>
+					<Text color={Colors.teal}>]</Text>
 				</Text>
 			</Box>
 			<Box
