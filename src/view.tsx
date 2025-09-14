@@ -266,6 +266,7 @@ function LogTable(props: { height: number }) {
 				<Text
 					key={index}
 					color={log.includes("stderr") ? "red" : Colors.lightBlue}
+					wrap="truncate"
 				>
 					{log}
 				</Text>
