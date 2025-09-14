@@ -255,7 +255,7 @@ function LogTable(props: { height: number }) {
 		>
 			<Box justifyContent="center" borderBottom borderColor={Colors.darkGray}>
 				<Text color={Colors.darkGray}>
-					Autoscroll:{autoScroll ? "on" : "off"}
+					Autoscroll:<Text color={autoScroll ? "green" : "#4b5563"}>{autoScroll ? "on" : "off"}</Text>
 				</Text>
 			</Box>
 			{logs.map((log, index) => (
