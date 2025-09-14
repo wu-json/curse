@@ -155,7 +155,7 @@ function View(props: { config: MarionetteConfig }) {
 			<Box marginTop={1} marginLeft={1} flexDirection="row">
 				<Box flexDirection="column" marginRight={4}>
 					<Text color={Colors.darkGray}>↑/↓ or j/k to navigate</Text>
-					<Text color={Colors.darkGray}>l for logs</Text>
+					<Text color={Colors.darkGray}>l to show logs</Text>
 				</Box>
 				<Box flexDirection="column">
 					<Text color={Colors.darkGray}>shift+r to restart process</Text>
