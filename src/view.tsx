@@ -107,7 +107,6 @@ function ProcessTable() {
 
 function View(props: { config: MarionetteConfig }) {
 	const { isReady } = useAltScreen();
-	const [showShortcuts, setShowShortcuts] = useState(false);
 	const {
 		processes,
 		setSelectedProcessIdx,
@@ -122,8 +121,6 @@ function View(props: { config: MarionetteConfig }) {
 			setSelectedProcessIdx((prev) => Math.min(prev + 1, processes.length - 1));
 		} else if (key.upArrow || input === "k") {
 			setSelectedProcessIdx((prev) => Math.max(prev - 1, 0));
-		} else if (input === "?") {
-			setShowShortcuts((prev) => !prev);
 		} else if (key.shift && input === "R") {
 			await restartSelectedProcess();
 		} else if (key.shift && input === "K") {
@@ -155,23 +152,35 @@ function View(props: { config: MarionetteConfig }) {
 				<Text>{props.config.name}</Text>
 			</Box>
 			<ProcessTable />
-			<Box marginLeft={1} flexDirection="row">
-				{showShortcuts ? (
-					<>
-						<Box flexDirection="column" marginRight={4}>
-							<Text color={Colors.darkGray}>↑/↓ or j/k to navigate</Text>
-							<Text color={Colors.darkGray}>l to show logs</Text>
-						</Box>
-						<Box flexDirection="column">
-							<Text color={Colors.darkGray}>shift+r to restart process</Text>
-							<Text color={Colors.darkGray}>shift+k to kill process</Text>
-							<Text color={Colors.darkGray}>q to quit</Text>
-						</Box>
-					</>
-				) : (
-					<Text color={Colors.darkGray}>? for shortcuts</Text>
-				)}
-			</Box>
+			<ShortcutDictionary />
+		</Box>
+	);
+}
+
+function ShortcutDictionary() {
+	const [showShortcuts, setShowShortcuts] = useState(false);
+	useInput(async (input) => {
+		if (input === "?") {
+			setShowShortcuts((prev) => !prev);
+		}
+	});
+	return (
+		<Box marginLeft={1} flexDirection="row">
+			{showShortcuts ? (
+				<>
+					<Box flexDirection="column" marginRight={4}>
+						<Text color={Colors.darkGray}>↑/↓ or j/k to navigate</Text>
+						<Text color={Colors.darkGray}>l to show logs</Text>
+					</Box>
+					<Box flexDirection="column">
+						<Text color={Colors.darkGray}>shift+r to restart process</Text>
+						<Text color={Colors.darkGray}>shift+k to kill process</Text>
+						<Text color={Colors.darkGray}>q to quit</Text>
+					</Box>
+				</>
+			) : (
+				<Text color={Colors.darkGray}>? for shortcuts</Text>
+			)}
 		</Box>
 	);
 }
