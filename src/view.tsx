@@ -195,30 +195,26 @@ function LogPage() {
 
 	return (
 		<>
-			<Box flexDirection="column" marginBottom={1}>
-				<Box
-					flexDirection="row"
-					paddingX={1}
-					paddingY={0}
-					borderStyle="single"
-					borderColor={Colors.primary}
-				>
-					<Text color={Colors.primary} bold>
-						Process Logs - {selectedProcess.name}
+			<Box justifyContent="center">
+				<Text>
+					<Text color={Colors.darkGray}>Logs</Text>
+					<Text color={Colors.blue} bold>
+						({selectedProcess.name})
 					</Text>
-				</Box>
+				</Text>
 			</Box>
-
 			<Box
 				flexDirection="column"
 				borderStyle="single"
 				borderColor={Colors.darkGray}
 				paddingX={1}
-				paddingY={1}
-				height={15}
+				height={30}
 			>
 				{mockLogs.map((log, index) => (
-					<Text key={index} color={log.includes("WARN") ? "yellow" : Colors.blue}>
+					<Text
+						key={index}
+						color={log.includes("WARN") ? "yellow" : Colors.blue}
+					>
 						{log}
 					</Text>
 				))}
