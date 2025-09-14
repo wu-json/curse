@@ -18,4 +18,4 @@ command = "echo nutz"
 
 [[process]]
 name = "dummy timer process"
-command = "for i in {1..30}; do echo \"Message $i from dummy process\"; sleep 2; done"
+command = "while true; sleep 3; echo \"hello\"; end"

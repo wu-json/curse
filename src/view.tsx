@@ -107,15 +107,26 @@ function ProcessTable() {
 
 function View(props: { config: MarionetteConfig }) {
 	const { isReady } = useAltScreen();
-	const { processes, setSelectedProcessIdx, runPendingProcesses } =
-		useProcessManager();
+	const {
+		processes,
+		setSelectedProcessIdx,
+		runPendingProcesses,
+		restartSelectedProcess,
+		killAllProcesses,
+		killSelectedProcess,
+	} = useProcessManager();
 
-	useInput((input, key) => {
+	useInput(async (input, key) => {
 		if (key.downArrow || input === "j") {
 			setSelectedProcessIdx((prev) => Math.min(prev + 1, processes.length - 1));
 		} else if (key.upArrow || input === "k") {
 			setSelectedProcessIdx((prev) => Math.max(prev - 1, 0));
-		} else if (input === "q") {
+		} else if (key.shift && input === "R") {
+			await restartSelectedProcess();
+		} else if (key.shift && input === "K") {
+			await killSelectedProcess();
+		} else if (input === "q" || (key.ctrl && input === "c")) {
+			await killAllProcesses();
 			process.exit(0);
 		}
 	});
@@ -147,7 +158,8 @@ function View(props: { config: MarionetteConfig }) {
 					<Text color={Colors.darkGray}>l for logs</Text>
 				</Box>
 				<Box flexDirection="column">
-					<Text color={Colors.darkGray}>r to restart process</Text>
+					<Text color={Colors.darkGray}>shift+r to restart process</Text>
+					<Text color={Colors.darkGray}>shift+k to kill process</Text>
 					<Text color={Colors.darkGray}>q to quit</Text>
 				</Box>
 			</Box>
@@ -160,5 +172,6 @@ export function renderView(config: MarionetteConfig) {
 		<ProcessManagerProvider config={config}>
 			<View config={config} />
 		</ProcessManagerProvider>,
+		{ exitOnCtrlC: false },
 	);
 }

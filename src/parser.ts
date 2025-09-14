@@ -18,5 +18,13 @@ export async function parseMarionetteConfig(
 	if (result instanceof type.errors) {
 		throw new Error("Failed to parse marionette config");
 	}
+
+	const processNames = result.process.map(p => p.name);
+	const uniqueNames = new Set(processNames);
+	if (processNames.length !== uniqueNames.size) {
+		const duplicates = processNames.filter((name, index) => processNames.indexOf(name) !== index);
+		throw new Error(`Duplicate process names found: ${[...new Set(duplicates)].join(", ")}`);
+	}
+
 	return result;
 }
