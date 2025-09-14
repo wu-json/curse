@@ -105,6 +105,11 @@ function ProcessTable() {
 	);
 }
 
+enum ViewPage {
+	Main = "main",
+	Logs = "logs",
+}
+
 function MainPage() {
 	const {
 		processes,
@@ -156,9 +161,14 @@ function MainPage() {
 	);
 }
 
+function LogPage() {
+	return <Text>hello</Text>;
+}
+
 function View(props: { config: MarionetteConfig }) {
 	const { isReady } = useAltScreen();
 	const { runPendingProcesses, killAllProcesses } = useProcessManager();
+	const [page, setPage] = useState(ViewPage.Main);
 
 	useInput(async (input, key) => {
 		if (key.ctrl && input === "c") {
@@ -187,6 +197,18 @@ function View(props: { config: MarionetteConfig }) {
 				<Text color={Colors.primary}>Config: </Text>
 				<Text>{props.config.name}</Text>
 			</Box>
+			{(() => {
+				switch (page) {
+					case ViewPage.Main: {
+						return <MainPage />;
+					}
+					case ViewPage.Logs: {
+						return <LogPage />;
+					}
+					default:
+						return null;
+				}
+			})()}
 			<MainPage />
 		</Box>
 	);
