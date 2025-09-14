@@ -220,6 +220,17 @@ function LogPage() {
 
 function LogTable(props: { height: number }) {
 	const { selectedProcess } = useProcessManager();
+	const [, forceUpdate] = useState(0);
+
+	// Force re-render every second to update log display
+	useEffect(() => {
+		const interval = setInterval(() => {
+			forceUpdate((prev) => prev + 1);
+		}, 1000);
+
+		return () => clearInterval(interval);
+	}, []);
+
 	if (!selectedProcess) {
 		return null;
 	}
