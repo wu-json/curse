@@ -114,6 +114,8 @@ function MainPage() {
 		killAllProcesses,
 		killSelectedProcess,
 	} = useProcessManager();
+
+	const { setPage } = usePage();
 	const [showShortcuts, setShowShortcuts] = useState(false);
 
 	useInput(async (input, key) => {
@@ -130,6 +132,8 @@ function MainPage() {
 			process.exit(0);
 		} else if (input === "?") {
 			setShowShortcuts((prev) => !prev);
+		} else if (input === "l") {
+			setPage(ViewPage.Logs);
 		}
 	});
 
