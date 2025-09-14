@@ -227,8 +227,7 @@ function LogPage() {
 					</Text>
 				))}
 			</Box>
-
-			<Box marginLeft={1} marginTop={1} flexDirection="row">
+			<Box marginLeft={1} flexDirection="row">
 				{showShortcuts ? (
 					<>
 						<Box flexDirection="column" marginRight={4}>
