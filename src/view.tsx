@@ -1,10 +1,10 @@
 import { Box, render, Text, useInput } from "ink";
+import { useEffect, useState } from "react";
 
 import { useProcessManager } from "./process";
 import type { MarionetteConfig } from "./parser";
 import { useAltScreen } from "./hooks";
 import { ProcessManagerProvider } from "./process";
-import { useEffect } from "react";
 import { version } from "./version";
 
 const Colors = {
@@ -15,6 +15,17 @@ const Colors = {
 
 function ProcessTable() {
 	const { processes, selectedProcessIdx } = useProcessManager();
+	const [, forceUpdate] = useState(0);
+
+	// Force re-render every second to update age display
+	useEffect(() => {
+		const interval = setInterval(() => {
+			forceUpdate((prev) => prev + 1);
+		}, 1000);
+
+		return () => clearInterval(interval);
+	}, []);
+
 	return (
 		<Box
 			flexDirection="column"
