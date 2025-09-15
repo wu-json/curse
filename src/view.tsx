@@ -307,7 +307,7 @@ function LogTable(props: { height: number }) {
 						{autoScroll ? "on" : "off"}
 					</Text>
 					{positionLost && (
-						<Text color="yellow"> (position lost, returned to tail)</Text>
+						<Text color="#fbbf24"> (position lost, returned to tail)</Text>
 					)}
 				</Text>
 			</Box>
