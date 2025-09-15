@@ -11,6 +11,7 @@ function LogTable(props: { height: number }) {
 	const [autoScroll, setAutoScroll] = useState(true);
 	const [viewStartLine, setViewStartLine] = useState(0);
 	const [positionLost, setPositionLost] = useState(false);
+	const [cursorIndex, setCursorIndex] = useState(0);
 
 	// Force re-render every second to update logs and check position validity
 	useEffect(() => {
@@ -21,40 +22,12 @@ function LogTable(props: { height: number }) {
 		return () => clearInterval(interval);
 	}, []);
 
-	const linesPerPage = props.height - 3;
+	// Reset cursor when switching modes or when logs change significantly
+	useEffect(() => {
+		setCursorIndex(0);
+	}, [autoScroll, viewStartLine]);
 
-	useInput(async (input, key) => {
-		if (input === "s") {
-			if (autoScroll && selectedProcess) {
-				const oldestLine =
-					selectedProcess.logBuffer.getOldestAvailableLineNumber();
-				const currentBufferSize = selectedProcess.logBuffer.getTotalLines();
-				const absoluteStartLine =
-					oldestLine + Math.max(0, currentBufferSize - linesPerPage);
-				setViewStartLine(absoluteStartLine);
-			}
-			setAutoScroll(!autoScroll);
-			if (positionLost) {
-				setPositionLost(false);
-			}
-		} else if (!autoScroll) {
-			if (key.upArrow || input === "k") {
-				if (selectedProcess) {
-					const oldestLine =
-						selectedProcess.logBuffer.getOldestAvailableLineNumber();
-					setViewStartLine((prev) => Math.max(oldestLine, prev - 1));
-				}
-			} else if (key.downArrow || input === "j") {
-				if (selectedProcess) {
-					const newestLine =
-						selectedProcess.logBuffer.getOldestAvailableLineNumber() +
-						selectedProcess.logBuffer.getTotalLines();
-					const maxStartLine = newestLine - linesPerPage;
-					setViewStartLine((prev) => Math.min(maxStartLine, prev + 1));
-				}
-			}
-		}
-	});
+	const linesPerPage = props.height - 3;
 
 	if (!selectedProcess) {
 		return null;
@@ -76,6 +49,64 @@ function LogTable(props: { height: number }) {
 		}
 	}
 
+	useInput(async (input, key) => {
+		if (input === "s") {
+			if (autoScroll && selectedProcess) {
+				const oldestLine =
+					selectedProcess.logBuffer.getOldestAvailableLineNumber();
+				const currentBufferSize = selectedProcess.logBuffer.getTotalLines();
+				const absoluteStartLine =
+					oldestLine + Math.max(0, currentBufferSize - linesPerPage);
+				setViewStartLine(absoluteStartLine);
+			}
+			setAutoScroll(!autoScroll);
+			if (positionLost) {
+				setPositionLost(false);
+			}
+			setCursorIndex(0);
+		} else if (key.upArrow || input === "k") {
+			if (autoScroll) {
+				// In autoscroll mode, move cursor up within visible lines
+				setCursorIndex((prev) => Math.max(0, prev - 1));
+			} else {
+				// In manual scroll mode, move cursor or scroll if at edge
+				if (cursorIndex > 0) {
+					setCursorIndex((prev) => prev - 1);
+				} else if (selectedProcess) {
+					// Cursor is at top, scroll up
+					const oldestLine =
+						selectedProcess.logBuffer.getOldestAvailableLineNumber();
+					const newViewStart = Math.max(oldestLine, viewStartLine - 1);
+					if (newViewStart !== viewStartLine) {
+						setViewStartLine(newViewStart);
+					}
+				}
+			}
+		} else if (key.downArrow || input === "j") {
+			if (autoScroll) {
+				// In autoscroll mode, move cursor down within visible lines
+				const maxCursor = Math.min(linesPerPage - 1, logs.length - 1);
+				setCursorIndex((prev) => Math.min(maxCursor, prev + 1));
+			} else {
+				// In manual scroll mode, move cursor or scroll if at edge
+				const maxCursor = Math.min(linesPerPage - 1, logs.length - 1);
+				if (cursorIndex < maxCursor) {
+					setCursorIndex((prev) => prev + 1);
+				} else if (selectedProcess) {
+					// Cursor is at bottom, scroll down
+					const newestLine =
+						selectedProcess.logBuffer.getOldestAvailableLineNumber() +
+						selectedProcess.logBuffer.getTotalLines();
+					const maxStartLine = newestLine - linesPerPage;
+					const newViewStart = Math.min(maxStartLine, viewStartLine + 1);
+					if (newViewStart !== viewStartLine) {
+						setViewStartLine(newViewStart);
+					}
+				}
+			}
+		}
+	});
+
 	return (
 		<Box
 			flexDirection="column"
@@ -95,15 +126,29 @@ function LogTable(props: { height: number }) {
 					)}
 				</Text>
 			</Box>
-			{logs.map((log, index) => (
-				<Text
-					key={index}
-					color={log.includes("stderr") ? "red" : Colors.lightBlue}
-					wrap="truncate"
-				>
-					{log}
-				</Text>
-			))}
+			{logs.map((log, index) => {
+				const isSelected = index === cursorIndex;
+				return (
+					<Box
+						key={index}
+						backgroundColor={isSelected ? Colors.blue : undefined}
+					>
+						<Text
+							color={
+								isSelected
+									? "white"
+									: log.includes("stderr")
+										? "red"
+										: Colors.lightBlue
+							}
+							bold={isSelected}
+							wrap="truncate"
+						>
+							{log}
+						</Text>
+					</Box>
+				);
+			})}
 		</Box>
 	);
 }
