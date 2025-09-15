@@ -103,40 +103,33 @@ function LogTable(props: { height: number }) {
 			currentAbsoluteLine,
 		);
 
-		const selectedLines = [];
-		for (let line = selectionStart; line <= selectionEnd; line++) {
-			const logLine = selectedProcess.logBuffer.getLineByAbsolutePosition(line);
-			if (logLine) {
-				selectedLines.push(logLine);
-			}
-		}
+		const selectionCount = selectionEnd - selectionStart + 1;
+		const selectedLines = selectedProcess.logBuffer.getLinesByAbsolutePosition(
+			selectionStart,
+			selectionCount,
+		);
 
 		return selectedLines.join("\n");
 	};
 
-	// Helper function to copy text to clipboard and show indicator
 	const copyToClipboard = async (text: string, indicatorText: string) => {
 		try {
 			await $`echo ${text} | pbcopy`;
 			showCopyFeedback(indicatorText);
 		} catch (error) {
-			// Fallback for non-macOS systems
 			try {
+				// Fallback for non-macOS systems
 				await $`echo ${text} | xclip -selection clipboard`;
 				showCopyFeedback(indicatorText);
 			} catch {
-				// If both fail, we can't copy to clipboard
-				showCopyFeedback("Copy failed");
+				showCopyFeedback("copy failed");
 			}
 		}
 	};
 
-	// Helper function to show copy feedback temporarily
 	const showCopyFeedback = (message: string) => {
 		setCopyIndicatorText(message);
 		setShowCopyIndicator(true);
-
-		// Hide after 3 seconds
 		setTimeout(() => {
 			setShowCopyIndicator(false);
 		}, 3_000);
