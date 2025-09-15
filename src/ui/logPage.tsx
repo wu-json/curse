@@ -6,7 +6,7 @@ import { useProcessManager } from "./useProcessManager";
 import { Colors } from "./colors";
 
 function LogTable(props: { height: number }) {
-	const { selectedProcess } = useProcessManager();
+	const { selectedProcess, killAllProcesses } = useProcessManager();
 	const [, forceUpdate] = useState(0);
 	const [autoScroll, setAutoScroll] = useState(true);
 	const [viewStartLine, setViewStartLine] = useState(0);
@@ -106,6 +106,11 @@ function LogTable(props: { height: number }) {
 		if (/^[0-9]$/.test(input)) {
 			setNumberPrefix((prev) => prev + input);
 			return;
+		}
+
+		if (input === "q") {
+			await killAllProcesses();
+			process.exit(0);
 		}
 
 		// Handle select mode toggle
