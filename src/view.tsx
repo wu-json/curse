@@ -227,7 +227,7 @@ function LogTable(props: { height: number }) {
 	const [viewStartLine, setViewStartLine] = useState(0);
 	const [positionLost, setPositionLost] = useState(false);
 
-	// Force re-render every second to update logs
+	// Force re-render every second to update logs and check position validity
 	useEffect(() => {
 		const interval = setInterval(() => {
 			forceUpdate((prev) => prev + 1);
@@ -236,21 +236,34 @@ function LogTable(props: { height: number }) {
 		return () => clearInterval(interval);
 	}, []);
 
+
 	const linesPerPage = props.height - 3;
 
 	useInput(async (input, key) => {
 		if (input === "s") {
 			if (autoScroll && selectedProcess) {
-				const totalLines = selectedProcess.logBuffer.getTotalLines();
-				setViewStartLine(Math.max(0, totalLines - linesPerPage));
+				const oldestLine =
+					selectedProcess.logBuffer.getOldestAvailableLineNumber();
+				const currentBufferSize = selectedProcess.logBuffer.getTotalLines();
+				const absoluteStartLine =
+					oldestLine + Math.max(0, currentBufferSize - linesPerPage);
+				setViewStartLine(absoluteStartLine);
 			}
 			setAutoScroll(!autoScroll);
+			// Don't clear positionLost flag - let it persist as status indicator
 		} else if (!autoScroll) {
 			if (key.upArrow || input === "k") {
-				setViewStartLine((prev) => Math.max(0, prev - 1));
+				if (selectedProcess) {
+					const oldestLine =
+						selectedProcess.logBuffer.getOldestAvailableLineNumber();
+					setViewStartLine((prev) => Math.max(oldestLine, prev - 1));
+				}
 			} else if (key.downArrow || input === "j") {
 				if (selectedProcess) {
-					const maxStartLine = selectedProcess.logBuffer.getTotalLines() - linesPerPage;
+					const newestLine =
+						selectedProcess.logBuffer.getOldestAvailableLineNumber() +
+						selectedProcess.logBuffer.getTotalLines();
+					const maxStartLine = newestLine - linesPerPage;
 					setViewStartLine((prev) => Math.min(maxStartLine, prev + 1));
 				}
 			}
@@ -261,22 +274,23 @@ function LogTable(props: { height: number }) {
 		return null;
 	}
 
-	useEffect(() => {
-		if (
-			!autoScroll &&
-			selectedProcess &&
-			!selectedProcess.logBuffer.isPositionValid(viewStartLine)
-		) {
+	// Check position validity and get logs
+	let logs: string[];
+	if (autoScroll) {
+		logs = selectedProcess.logBuffer.getRecentLines(linesPerPage);
+	} else {
+		// Check if position is still valid
+		if (!selectedProcess.logBuffer.isPositionValid(viewStartLine)) {
 			setPositionLost(true);
 			setAutoScroll(true);
-		} else if (!autoScroll) {
-			setPositionLost(false);
+			logs = selectedProcess.logBuffer.getRecentLines(linesPerPage);
+		} else {
+			logs = selectedProcess.logBuffer.getLinesByAbsolutePosition(
+				viewStartLine,
+				linesPerPage,
+			);
 		}
-	}, [autoScroll, viewStartLine, selectedProcess]);
-
-	const logs = autoScroll
-		? selectedProcess.logBuffer.getRecentLines(linesPerPage)
-		: selectedProcess.logBuffer.getLinesByAbsolutePosition(viewStartLine, linesPerPage);
+	}
 
 	return (
 		<Box
