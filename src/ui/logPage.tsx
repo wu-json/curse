@@ -13,6 +13,7 @@ function LogTable(props: { height: number }) {
 	const [positionLost, setPositionLost] = useState(false);
 	const [cursorIndex, setCursorIndex] = useState(0);
 	const [numberPrefix, setNumberPrefix] = useState("");
+	const [waitingForSecondG, setWaitingForSecondG] = useState(false);
 
 	// Force re-render every second to update logs and check position validity
 	useEffect(() => {
@@ -53,7 +54,53 @@ function LogTable(props: { height: number }) {
 		}
 
 		// Get the repeat count from number prefix (default to 1)
-		const repeatCount = numberPrefix ? Math.max(1, parseInt(numberPrefix, 10)) : 1;
+		const repeatCount = numberPrefix
+			? Math.max(1, parseInt(numberPrefix, 10))
+			: 1;
+
+		// Handle 'g' sequence for vim-style navigation
+		if (input === "g") {
+			if (waitingForSecondG) {
+				// This is 'gg' - jump to beginning
+				if (selectedProcess) {
+					const oldestLine =
+						selectedProcess.logBuffer.getOldestAvailableLineNumber();
+					setViewStartLine(oldestLine);
+					setCursorIndex(0);
+					setAutoScroll(false);
+				}
+				setWaitingForSecondG(false);
+				setNumberPrefix("");
+			} else {
+				// First 'g' - wait for second 'g'
+				setWaitingForSecondG(true);
+			}
+			return;
+		} else if (key.shift && input === "G") {
+			// Shift+G - jump to end
+			if (selectedProcess) {
+				const newestLine =
+					selectedProcess.logBuffer.getOldestAvailableLineNumber() +
+					selectedProcess.logBuffer.getTotalLines();
+				const maxStartLine = Math.max(0, newestLine - linesPerPage);
+				setViewStartLine(maxStartLine);
+				setCursorIndex(
+					Math.min(
+						linesPerPage - 1,
+						selectedProcess.logBuffer.getTotalLines() - 1,
+					),
+				);
+				setAutoScroll(true); // Jump to end enables autoscroll
+			}
+			setWaitingForSecondG(false);
+			setNumberPrefix("");
+			return;
+		}
+
+		// Clear waiting state if any other key is pressed
+		if (waitingForSecondG) {
+			setWaitingForSecondG(false);
+		}
 
 		if (input === "s") {
 			if (autoScroll && selectedProcess) {
@@ -128,7 +175,10 @@ function LogTable(props: { height: number }) {
 							selectedProcess.logBuffer.getOldestAvailableLineNumber() +
 							selectedProcess.logBuffer.getTotalLines();
 						const maxStartLine = newestLine - linesPerPage;
-						const possibleNewViewStart = Math.min(maxStartLine, newViewStart + 1);
+						const possibleNewViewStart = Math.min(
+							maxStartLine,
+							newViewStart + 1,
+						);
 						if (possibleNewViewStart !== newViewStart) {
 							newViewStart = possibleNewViewStart;
 							remainingMoves--;
@@ -173,6 +223,7 @@ function LogTable(props: { height: number }) {
 					{numberPrefix && (
 						<Text color={Colors.brightPink}> [{numberPrefix}]</Text>
 					)}
+					{waitingForSecondG && <Text color={Colors.brightTeal}> [g]</Text>}
 				</Text>
 			</Box>
 			{logs.map((log, index) => {
@@ -237,16 +288,20 @@ export function LogPage() {
 					<Text color={Colors.teal}>]</Text>
 				</Text>
 			</Box>
-			<LogTable height={terminalHeight - 6} />
+			<LogTable height={terminalHeight - 7} />
 			<Box marginLeft={1} flexDirection="row">
 				{showShortcuts ? (
 					<>
 						<Box flexDirection="column" marginRight={4}>
 							<Text color={Colors.darkGray}>↑/↓ or j/k to navigate</Text>
-							<Text color={Colors.darkGray}>[number]j/k for multi-line moves</Text>
+							<Text color={Colors.darkGray}>
+								[number]↑/↓ or j/k for multi-line moves
+							</Text>
 							<Text color={Colors.darkGray}>s to toggle autoscroll</Text>
 						</Box>
 						<Box flexDirection="column">
+							<Text color={Colors.darkGray}>gg to jump to beginning</Text>
+							<Text color={Colors.darkGray}>shift+g to jump to end</Text>
 							<Text color={Colors.darkGray}>esc to go back</Text>
 						</Box>
 					</>
