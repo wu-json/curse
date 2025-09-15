@@ -117,7 +117,7 @@ function LogTable(props: { height: number }) {
 			}
 			setNumberPrefix("");
 			return;
-		} else if ((key.backspace || key.delete) && isSelectMode) {
+		} else if (key.escape && isSelectMode) {
 			// Exit select mode with backspace
 			setIsSelectMode(false);
 			setSelectionStartAbsoluteLine(0); // Clear selection
@@ -345,7 +345,7 @@ export function LogPage() {
 	const terminalHeight = stdout.rows;
 
 	useInput(async (input, key) => {
-		if (key.escape) {
+		if (key.backspace) {
 			setPage(ViewPage.Main);
 		} else if (input === "?") {
 			setShowShortcuts((prev) => !prev);
@@ -386,8 +386,8 @@ export function LogPage() {
 						<Box flexDirection="column">
 							<Text color={Colors.darkGray}>gg to jump to beginning</Text>
 							<Text color={Colors.darkGray}>shift+g to jump to end</Text>
-							<Text color={Colors.darkGray}>backspace to exit select mode</Text>
-							<Text color={Colors.darkGray}>esc to go back</Text>
+							<Text color={Colors.darkGray}>backspace to go back</Text>
+							<Text color={Colors.darkGray}>esc to exit select mode</Text>
 						</Box>
 					</>
 				) : (
