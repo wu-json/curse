@@ -1,5 +1,6 @@
 import { createContext, useContext, useMemo, useState } from "react";
 import { spawn, type Subprocess } from "bun";
+import MiniSearch from "minisearch";
 
 import type { MarionetteConfig } from "../parser";
 import { ENV } from "../env";
@@ -8,17 +9,44 @@ class LogBuffer {
 	private lines: string[] = [];
 	private readonly maxSize: number;
 	private totalLinesAdded = 0;
+	private searchIndex: MiniSearch<{
+		id: number;
+		text: string;
+		lineNumber: number;
+	}>;
+	private nextId = 0;
 
 	constructor(maxSize: number) {
 		this.maxSize = maxSize;
+		this.searchIndex = new MiniSearch({
+			fields: ["text"],
+			storeFields: ["text", "lineNumber"],
+			idField: "id",
+		});
 	}
 
 	add(line: string): void {
 		this.lines.push(line);
 		this.totalLinesAdded++;
 
+		// Add to search index
+		const doc = {
+			id: this.nextId++,
+			text: line,
+			lineNumber: this.totalLinesAdded - 1,
+		};
+		this.searchIndex.add(doc);
+
 		if (this.lines.length > this.maxSize) {
 			this.lines.shift();
+			// Remove oldest entry from search index
+			const oldestLineNumber = this.getOldestAvailableLineNumber();
+			const docsToRemove = this.searchIndex.search("*", {
+				filter: (result) => result.lineNumber < oldestLineNumber,
+			});
+			for (const doc of docsToRemove) {
+				this.searchIndex.discard(doc.id);
+			}
 		}
 	}
 
@@ -89,6 +117,27 @@ class LogBuffer {
 
 	clear(): void {
 		this.lines = [];
+		this.searchIndex.removeAll();
+		this.nextId = 0;
+		this.totalLinesAdded = 0;
+	}
+
+	search(
+		query: string,
+	): Array<{ text: string; lineNumber: number; score: number }> {
+		if (!query.trim()) {
+			return [];
+		}
+
+		const results = this.searchIndex.search(query, {
+			fuzzy: 0.2,
+		});
+
+		return results.map((result) => ({
+			text: result.text,
+			lineNumber: result.lineNumber,
+			score: result.score,
+		}));
 	}
 }
 
