@@ -14,6 +14,9 @@ function LogTable(props: { height: number }) {
 	const [cursorIndex, setCursorIndex] = useState(0);
 	const [numberPrefix, setNumberPrefix] = useState("");
 	const [waitingForSecondG, setWaitingForSecondG] = useState(false);
+	const [isSelectMode, setIsSelectMode] = useState(false);
+	const [selectionStartAbsoluteLine, setSelectionStartAbsoluteLine] =
+		useState(0);
 
 	// Force re-render every second to update logs and check position validity
 	useEffect(() => {
@@ -29,6 +32,58 @@ function LogTable(props: { height: number }) {
 	if (!selectedProcess) {
 		return null;
 	}
+
+	// Helper function to get the absolute line number for the current cursor position
+	const getCurrentAbsoluteLine = () => {
+		if (!selectedProcess) return 0;
+
+		if (autoScroll) {
+			const oldestLine =
+				selectedProcess.logBuffer.getOldestAvailableLineNumber();
+			const totalLines = selectedProcess.logBuffer.getTotalLines();
+			const viewStart = oldestLine + Math.max(0, totalLines - linesPerPage);
+			return viewStart + cursorIndex;
+		} else {
+			return viewStartLine + cursorIndex;
+		}
+	};
+
+	// Helper function to get the absolute line number for a given view index
+	const getAbsoluteLineForIndex = (index: number) => {
+		if (!selectedProcess) return 0;
+
+		if (autoScroll) {
+			const oldestLine =
+				selectedProcess.logBuffer.getOldestAvailableLineNumber();
+			const totalLines = selectedProcess.logBuffer.getTotalLines();
+			const viewStart = oldestLine + Math.max(0, totalLines - linesPerPage);
+			return viewStart + index;
+		} else {
+			return viewStartLine + index;
+		}
+	};
+
+	// Helper function to check if a line at given view index is selected
+	const isLineSelected = (index: number) => {
+		if (!isSelectMode) return false;
+
+		const currentAbsoluteLine = getCurrentAbsoluteLine();
+		const lineAbsolutePosition = getAbsoluteLineForIndex(index);
+
+		const selectionStart = Math.min(
+			selectionStartAbsoluteLine,
+			currentAbsoluteLine,
+		);
+		const selectionEnd = Math.max(
+			selectionStartAbsoluteLine,
+			currentAbsoluteLine,
+		);
+
+		return (
+			lineAbsolutePosition >= selectionStart &&
+			lineAbsolutePosition <= selectionEnd
+		);
+	};
 
 	let logs: string[];
 	if (autoScroll) {
@@ -50,6 +105,24 @@ function LogTable(props: { height: number }) {
 		// Handle number input for vim-style prefixes
 		if (/^[0-9]$/.test(input)) {
 			setNumberPrefix((prev) => prev + input);
+			return;
+		}
+
+		// Handle select mode toggle
+		if (input === "v" && !waitingForSecondG) {
+			if (!isSelectMode) {
+				// Enter select mode - record current position
+				setIsSelectMode(true);
+				setSelectionStartAbsoluteLine(getCurrentAbsoluteLine());
+			}
+			setNumberPrefix("");
+			return;
+		} else if ((key.backspace || key.delete) && isSelectMode) {
+			// Exit select mode with backspace
+			setIsSelectMode(false);
+			setSelectionStartAbsoluteLine(0); // Clear selection
+			setNumberPrefix("");
+			setWaitingForSecondG(false);
 			return;
 		}
 
@@ -224,24 +297,34 @@ function LogTable(props: { height: number }) {
 						<Text color={Colors.brightPink}> [{numberPrefix}]</Text>
 					)}
 					{waitingForSecondG && <Text color={Colors.brightTeal}> [g]</Text>}
+					{isSelectMode && <Text color="#fbbf24"> [SELECT]</Text>}
 				</Text>
 			</Box>
 			{logs.map((log, index) => {
-				const isSelected = index === cursorIndex;
+				const isCursor = index === cursorIndex;
+				const isSelected = isLineSelected(index);
+
+				// Determine background color: cursor takes priority, then selection
+				let backgroundColor;
+				if (isCursor) {
+					backgroundColor = Colors.blue; // Cursor color
+				} else if (isSelected) {
+					backgroundColor = "#374151"; // Gray-700 for selection
+				}
+
 				return (
-					<Box
-						key={index}
-						backgroundColor={isSelected ? Colors.blue : undefined}
-					>
+					<Box key={index} backgroundColor={backgroundColor}>
 						<Text
 							color={
-								isSelected
+								isCursor
 									? "white"
-									: log.includes("stderr")
-										? "red"
-										: Colors.lightBlue
+									: isSelected
+										? Colors.lightBlue
+										: log.includes("stderr")
+											? "red"
+											: Colors.lightBlue
 							}
-							bold={isSelected}
+							bold={isCursor}
 							wrap="truncate"
 						>
 							{log}
@@ -298,10 +381,12 @@ export function LogPage() {
 								[number]↑/↓ or j/k for multi-line moves
 							</Text>
 							<Text color={Colors.darkGray}>s to toggle autoscroll</Text>
+							<Text color={Colors.darkGray}>v to enter select mode</Text>
 						</Box>
 						<Box flexDirection="column">
 							<Text color={Colors.darkGray}>gg to jump to beginning</Text>
 							<Text color={Colors.darkGray}>shift+g to jump to end</Text>
+							<Text color={Colors.darkGray}>backspace to exit select mode</Text>
 							<Text color={Colors.darkGray}>esc to go back</Text>
 						</Box>
 					</>
