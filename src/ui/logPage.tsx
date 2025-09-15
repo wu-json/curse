@@ -22,11 +22,6 @@ function LogTable(props: { height: number }) {
 		return () => clearInterval(interval);
 	}, []);
 
-	// Reset cursor when switching modes or when logs change significantly
-	useEffect(() => {
-		setCursorIndex(0);
-	}, [autoScroll, viewStartLine]);
-
 	const linesPerPage = props.height - 3;
 
 	if (!selectedProcess) {
@@ -63,7 +58,6 @@ function LogTable(props: { height: number }) {
 			if (positionLost) {
 				setPositionLost(false);
 			}
-			setCursorIndex(0);
 		} else if (key.upArrow || input === "k") {
 			if (autoScroll) {
 				// In autoscroll mode, move cursor up within visible lines
