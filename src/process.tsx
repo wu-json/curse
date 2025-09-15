@@ -7,6 +7,7 @@ import { ENV } from "./env";
 class LogBuffer {
 	private lines: string[] = [];
 	private readonly maxSize: number;
+	private totalLinesAdded = 0;
 
 	constructor(maxSize: number) {
 		this.maxSize = maxSize;
@@ -14,6 +15,8 @@ class LogBuffer {
 
 	add(line: string): void {
 		this.lines.push(line);
+		this.totalLinesAdded++;
+
 		if (this.lines.length > this.maxSize) {
 			this.lines.shift();
 		}
@@ -38,6 +41,28 @@ class LogBuffer {
 		const startIndex = Math.max(0, endIndex - count);
 
 		return this.lines.slice(startIndex, endIndex);
+	}
+
+	getLinesByAbsolutePosition(startLine: number, count: number): string[] {
+		if (count <= 0 || this.lines.length === 0 || startLine >= this.lines.length) return [];
+
+		const endLine = Math.min(startLine + count, this.lines.length);
+		const actualStart = Math.max(0, startLine);
+
+		return this.lines.slice(actualStart, endLine);
+	}
+
+	getOldestAvailableLineNumber(): number {
+		return this.totalLinesAdded - this.lines.length;
+	}
+
+	isPositionValid(absolutePosition: number): boolean {
+		const oldestLine = this.getOldestAvailableLineNumber();
+		return absolutePosition >= oldestLine && absolutePosition < this.totalLinesAdded;
+	}
+
+	getCurrentEndPosition(): number {
+		return this.lines.length;
 	}
 
 	getTotalLines(): number {
@@ -171,7 +196,7 @@ export function ProcessManagerProvider(props: {
 			name: p.name,
 			command: p.command,
 			status: ProcessStatus.Pending,
-			logBuffer: new LogBuffer(500),
+			logBuffer: new LogBuffer(10000),
 		})),
 	);
 

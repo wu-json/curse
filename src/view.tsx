@@ -224,7 +224,8 @@ function LogTable(props: { height: number }) {
 	const { selectedProcess } = useProcessManager();
 	const [, forceUpdate] = useState(0);
 	const [autoScroll, setAutoScroll] = useState(true);
-	const [scrollOffset, setScrollOffset] = useState(0);
+	const [viewStartLine, setViewStartLine] = useState(0);
+	const [positionLost, setPositionLost] = useState(false);
 
 	// Force re-render every second to update logs
 	useEffect(() => {
@@ -237,18 +238,21 @@ function LogTable(props: { height: number }) {
 
 	useInput(async (input, key) => {
 		if (input === "s") {
-			setAutoScroll(!autoScroll);
-			if (!autoScroll) {
-				setScrollOffset(0);
+			if (autoScroll && selectedProcess) {
+				const totalLines = selectedProcess.logBuffer.getTotalLines();
+				const linesPerPage = props.height - 3;
+				setViewStartLine(Math.max(0, totalLines - linesPerPage));
 			}
+			setAutoScroll(!autoScroll);
 		} else if (!autoScroll) {
 			if (key.upArrow || input === "k") {
-				const maxOffset = selectedProcess
-					? selectedProcess.logBuffer.getTotalLines() - (props.height - 3)
-					: 0;
-				setScrollOffset((prev) => Math.min(maxOffset, prev + 1));
+				setViewStartLine((prev) => Math.max(0, prev - 1));
 			} else if (key.downArrow || input === "j") {
-				setScrollOffset((prev) => Math.max(0, prev - 1));
+				if (selectedProcess) {
+					const maxStartLine =
+						selectedProcess.logBuffer.getTotalLines() - (props.height - 3);
+					setViewStartLine((prev) => Math.min(maxStartLine, prev + 1));
+				}
 			}
 		}
 	});
@@ -257,9 +261,25 @@ function LogTable(props: { height: number }) {
 		return null;
 	}
 
+	useEffect(() => {
+		if (
+			!autoScroll &&
+			selectedProcess &&
+			!selectedProcess.logBuffer.isPositionValid(viewStartLine)
+		) {
+			setPositionLost(true);
+			setAutoScroll(true);
+		} else if (!autoScroll) {
+			setPositionLost(false);
+		}
+	}, [autoScroll, viewStartLine, selectedProcess]);
+
 	const logs = autoScroll
 		? selectedProcess.logBuffer.getRecentLines(props.height - 3)
-		: selectedProcess.logBuffer.getLinesFromEnd(scrollOffset, props.height - 3);
+		: selectedProcess.logBuffer.getLinesByAbsolutePosition(
+				viewStartLine,
+				props.height - 3,
+			);
 
 	return (
 		<Box
@@ -275,6 +295,9 @@ function LogTable(props: { height: number }) {
 					<Text color={autoScroll ? "green" : "#4b5563"}>
 						{autoScroll ? "on" : "off"}
 					</Text>
+					{positionLost && (
+						<Text color="yellow"> (position lost, returned to tail)</Text>
+					)}
 				</Text>
 			</Box>
 			{logs.map((log, index) => (
