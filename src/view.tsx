@@ -236,7 +236,6 @@ function LogTable(props: { height: number }) {
 		return () => clearInterval(interval);
 	}, []);
 
-
 	const linesPerPage = props.height - 3;
 
 	useInput(async (input, key) => {
@@ -250,7 +249,9 @@ function LogTable(props: { height: number }) {
 				setViewStartLine(absoluteStartLine);
 			}
 			setAutoScroll(!autoScroll);
-			// Don't clear positionLost flag - let it persist as status indicator
+			if (positionLost) {
+				setPositionLost(false);
+			}
 		} else if (!autoScroll) {
 			if (key.upArrow || input === "k") {
 				if (selectedProcess) {

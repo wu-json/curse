@@ -43,14 +43,20 @@ class LogBuffer {
 		return this.lines.slice(startIndex, endIndex);
 	}
 
-	getLinesByAbsolutePosition(absoluteStartLine: number, count: number): string[] {
+	getLinesByAbsolutePosition(
+		absoluteStartLine: number,
+		count: number,
+	): string[] {
 		if (count <= 0 || this.lines.length === 0) return [];
 
 		const oldestLine = this.getOldestAvailableLineNumber();
 		const newestLine = this.totalLinesAdded - 1;
 
 		// Check if the requested range is available
-		if (absoluteStartLine > newestLine || absoluteStartLine + count <= oldestLine) {
+		if (
+			absoluteStartLine > newestLine ||
+			absoluteStartLine + count <= oldestLine
+		) {
 			return [];
 		}
 
@@ -208,7 +214,7 @@ export function ProcessManagerProvider(props: {
 			name: p.name,
 			command: p.command,
 			status: ProcessStatus.Pending,
-			logBuffer: new LogBuffer(100),
+			logBuffer: new LogBuffer(10_000),
 		})),
 	);
 
