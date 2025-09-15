@@ -275,12 +275,10 @@ function LogTable(props: { height: number }) {
 		return null;
 	}
 
-	// Check position validity and get logs
 	let logs: string[];
 	if (autoScroll) {
 		logs = selectedProcess.logBuffer.getRecentLines(linesPerPage);
 	} else {
-		// Check if position is still valid
 		if (!selectedProcess.logBuffer.isPositionValid(viewStartLine)) {
 			setPositionLost(true);
 			setAutoScroll(true);
