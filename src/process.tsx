@@ -44,7 +44,8 @@ class LogBuffer {
 	}
 
 	getLinesByAbsolutePosition(startLine: number, count: number): string[] {
-		if (count <= 0 || this.lines.length === 0 || startLine >= this.lines.length) return [];
+		if (count <= 0 || this.lines.length === 0 || startLine >= this.lines.length)
+			return [];
 
 		const endLine = Math.min(startLine + count, this.lines.length);
 		const actualStart = Math.max(0, startLine);
@@ -58,7 +59,9 @@ class LogBuffer {
 
 	isPositionValid(absolutePosition: number): boolean {
 		const oldestLine = this.getOldestAvailableLineNumber();
-		return absolutePosition >= oldestLine && absolutePosition < this.totalLinesAdded;
+		return (
+			absolutePosition >= oldestLine && absolutePosition < this.totalLinesAdded
+		);
 	}
 
 	getCurrentEndPosition(): number {
@@ -196,7 +199,7 @@ export function ProcessManagerProvider(props: {
 			name: p.name,
 			command: p.command,
 			status: ProcessStatus.Pending,
-			logBuffer: new LogBuffer(10000),
+			logBuffer: new LogBuffer(50),
 		})),
 	);
 

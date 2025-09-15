@@ -236,11 +236,12 @@ function LogTable(props: { height: number }) {
 		return () => clearInterval(interval);
 	}, []);
 
+	const linesPerPage = props.height - 3;
+
 	useInput(async (input, key) => {
 		if (input === "s") {
 			if (autoScroll && selectedProcess) {
 				const totalLines = selectedProcess.logBuffer.getTotalLines();
-				const linesPerPage = props.height - 3;
 				setViewStartLine(Math.max(0, totalLines - linesPerPage));
 			}
 			setAutoScroll(!autoScroll);
@@ -249,8 +250,7 @@ function LogTable(props: { height: number }) {
 				setViewStartLine((prev) => Math.max(0, prev - 1));
 			} else if (key.downArrow || input === "j") {
 				if (selectedProcess) {
-					const maxStartLine =
-						selectedProcess.logBuffer.getTotalLines() - (props.height - 3);
+					const maxStartLine = selectedProcess.logBuffer.getTotalLines() - linesPerPage;
 					setViewStartLine((prev) => Math.min(maxStartLine, prev + 1));
 				}
 			}
@@ -275,11 +275,8 @@ function LogTable(props: { height: number }) {
 	}, [autoScroll, viewStartLine, selectedProcess]);
 
 	const logs = autoScroll
-		? selectedProcess.logBuffer.getRecentLines(props.height - 3)
-		: selectedProcess.logBuffer.getLinesByAbsolutePosition(
-				viewStartLine,
-				props.height - 3,
-			);
+		? selectedProcess.logBuffer.getRecentLines(linesPerPage)
+		: selectedProcess.logBuffer.getLinesByAbsolutePosition(viewStartLine, linesPerPage);
 
 	return (
 		<Box
