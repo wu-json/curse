@@ -214,7 +214,7 @@ export function ProcessManagerProvider(props: {
 			name: p.name,
 			command: p.command,
 			status: ProcessStatus.Pending,
-			logBuffer: new LogBuffer(ENV.LOG_BUFFER_SIZE),
+			logBuffer: new LogBuffer(ENV.LOG_BUFFER_SIZE ?? 10_000),
 		})),
 	);
 
