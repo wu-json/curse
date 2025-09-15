@@ -1,8 +1,8 @@
 import { createContext, useContext, useMemo, useState } from "react";
 import { spawn, type Subprocess } from "bun";
 
-import type { MarionetteConfig } from "./parser";
-import { ENV } from "./env";
+import type { MarionetteConfig } from "../parser";
+import { ENV } from "../env";
 
 class LogBuffer {
 	private lines: string[] = [];
