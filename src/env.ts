@@ -1,10 +1,10 @@
 import { type } from "arktype";
 
 const envSchema = type({
-	LOG_BUFFER_SIZE: [
-		"number",
+	"LOG_BUFFER_SIZE?": [
+		"string",
 		"=>",
-		(logBufferSize: number) => logBufferSize ?? 10_000,
+		(logBufferSize) => Number(logBufferSize) ?? 10_000,
 	],
 	SHELL: ["string", "=>", (shell: string) => shell ?? "/bin/sh"],
 });
