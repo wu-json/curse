@@ -371,7 +371,7 @@ export function LogPage() {
 					<Text color={Colors.teal}>]</Text>
 				</Text>
 			</Box>
-			<LogTable height={terminalHeight - 7} />
+			<LogTable height={terminalHeight - 8} />
 			<Box marginLeft={1} flexDirection="row">
 				{showShortcuts ? (
 					<>
