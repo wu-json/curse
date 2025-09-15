@@ -224,6 +224,7 @@ function LogTable(props: { height: number }) {
 	const { selectedProcess } = useProcessManager();
 	const [, forceUpdate] = useState(0);
 	const [autoScroll, setAutoScroll] = useState(true);
+	const [scrollOffset, setScrollOffset] = useState(0);
 
 	// Force re-render every second to update logs
 	useEffect(() => {
@@ -234,9 +235,21 @@ function LogTable(props: { height: number }) {
 		return () => clearInterval(interval);
 	}, []);
 
-	useInput(async (input) => {
+	useInput(async (input, key) => {
 		if (input === "s") {
 			setAutoScroll(!autoScroll);
+			if (!autoScroll) {
+				setScrollOffset(0);
+			}
+		} else if (!autoScroll) {
+			if (key.upArrow || input === "k") {
+				const maxOffset = selectedProcess
+					? selectedProcess.logBuffer.getTotalLines() - (props.height - 3)
+					: 0;
+				setScrollOffset((prev) => Math.min(maxOffset, prev + 1));
+			} else if (key.downArrow || input === "j") {
+				setScrollOffset((prev) => Math.max(0, prev - 1));
+			}
 		}
 	});
 
@@ -244,7 +257,9 @@ function LogTable(props: { height: number }) {
 		return null;
 	}
 
-	const logs = selectedProcess.logBuffer.getRecentLines(props.height - 2);
+	const logs = autoScroll
+		? selectedProcess.logBuffer.getRecentLines(props.height - 3)
+		: selectedProcess.logBuffer.getLinesFromEnd(scrollOffset, props.height - 3);
 
 	return (
 		<Box
