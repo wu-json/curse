@@ -89,7 +89,6 @@ function LogTable(props: { height: number }) {
 		);
 	};
 
-	// Helper function to get all selected lines text
 	const getSelectedLinesText = () => {
 		if (!selectedProcess) return "";
 
