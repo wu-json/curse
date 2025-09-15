@@ -2,7 +2,7 @@ import { cli, define } from "gunshi";
 import { resolve } from "path";
 
 import { parseMarionetteConfig } from "./parser";
-import { renderView } from "./view";
+import { renderView } from "./ui/view";
 
 function makeMarionettePath(rawPath: string): string {
 	if (rawPath.startsWith("/")) {

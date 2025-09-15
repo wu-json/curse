@@ -1,12 +1,12 @@
 import { Box, render, Text, useInput, useStdout } from "ink";
 import { useEffect, useState } from "react";
 
-import type { MarionetteConfig } from "./parser";
+import type { MarionetteConfig } from "../parser";
 import { ProcessManagerProvider } from "./useProcessManager";
-import { useAltScreen } from "./hooks";
+import { useAltScreen } from "./useAltScreen";
 import { usePage, PageProvider, ViewPage } from "./usePage";
 import { useProcessManager } from "./useProcessManager";
-import { version } from "./version";
+import { version } from "../version";
 
 const Colors = {
 	primary: "#a855f7",
