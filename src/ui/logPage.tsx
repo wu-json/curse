@@ -1,5 +1,6 @@
 import { Box, Text, useInput, useStdout } from "ink";
 import { useEffect, useState } from "react";
+import { $ } from "bun";
 
 import { usePage, ViewPage } from "./usePage";
 import { useProcessManager } from "./useProcessManager";
@@ -18,6 +19,8 @@ function LogTable(props: { height: number }) {
 	const [isSelectMode, setIsSelectMode] = useState(false);
 	const [selectionStartAbsoluteLine, setSelectionStartAbsoluteLine] =
 		useState(0);
+	const [showCopyIndicator, setShowCopyIndicator] = useState(false);
+	const [copyIndicatorText, setCopyIndicatorText] = useState("");
 
 	// Force re-render every second to update logs and check position validity
 	useEffect(() => {
@@ -86,6 +89,59 @@ function LogTable(props: { height: number }) {
 		);
 	};
 
+	// Helper function to get all selected lines text
+	const getSelectedLinesText = () => {
+		if (!selectedProcess) return "";
+
+		const currentAbsoluteLine = getCurrentAbsoluteLine();
+		const selectionStart = Math.min(
+			selectionStartAbsoluteLine,
+			currentAbsoluteLine,
+		);
+		const selectionEnd = Math.max(
+			selectionStartAbsoluteLine,
+			currentAbsoluteLine,
+		);
+
+		const selectedLines = [];
+		for (let line = selectionStart; line <= selectionEnd; line++) {
+			const logLine = selectedProcess.logBuffer.getLineByAbsolutePosition(line);
+			if (logLine) {
+				selectedLines.push(logLine);
+			}
+		}
+
+		return selectedLines.join("\n");
+	};
+
+	// Helper function to copy text to clipboard and show indicator
+	const copyToClipboard = async (text: string, indicatorText: string) => {
+		try {
+			await $`echo ${text} | pbcopy`;
+			showCopyFeedback(indicatorText);
+		} catch (error) {
+			// Fallback for non-macOS systems
+			try {
+				await $`echo ${text} | xclip -selection clipboard`;
+				showCopyFeedback(indicatorText);
+			} catch {
+				// If both fail, we can't copy to clipboard
+				showCopyFeedback("Copy failed");
+			}
+		}
+	};
+
+	// Helper function to show copy feedback temporarily
+	const showCopyFeedback = (message: string) => {
+		setCopyIndicatorText(message);
+		setShowCopyIndicator(true);
+
+		// Hide after 3 seconds
+		setTimeout(() => {
+			setShowCopyIndicator(false);
+		}, 3_000);
+	};
+
 	let logs: string[];
 	if (autoScroll) {
 		logs = selectedProcess.logBuffer.getRecentLines(linesPerPage);
@@ -112,6 +168,29 @@ function LogTable(props: { height: number }) {
 		if (input === "q") {
 			await killAllProcesses();
 			process.exit(0);
+		}
+
+		// Handle copy functionality with 'y'
+		if (input === "y" && !waitingForSecondG) {
+			if (isSelectMode) {
+				// Copy all selected lines
+				const selectedText = getSelectedLinesText();
+				if (selectedText) {
+					const lineCount = selectedText.split("\n").length;
+					await copyToClipboard(selectedText, `copied ${lineCount} lines`);
+					// Exit select mode after copying
+					setIsSelectMode(false);
+					setSelectionStartAbsoluteLine(0);
+				}
+			} else {
+				// Copy current line
+				const currentLine = logs[cursorIndex];
+				if (currentLine) {
+					await copyToClipboard(currentLine, "copied line");
+				}
+			}
+			setNumberPrefix("");
+			return;
 		}
 
 		// Handle select mode toggle
@@ -304,6 +383,9 @@ function LogTable(props: { height: number }) {
 					)}
 					{waitingForSecondG && <Text color={Colors.brightTeal}> [g]</Text>}
 					{isSelectMode && <Text color="#fbbf24"> [SELECT]</Text>}
+					{showCopyIndicator && (
+						<Text color="green"> ✓ {copyIndicatorText}</Text>
+					)}
 				</Text>
 			</Box>
 			{logs.map((log, index) => {
@@ -358,6 +440,7 @@ export function LogPage() {
 		"shift+g to jump to end",
 		"s to toggle autoscroll",
 		"v to enter select mode",
+		"y to copy line/selection",
 		"esc to exit select mode",
 		"backspace to go back",
 		"q to quit",
@@ -394,7 +477,11 @@ export function LogPage() {
 				height={
 					terminalHeight -
 					6 -
-					getShortcutFooterHeight(shortcuts.length, terminalWidth, showShortcuts)
+					getShortcutFooterHeight(
+						shortcuts.length,
+						terminalWidth,
+						showShortcuts,
+					)
 				}
 			/>
 			<ShortcutFooter shortcuts={shortcuts} showShortcuts={showShortcuts} />
