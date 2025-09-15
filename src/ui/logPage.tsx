@@ -12,6 +12,7 @@ function LogTable(props: { height: number }) {
 	const [viewStartLine, setViewStartLine] = useState(0);
 	const [positionLost, setPositionLost] = useState(false);
 	const [cursorIndex, setCursorIndex] = useState(0);
+	const [numberPrefix, setNumberPrefix] = useState("");
 
 	// Force re-render every second to update logs and check position validity
 	useEffect(() => {
@@ -45,6 +46,15 @@ function LogTable(props: { height: number }) {
 	}
 
 	useInput(async (input, key) => {
+		// Handle number input for vim-style prefixes
+		if (/^[0-9]$/.test(input)) {
+			setNumberPrefix((prev) => prev + input);
+			return;
+		}
+
+		// Get the repeat count from number prefix (default to 1)
+		const repeatCount = numberPrefix ? Math.max(1, parseInt(numberPrefix, 10)) : 1;
+
 		if (input === "s") {
 			if (autoScroll && selectedProcess) {
 				const oldestLine =
@@ -58,46 +68,88 @@ function LogTable(props: { height: number }) {
 			if (positionLost) {
 				setPositionLost(false);
 			}
+			setNumberPrefix(""); // Clear number prefix
 		} else if (key.upArrow || input === "k") {
 			if (autoScroll) {
 				// In autoscroll mode, move cursor up within visible lines
-				setCursorIndex((prev) => Math.max(0, prev - 1));
+				setCursorIndex((prev) => Math.max(0, prev - repeatCount));
 			} else {
 				// In manual scroll mode, move cursor or scroll if at edge
-				if (cursorIndex > 0) {
-					setCursorIndex((prev) => prev - 1);
-				} else if (selectedProcess) {
-					// Cursor is at top, scroll up
-					const oldestLine =
-						selectedProcess.logBuffer.getOldestAvailableLineNumber();
-					const newViewStart = Math.max(oldestLine, viewStartLine - 1);
-					if (newViewStart !== viewStartLine) {
-						setViewStartLine(newViewStart);
+				let remainingMoves = repeatCount;
+				let newCursorIndex = cursorIndex;
+				let newViewStart = viewStartLine;
+
+				while (remainingMoves > 0) {
+					if (newCursorIndex > 0) {
+						newCursorIndex--;
+						remainingMoves--;
+					} else if (selectedProcess) {
+						// Cursor is at top, try to scroll up
+						const oldestLine =
+							selectedProcess.logBuffer.getOldestAvailableLineNumber();
+						const possibleNewViewStart = Math.max(oldestLine, newViewStart - 1);
+						if (possibleNewViewStart !== newViewStart) {
+							newViewStart = possibleNewViewStart;
+							remainingMoves--;
+						} else {
+							// Can't scroll up anymore
+							break;
+						}
+					} else {
+						break;
 					}
 				}
+
+				setCursorIndex(newCursorIndex);
+				if (newViewStart !== viewStartLine) {
+					setViewStartLine(newViewStart);
+				}
 			}
+			setNumberPrefix(""); // Clear number prefix after use
 		} else if (key.downArrow || input === "j") {
 			if (autoScroll) {
 				// In autoscroll mode, move cursor down within visible lines
 				const maxCursor = Math.min(linesPerPage - 1, logs.length - 1);
-				setCursorIndex((prev) => Math.min(maxCursor, prev + 1));
+				setCursorIndex((prev) => Math.min(maxCursor, prev + repeatCount));
 			} else {
 				// In manual scroll mode, move cursor or scroll if at edge
-				const maxCursor = Math.min(linesPerPage - 1, logs.length - 1);
-				if (cursorIndex < maxCursor) {
-					setCursorIndex((prev) => prev + 1);
-				} else if (selectedProcess) {
-					// Cursor is at bottom, scroll down
-					const newestLine =
-						selectedProcess.logBuffer.getOldestAvailableLineNumber() +
-						selectedProcess.logBuffer.getTotalLines();
-					const maxStartLine = newestLine - linesPerPage;
-					const newViewStart = Math.min(maxStartLine, viewStartLine + 1);
-					if (newViewStart !== viewStartLine) {
-						setViewStartLine(newViewStart);
+				let remainingMoves = repeatCount;
+				let newCursorIndex = cursorIndex;
+				let newViewStart = viewStartLine;
+
+				while (remainingMoves > 0) {
+					const maxCursor = Math.min(linesPerPage - 1, logs.length - 1);
+					if (newCursorIndex < maxCursor) {
+						newCursorIndex++;
+						remainingMoves--;
+					} else if (selectedProcess) {
+						// Cursor is at bottom, try to scroll down
+						const newestLine =
+							selectedProcess.logBuffer.getOldestAvailableLineNumber() +
+							selectedProcess.logBuffer.getTotalLines();
+						const maxStartLine = newestLine - linesPerPage;
+						const possibleNewViewStart = Math.min(maxStartLine, newViewStart + 1);
+						if (possibleNewViewStart !== newViewStart) {
+							newViewStart = possibleNewViewStart;
+							remainingMoves--;
+						} else {
+							// Can't scroll down anymore
+							break;
+						}
+					} else {
+						break;
 					}
 				}
+
+				setCursorIndex(newCursorIndex);
+				if (newViewStart !== viewStartLine) {
+					setViewStartLine(newViewStart);
+				}
 			}
+			setNumberPrefix(""); // Clear number prefix after use
+		} else {
+			// Clear number prefix on any other input
+			setNumberPrefix("");
 		}
 	});
 
@@ -117,6 +169,9 @@ function LogTable(props: { height: number }) {
 					</Text>
 					{positionLost && (
 						<Text color="#fbbf24"> (position lost, returned to tail)</Text>
+					)}
+					{numberPrefix && (
+						<Text color={Colors.brightPink}> [{numberPrefix}]</Text>
 					)}
 				</Text>
 			</Box>
@@ -188,6 +243,7 @@ export function LogPage() {
 					<>
 						<Box flexDirection="column" marginRight={4}>
 							<Text color={Colors.darkGray}>↑/↓ or j/k to navigate</Text>
+							<Text color={Colors.darkGray}>[number]j/k for multi-line moves</Text>
 							<Text color={Colors.darkGray}>s to toggle autoscroll</Text>
 						</Box>
 						<Box flexDirection="column">
