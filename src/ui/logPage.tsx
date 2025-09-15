@@ -406,6 +406,7 @@ export function LogPage() {
 							"v to enter select mode",
 							"esc to exit select mode",
 							"backspace to go back",
+							"q to quit",
 						];
 
 						// Calculate number of columns based on terminal width
