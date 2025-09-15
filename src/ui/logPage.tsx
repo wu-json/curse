@@ -345,7 +345,7 @@ export function LogPage() {
 	const terminalHeight = stdout.rows;
 
 	useInput(async (input, key) => {
-		if (key.backspace) {
+		if (key.backspace || key.delete) {
 			setPage(ViewPage.Main);
 		} else if (input === "?") {
 			setShowShortcuts((prev) => !prev);
