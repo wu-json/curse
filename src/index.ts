@@ -51,4 +51,5 @@ await cli(process.argv.slice(2), command, {
 	name: "marionette",
 	version: "0.0.0",
 	description: "Manage processes in your terminal.",
+	usageSilent: true,
 });

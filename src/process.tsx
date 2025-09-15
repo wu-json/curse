@@ -4,70 +4,97 @@ import { spawn, type Subprocess } from "bun";
 import type { MarionetteConfig } from "./parser";
 import { ENV } from "./env";
 
-class CircularBuffer {
-	private buffer: string[];
-	private head = 0;
-	private size = 0;
-	private readonly capacity: number;
+class LogBuffer {
+	private lines: string[] = [];
+	private readonly maxSize: number;
+	private totalLinesAdded = 0;
 
-	constructor(capacity: number) {
-		this.capacity = capacity;
-		this.buffer = new Array(capacity);
+	constructor(maxSize: number) {
+		this.maxSize = maxSize;
 	}
 
 	add(line: string): void {
-		this.buffer[this.head] = line;
-		this.head = (this.head + 1) % this.capacity;
-		if (this.size < this.capacity) {
-			this.size++;
+		this.lines.push(line);
+		this.totalLinesAdded++;
+
+		if (this.lines.length > this.maxSize) {
+			this.lines.shift();
 		}
 	}
 
 	getLines(): string[] {
-		if (this.size === 0) return [];
-
-		if (this.size < this.capacity) {
-			return this.buffer.slice(0, this.size);
-		}
-
-		return [
-			...this.buffer.slice(this.head),
-			...this.buffer.slice(0, this.head),
-		];
+		return [...this.lines];
 	}
 
 	getRecentLines(count: number): string[] {
-		if (count <= 0 || this.size === 0) return [];
+		if (count <= 0 || this.lines.length === 0) return [];
 
-		const linesToReturn = Math.min(count, this.size);
+		const startIndex = Math.max(0, this.lines.length - count);
+		return this.lines.slice(startIndex);
+	}
 
-		if (this.size < this.capacity) {
-			const startIndex = Math.max(0, this.size - linesToReturn);
-			return this.buffer.slice(startIndex, this.size);
+	getLinesFromEnd(offset: number, count: number): string[] {
+		if (count <= 0 || this.lines.length === 0 || offset >= this.lines.length)
+			return [];
+
+		const endIndex = this.lines.length - offset;
+		const startIndex = Math.max(0, endIndex - count);
+
+		return this.lines.slice(startIndex, endIndex);
+	}
+
+	getLinesByAbsolutePosition(
+		absoluteStartLine: number,
+		count: number,
+	): string[] {
+		if (count <= 0 || this.lines.length === 0) return [];
+
+		const oldestLine = this.getOldestAvailableLineNumber();
+		const newestLine = this.totalLinesAdded - 1;
+
+		// Check if the requested range is available
+		if (
+			absoluteStartLine > newestLine ||
+			absoluteStartLine + count <= oldestLine
+		) {
+			return [];
 		}
 
-		const tailPosition = (this.head - 1 + this.capacity) % this.capacity;
-		const startPosition = (tailPosition - linesToReturn + 1 + this.capacity) % this.capacity;
+		// Convert absolute position to relative position within current buffer
+		const relativeStart = absoluteStartLine - oldestLine;
+		const relativeEnd = Math.min(relativeStart + count, this.lines.length);
+		const actualStart = Math.max(0, relativeStart);
 
-		if (startPosition <= tailPosition) {
-			return this.buffer.slice(startPosition, tailPosition + 1);
-		}
+		return this.lines.slice(actualStart, relativeEnd);
+	}
 
-		return [
-			...this.buffer.slice(startPosition),
-			...this.buffer.slice(0, tailPosition + 1),
-		];
+	getOldestAvailableLineNumber(): number {
+		return this.totalLinesAdded - this.lines.length;
+	}
+
+	isPositionValid(absolutePosition: number): boolean {
+		const oldestLine = this.getOldestAvailableLineNumber();
+		return (
+			absolutePosition >= oldestLine && absolutePosition < this.totalLinesAdded
+		);
+	}
+
+	getCurrentEndPosition(): number {
+		return this.lines.length;
+	}
+
+	getTotalLines(): number {
+		return this.lines.length;
 	}
 
 	clear(): void {
-		this.head = 0;
-		this.size = 0;
+		this.lines = [];
 	}
 }
 
 async function readStreamToBuffer(
 	stream: ReadableStream<Uint8Array> | null,
-	logBuffer: CircularBuffer,
+	logBuffer: LogBuffer,
 ): Promise<void> {
 	if (!stream) return;
 
@@ -114,7 +141,7 @@ export type Process = {
 	status: ProcessStatus;
 	proc?: Subprocess;
 	startedAt?: Date;
-	logBuffer: CircularBuffer;
+	logBuffer: LogBuffer;
 };
 
 type UpdateProcessFields = {
@@ -187,7 +214,7 @@ export function ProcessManagerProvider(props: {
 			name: p.name,
 			command: p.command,
 			status: ProcessStatus.Pending,
-			logBuffer: new CircularBuffer(500),
+			logBuffer: new LogBuffer(ENV.LOG_BUFFER_SIZE),
 		})),
 	);
 
