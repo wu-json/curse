@@ -5,7 +5,7 @@
 	"type": "module",
 	"private": true,
 	"scripts": {
-		"build": "bun build src/index.ts --compile --outfile dist/marionette && rm -f .*.bun-build"
+		"build": "bun build --minify src/index.ts --compile --outfile dist/marionette && rm -f .*.bun-build"
 	},
 	"devDependencies": {
 		"@biomejs/biome": "^2.2.3",
