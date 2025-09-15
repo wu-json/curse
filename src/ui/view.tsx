@@ -7,16 +7,7 @@ import { useAltScreen } from "./useAltScreen";
 import { usePage, PageProvider, ViewPage } from "./usePage";
 import { useProcessManager } from "./useProcessManager";
 import { version } from "../version";
-
-const Colors = {
-	primary: "#a855f7",
-	darkGray: "#6b7280",
-	blue: "#3b82f6",
-	lightBlue: "#60a5fa",
-	teal: "#4dd0a3",
-	brightTeal: "#5ee8b8",
-	brightPink: "#ff1493",
-};
+import { Colors } from "./colors";
 
 function ProcessTable() {
 	const { processes, selectedProcessIdx } = useProcessManager();
