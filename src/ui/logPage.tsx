@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { usePage, ViewPage } from "./usePage";
 import { useProcessManager } from "./useProcessManager";
 import { Colors } from "./colors";
+import { ShortcutFooter, getShortcutFooterHeight } from "./shortcutFooter";
 
 function LogTable(props: { height: number }) {
 	const { selectedProcess, killAllProcesses } = useProcessManager();
@@ -350,6 +351,18 @@ export function LogPage() {
 	const terminalHeight = stdout.rows;
 	const terminalWidth = stdout.columns;
 
+	const shortcuts = [
+		"↑/↓ or j/k to move cursor",
+		"[number]j/k for multi-line moves",
+		"gg to jump to beginning",
+		"shift+g to jump to end",
+		"s to toggle autoscroll",
+		"v to enter select mode",
+		"esc to exit select mode",
+		"backspace to go back",
+		"q to quit",
+	];
+
 	useInput(async (input, key) => {
 		if (key.backspace || key.delete) {
 			setPage(ViewPage.Main);
@@ -381,69 +394,10 @@ export function LogPage() {
 				height={
 					terminalHeight -
 					6 -
-					(showShortcuts
-						? (() => {
-								// Calculate number of columns based on terminal width
-								let columns;
-								if (terminalWidth < 80) columns = 1;
-								else if (terminalWidth < 120) columns = 2;
-								else if (terminalWidth < 160) columns = 3;
-								else columns = 4;
-								return Math.ceil(8 / columns);
-							})()
-						: 0)
+					getShortcutFooterHeight(shortcuts.length, terminalWidth, showShortcuts)
 				}
 			/>
-			<Box marginLeft={1} flexDirection="row">
-				{showShortcuts ? (
-					(() => {
-						const shortcuts = [
-							"↑/↓ or j/k to move cursor",
-							"[number]j/k for multi-line moves",
-							"gg to jump to beginning",
-							"shift+g to jump to end",
-							"s to toggle autoscroll",
-							"v to enter select mode",
-							"esc to exit select mode",
-							"backspace to go back",
-							"q to quit",
-						];
-
-						// Calculate number of columns based on terminal width
-						let numColumns;
-						if (terminalWidth < 80) numColumns = 1;
-						else if (terminalWidth < 120) numColumns = 2;
-						else if (terminalWidth < 160) numColumns = 3;
-						else numColumns = 4;
-
-						const itemsPerColumn = Math.ceil(shortcuts.length / numColumns);
-
-						const columns = [];
-						for (let col = 0; col < numColumns; col++) {
-							const startIdx = col * itemsPerColumn;
-							const endIdx = Math.min(
-								startIdx + itemsPerColumn,
-								shortcuts.length,
-							);
-							const columnShortcuts = shortcuts.slice(startIdx, endIdx);
-
-							columns.push(
-								<Box key={col} flexDirection="column" marginRight={4}>
-									{columnShortcuts.map((shortcut, idx) => (
-										<Text key={idx} color={Colors.darkGray}>
-											{shortcut}
-										</Text>
-									))}
-								</Box>,
-							);
-						}
-
-						return <>{columns}</>;
-					})()
-				) : (
-					<Text color={Colors.darkGray}>? for shortcuts</Text>
-				)}
-			</Box>
+			<ShortcutFooter shortcuts={shortcuts} showShortcuts={showShortcuts} />
 		</>
 	);
 }
