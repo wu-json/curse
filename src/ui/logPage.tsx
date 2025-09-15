@@ -1,12 +1,14 @@
 import { Box, Text, useInput, useStdout } from "ink";
 import { useEffect, useState } from "react";
+import { $ } from "bun";
 
 import { usePage, ViewPage } from "./usePage";
 import { useProcessManager } from "./useProcessManager";
 import { Colors } from "./colors";
+import { ShortcutFooter, getShortcutFooterHeight } from "./shortcutFooter";
 
 function LogTable(props: { height: number }) {
-	const { selectedProcess } = useProcessManager();
+	const { selectedProcess, killAllProcesses } = useProcessManager();
 	const [, forceUpdate] = useState(0);
 	const [autoScroll, setAutoScroll] = useState(true);
 	const [viewStartLine, setViewStartLine] = useState(0);
@@ -14,6 +16,11 @@ function LogTable(props: { height: number }) {
 	const [cursorIndex, setCursorIndex] = useState(0);
 	const [numberPrefix, setNumberPrefix] = useState("");
 	const [waitingForSecondG, setWaitingForSecondG] = useState(false);
+	const [isSelectMode, setIsSelectMode] = useState(false);
+	const [selectionStartAbsoluteLine, setSelectionStartAbsoluteLine] =
+		useState(0);
+	const [showCopyIndicator, setShowCopyIndicator] = useState(false);
+	const [copyIndicatorText, setCopyIndicatorText] = useState("");
 
 	// Force re-render every second to update logs and check position validity
 	useEffect(() => {
@@ -29,6 +36,103 @@ function LogTable(props: { height: number }) {
 	if (!selectedProcess) {
 		return null;
 	}
+
+	// Helper function to get the absolute line number for the current cursor position
+	const getCurrentAbsoluteLine = () => {
+		if (!selectedProcess) return 0;
+
+		if (autoScroll) {
+			const oldestLine =
+				selectedProcess.logBuffer.getOldestAvailableLineNumber();
+			const totalLines = selectedProcess.logBuffer.getTotalLines();
+			const viewStart = oldestLine + Math.max(0, totalLines - linesPerPage);
+			return viewStart + cursorIndex;
+		} else {
+			return viewStartLine + cursorIndex;
+		}
+	};
+
+	// Helper function to get the absolute line number for a given view index
+	const getAbsoluteLineForIndex = (index: number) => {
+		if (!selectedProcess) return 0;
+
+		if (autoScroll) {
+			const oldestLine =
+				selectedProcess.logBuffer.getOldestAvailableLineNumber();
+			const totalLines = selectedProcess.logBuffer.getTotalLines();
+			const viewStart = oldestLine + Math.max(0, totalLines - linesPerPage);
+			return viewStart + index;
+		} else {
+			return viewStartLine + index;
+		}
+	};
+
+	// Helper function to check if a line at given view index is selected
+	const isLineSelected = (index: number) => {
+		if (!isSelectMode) return false;
+
+		const currentAbsoluteLine = getCurrentAbsoluteLine();
+		const lineAbsolutePosition = getAbsoluteLineForIndex(index);
+
+		const selectionStart = Math.min(
+			selectionStartAbsoluteLine,
+			currentAbsoluteLine,
+		);
+		const selectionEnd = Math.max(
+			selectionStartAbsoluteLine,
+			currentAbsoluteLine,
+		);
+
+		return (
+			lineAbsolutePosition >= selectionStart &&
+			lineAbsolutePosition <= selectionEnd
+		);
+	};
+
+	const getSelectedLinesText = () => {
+		if (!selectedProcess) return "";
+
+		const currentAbsoluteLine = getCurrentAbsoluteLine();
+		const selectionStart = Math.min(
+			selectionStartAbsoluteLine,
+			currentAbsoluteLine,
+		);
+		const selectionEnd = Math.max(
+			selectionStartAbsoluteLine,
+			currentAbsoluteLine,
+		);
+
+		const selectionCount = selectionEnd - selectionStart + 1;
+		const selectedLines = selectedProcess.logBuffer.getLinesByAbsolutePosition(
+			selectionStart,
+			selectionCount,
+		);
+
+		return selectedLines.join("\n");
+	};
+
+	const copyToClipboard = async (text: string, indicatorText: string) => {
+		try {
+			await $`echo ${text} | pbcopy`;
+			showCopyFeedback(indicatorText);
+		} catch (error) {
+			try {
+				// Fallback for non-macOS systems
+				await $`echo ${text} | xclip -selection clipboard`;
+				showCopyFeedback(indicatorText);
+			} catch {
+				showCopyFeedback("copy failed");
+			}
+		}
+	};
+
+	const showCopyFeedback = (message: string) => {
+		setCopyIndicatorText(message);
+		setShowCopyIndicator(true);
+		setTimeout(() => {
+			setShowCopyIndicator(false);
+		}, 3_000);
+	};
 
 	let logs: string[];
 	if (autoScroll) {
@@ -50,6 +154,52 @@ function LogTable(props: { height: number }) {
 		// Handle number input for vim-style prefixes
 		if (/^[0-9]$/.test(input)) {
 			setNumberPrefix((prev) => prev + input);
+			return;
+		}
+
+		if (input === "q") {
+			await killAllProcesses();
+			process.exit(0);
+		}
+
+		// Handle copy functionality with 'y'
+		if (input === "y" && !waitingForSecondG) {
+			if (isSelectMode) {
+				// Copy all selected lines
+				const selectedText = getSelectedLinesText();
+				if (selectedText) {
+					const lineCount = selectedText.split("\n").length;
+					await copyToClipboard(selectedText, `copied ${lineCount} lines`);
+					// Exit select mode after copying
+					setIsSelectMode(false);
+					setSelectionStartAbsoluteLine(0);
+				}
+			} else {
+				// Copy current line
+				const currentLine = logs[cursorIndex];
+				if (currentLine) {
+					await copyToClipboard(currentLine, "copied line");
+				}
+			}
+			setNumberPrefix("");
+			return;
+		}
+
+		// Handle select mode toggle
+		if (input === "v" && !waitingForSecondG) {
+			if (!isSelectMode) {
+				// Enter select mode - record current position
+				setIsSelectMode(true);
+				setSelectionStartAbsoluteLine(getCurrentAbsoluteLine());
+			}
+			setNumberPrefix("");
+			return;
+		} else if (key.escape && isSelectMode) {
+			// Exit select mode with backspace
+			setIsSelectMode(false);
+			setSelectionStartAbsoluteLine(0); // Clear selection
+			setNumberPrefix("");
+			setWaitingForSecondG(false);
 			return;
 		}
 
@@ -224,24 +374,37 @@ function LogTable(props: { height: number }) {
 						<Text color={Colors.brightPink}> [{numberPrefix}]</Text>
 					)}
 					{waitingForSecondG && <Text color={Colors.brightTeal}> [g]</Text>}
+					{isSelectMode && <Text color="#fbbf24"> [SELECT]</Text>}
+					{showCopyIndicator && (
+						<Text color="green"> ✓ {copyIndicatorText}</Text>
+					)}
 				</Text>
 			</Box>
 			{logs.map((log, index) => {
-				const isSelected = index === cursorIndex;
+				const isCursor = index === cursorIndex;
+				const isSelected = isLineSelected(index);
+
+				// Determine background color: cursor takes priority, then selection
+				let backgroundColor;
+				if (isCursor) {
+					backgroundColor = Colors.blue; // Cursor color
+				} else if (isSelected) {
+					backgroundColor = "#374151"; // Gray-700 for selection
+				}
+
 				return (
-					<Box
-						key={index}
-						backgroundColor={isSelected ? Colors.blue : undefined}
-					>
+					<Box key={index} backgroundColor={backgroundColor}>
 						<Text
 							color={
-								isSelected
+								isCursor
 									? "white"
-									: log.includes("stderr")
-										? "red"
-										: Colors.lightBlue
+									: isSelected
+										? Colors.lightBlue
+										: log.includes("stderr")
+											? "red"
+											: Colors.lightBlue
 							}
-							bold={isSelected}
+							bold={isCursor}
 							wrap="truncate"
 						>
 							{log}
@@ -260,9 +423,23 @@ export function LogPage() {
 
 	const { stdout } = useStdout();
 	const terminalHeight = stdout.rows;
+	const terminalWidth = stdout.columns;
+
+	const shortcuts = [
+		"↑/↓ or j/k to move cursor",
+		"[number]j/k for multi-line moves",
+		"gg to jump to beginning",
+		"shift+g to jump to end",
+		"s to toggle autoscroll",
+		"v to enter select mode",
+		"y to copy line/selection",
+		"esc to exit select mode",
+		"backspace to go back",
+		"q to quit",
+	];
 
 	useInput(async (input, key) => {
-		if (key.escape) {
+		if (key.backspace || key.delete) {
 			setPage(ViewPage.Main);
 		} else if (input === "?") {
 			setShowShortcuts((prev) => !prev);
@@ -288,27 +465,18 @@ export function LogPage() {
 					<Text color={Colors.teal}>]</Text>
 				</Text>
 			</Box>
-			<LogTable height={terminalHeight - 7} />
-			<Box marginLeft={1} flexDirection="row">
-				{showShortcuts ? (
-					<>
-						<Box flexDirection="column" marginRight={4}>
-							<Text color={Colors.darkGray}>↑/↓ or j/k to navigate</Text>
-							<Text color={Colors.darkGray}>
-								[number]↑/↓ or j/k for multi-line moves
-							</Text>
-							<Text color={Colors.darkGray}>s to toggle autoscroll</Text>
-						</Box>
-						<Box flexDirection="column">
-							<Text color={Colors.darkGray}>gg to jump to beginning</Text>
-							<Text color={Colors.darkGray}>shift+g to jump to end</Text>
-							<Text color={Colors.darkGray}>esc to go back</Text>
-						</Box>
-					</>
-				) : (
-					<Text color={Colors.darkGray}>? for shortcuts</Text>
-				)}
-			</Box>
+			<LogTable
+				height={
+					terminalHeight -
+					6 -
+					getShortcutFooterHeight(
+						shortcuts.length,
+						terminalWidth,
+						showShortcuts,
+					)
+				}
+			/>
+			<ShortcutFooter shortcuts={shortcuts} showShortcuts={showShortcuts} />
 		</>
 	);
 }

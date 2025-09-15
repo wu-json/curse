@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { usePage, ViewPage } from "./usePage";
 import { useProcessManager } from "./useProcessManager";
 import { Colors } from "./colors";
+import { ShortcutFooter } from "./shortcutFooter";
 
 function ProcessTable() {
 	const { processes, selectedProcessIdx } = useProcessManager();
@@ -109,6 +110,14 @@ export function MainPage() {
 	const { setPage } = usePage();
 	const [showShortcuts, setShowShortcuts] = useState(false);
 
+	const shortcuts = [
+		"↑/↓ or j/k to navigate",
+		"l to show logs",
+		"shift+r to restart process",
+		"shift+k to kill process",
+		"q to quit",
+	];
+
 	useInput(async (input, key) => {
 		if (key.downArrow || input === "j") {
 			setSelectedProcessIdx((prev) => Math.min(prev + 1, processes.length - 1));
@@ -131,23 +140,7 @@ export function MainPage() {
 	return (
 		<>
 			<ProcessTable />
-			<Box marginLeft={1} flexDirection="row">
-				{showShortcuts ? (
-					<>
-						<Box flexDirection="column" marginRight={4}>
-							<Text color={Colors.darkGray}>↑/↓ or j/k to navigate</Text>
-							<Text color={Colors.darkGray}>l to show logs</Text>
-						</Box>
-						<Box flexDirection="column">
-							<Text color={Colors.darkGray}>shift+r to restart process</Text>
-							<Text color={Colors.darkGray}>shift+k to kill process</Text>
-							<Text color={Colors.darkGray}>q to quit</Text>
-						</Box>
-					</>
-				) : (
-					<Text color={Colors.darkGray}>? for shortcuts</Text>
-				)}
-			</Box>
+			<ShortcutFooter shortcuts={shortcuts} showShortcuts={showShortcuts} />
 		</>
 	);
 }
