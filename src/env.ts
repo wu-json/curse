@@ -4,9 +4,9 @@ const envSchema = type({
 	"LOG_BUFFER_SIZE?": [
 		"string",
 		"=>",
-		(logBufferSize) => Number(logBufferSize) ?? 10_000,
+		(logBufferSize) => Number(logBufferSize),
 	],
-	SHELL: ["string", "=>", (shell: string) => shell ?? "/bin/sh"],
+	SHELL: "string",
 });
 
 const parsedEnv = envSchema(process.env);

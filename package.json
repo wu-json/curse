@@ -1,12 +1,17 @@
 {
 	"name": "marionette",
 	"version": "0.0.0",
-	"module": "index.ts",
+	"module": "src/index.ts",
 	"type": "module",
 	"private": true,
+	"scripts": {
+		"build": "bun build --minify src/index.ts --compile --outfile dist/marionette && rm -f .*.bun-build",
+		"typecheck": "tsc --noEmit"
+	},
 	"devDependencies": {
 		"@biomejs/biome": "^2.2.3",
-		"@types/bun": "latest"
+		"@types/bun": "latest",
+		"react-devtools-core": "^6.1.5"
 	},
 	"peerDependencies": {
 		"typescript": "^5"

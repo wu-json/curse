@@ -1,8 +1,8 @@
 import { createContext, useContext, useMemo, useState } from "react";
 import { spawn, type Subprocess } from "bun";
 
-import type { MarionetteConfig } from "./parser";
-import { ENV } from "./env";
+import type { MarionetteConfig } from "../parser";
+import { ENV } from "../env";
 
 class LogBuffer {
 	private lines: string[] = [];
@@ -214,7 +214,7 @@ export function ProcessManagerProvider(props: {
 			name: p.name,
 			command: p.command,
 			status: ProcessStatus.Pending,
-			logBuffer: new LogBuffer(ENV.LOG_BUFFER_SIZE),
+			logBuffer: new LogBuffer(ENV.LOG_BUFFER_SIZE ?? 10_000),
 		})),
 	);
 
