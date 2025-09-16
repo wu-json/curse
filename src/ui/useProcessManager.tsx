@@ -16,10 +16,17 @@ export enum ProcessStatus {
 	Killed = "killed",
 }
 
+export enum HealthStatus {
+	None = "none",
+	Ready = "ready",
+	NotReady = "not_ready",
+}
+
 export type Process = {
 	name: string;
 	command: string;
 	status: ProcessStatus;
+	healthStatus: HealthStatus;
 	proc?: Subprocess;
 	startedAt?: Date;
 	logBuffer: LogBuffer;
@@ -48,7 +55,9 @@ async function execProcess({
 	const parsedCommand = parseShellCommand(process.command);
 	const cmd = parsedCommand.map((entry) => {
 		if (typeof entry !== "string") {
-			throw new Error(`Unsupported shell command entry: ${JSON.stringify(entry)}`);
+			throw new Error(
+				`Unsupported shell command entry: ${JSON.stringify(entry)}`,
+			);
 		}
 		return entry;
 	});
@@ -103,6 +112,7 @@ export function ProcessManagerProvider(props: {
 			name: p.name,
 			command: p.command,
 			status: ProcessStatus.Pending,
+			healthStatus: HealthStatus.None,
 			logBuffer: new LogBuffer(ENV.LOG_BUFFER_SIZE ?? 5_000),
 		})),
 	);
