@@ -22,6 +22,7 @@ export type Process = {
 	status: ProcessStatus;
 	isReady?: boolean;
 	readinessProbe?: MarionetteConfig["process"][0]["readiness_probe"];
+	readinessTimer?: NodeJS.Timeout;
 	proc?: Subprocess;
 	startedAt?: Date;
 	logBuffer: LogBuffer;
