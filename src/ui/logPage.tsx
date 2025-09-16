@@ -24,6 +24,7 @@ function LogTable(props: {
 	const [isSelectMode, setIsSelectMode] = useState(false);
 	const [selectionStartAbsoluteLine, setSelectionStartAbsoluteLine] =
 		useState(0);
+	const [selectionStartViewIndex, setSelectionStartViewIndex] = useState(0);
 	const [showCopyIndicator, setShowCopyIndicator] = useState(false);
 	const [copyIndicatorText, setCopyIndicatorText] = useState("");
 	const { isSearchMode, searchQuery, appliedSearchQuery } = props;
@@ -35,7 +36,10 @@ function LogTable(props: {
 		}
 
 		const parts = [];
-		const regex = new RegExp(`(${searchTerm.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')})`, 'gi');
+		const regex = new RegExp(
+			`(${searchTerm.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")})`,
+			"gi",
+		);
 		const matches = text.split(regex);
 
 		for (let i = 0; i < matches.length; i++) {
@@ -57,7 +61,6 @@ function LogTable(props: {
 
 		return () => clearInterval(interval);
 	}, []);
-
 
 	const linesPerPage = props.height - 3;
 
@@ -99,44 +102,75 @@ function LogTable(props: {
 	const isLineSelected = (index: number) => {
 		if (!isSelectMode) return false;
 
-		const currentAbsoluteLine = getCurrentAbsoluteLine();
-		const lineAbsolutePosition = getAbsoluteLineForIndex(index);
+		// When showing search results, use view indices
+		if (currentSearchQuery && currentSearchQuery.trim()) {
+			const selectionStart = Math.min(selectionStartViewIndex, cursorIndex);
+			const selectionEnd = Math.max(selectionStartViewIndex, cursorIndex);
+			return index >= selectionStart && index <= selectionEnd;
+		} else {
+			// Original behavior for non-search mode
+			const currentAbsoluteLine = getCurrentAbsoluteLine();
+			const lineAbsolutePosition = getAbsoluteLineForIndex(index);
 
-		const selectionStart = Math.min(
-			selectionStartAbsoluteLine,
-			currentAbsoluteLine,
-		);
-		const selectionEnd = Math.max(
-			selectionStartAbsoluteLine,
-			currentAbsoluteLine,
-		);
+			const selectionStart = Math.min(
+				selectionStartAbsoluteLine,
+				currentAbsoluteLine,
+			);
+			const selectionEnd = Math.max(
+				selectionStartAbsoluteLine,
+				currentAbsoluteLine,
+			);
 
-		return (
-			lineAbsolutePosition >= selectionStart &&
-			lineAbsolutePosition <= selectionEnd
-		);
+			return (
+				lineAbsolutePosition >= selectionStart &&
+				lineAbsolutePosition <= selectionEnd
+			);
+		}
 	};
 
 	const getSelectedLinesText = () => {
 		if (!selectedProcess) return "";
 
-		const currentAbsoluteLine = getCurrentAbsoluteLine();
-		const selectionStart = Math.min(
-			selectionStartAbsoluteLine,
-			currentAbsoluteLine,
-		);
-		const selectionEnd = Math.max(
-			selectionStartAbsoluteLine,
-			currentAbsoluteLine,
-		);
+		// When showing search results, work with the filtered logs array
+		if (currentSearchQuery && currentSearchQuery.trim()) {
+			const currentIndex = cursorIndex;
+			const selectionStartIndex = Math.min(
+				selectionStartViewIndex || 0,
+				currentIndex,
+			);
+			const selectionEndIndex = Math.max(
+				selectionStartViewIndex || 0,
+				currentIndex,
+			);
 
-		const selectionCount = selectionEnd - selectionStart + 1;
-		const selectedLines = selectedProcess.logBuffer.getLinesByAbsolutePosition(
-			selectionStart,
-			selectionCount,
-		);
+			const selectedLines = [];
+			for (let i = selectionStartIndex; i <= selectionEndIndex; i++) {
+				if (logs[i]) {
+					selectedLines.push(logs[i]);
+				}
+			}
+			return selectedLines.join("\n");
+		} else {
+			// Original behavior for non-search mode
+			const currentAbsoluteLine = getCurrentAbsoluteLine();
+			const selectionStart = Math.min(
+				selectionStartAbsoluteLine,
+				currentAbsoluteLine,
+			);
+			const selectionEnd = Math.max(
+				selectionStartAbsoluteLine,
+				currentAbsoluteLine,
+			);
 
-		return selectedLines.join("\n");
+			const selectionCount = selectionEnd - selectionStart + 1;
+			const selectedLines =
+				selectedProcess.logBuffer.getLinesByAbsolutePosition(
+					selectionStart,
+					selectionCount,
+				);
+
+			return selectedLines.join("\n");
+		}
 	};
 
 	const copyToClipboard = async (text: string, indicatorText: string) => {
@@ -170,7 +204,7 @@ function LogTable(props: {
 		logs = searchResults
 			.sort((a, b) => a.lineNumber - b.lineNumber) // Sort by line number
 			.slice(0, linesPerPage) // Limit to page size
-			.map(result => result.text);
+			.map((result) => result.text);
 	} else if (autoScroll) {
 		logs = selectedProcess.logBuffer.getRecentLines(linesPerPage);
 	} else {
@@ -230,6 +264,7 @@ function LogTable(props: {
 					// Exit select mode after copying
 					setIsSelectMode(false);
 					setSelectionStartAbsoluteLine(0);
+					setSelectionStartViewIndex(0);
 				}
 			} else {
 				// Copy current line
@@ -248,6 +283,7 @@ function LogTable(props: {
 				// Enter select mode - record current position
 				setIsSelectMode(true);
 				setSelectionStartAbsoluteLine(getCurrentAbsoluteLine());
+				setSelectionStartViewIndex(cursorIndex);
 			}
 			setNumberPrefix("");
 			return;
@@ -255,6 +291,7 @@ function LogTable(props: {
 			// Exit select mode with backspace
 			setIsSelectMode(false);
 			setSelectionStartAbsoluteLine(0); // Clear selection
+			setSelectionStartViewIndex(0);
 			setNumberPrefix("");
 			setWaitingForSecondG(false);
 			return;
@@ -448,7 +485,10 @@ function LogTable(props: {
 						<Text color={Colors.brightTeal}> &lt;/{searchQuery}&gt;</Text>
 					)}
 					{!isSearchMode && appliedSearchQuery && (
-						<Text color={Colors.brightTeal}> &lt;/{appliedSearchQuery}&gt;</Text>
+						<Text color={Colors.brightTeal}>
+							{" "}
+							&lt;/{appliedSearchQuery}&gt;
+						</Text>
 					)}
 					{showCopyIndicator && (
 						<Text color="green"> ✓ {copyIndicatorText}</Text>
@@ -467,9 +507,10 @@ function LogTable(props: {
 					backgroundColor = "#374151"; // Gray-700 for selection
 				}
 
-				const textParts = currentSearchQuery && currentSearchQuery.trim()
-					? highlightSearchTerm(log, currentSearchQuery)
-					: [{ text: log, isHighlight: false }];
+				const textParts =
+					currentSearchQuery && currentSearchQuery.trim()
+						? highlightSearchTerm(log, currentSearchQuery)
+						: [{ text: log, isHighlight: false }];
 
 				return (
 					<Box key={index} backgroundColor={backgroundColor}>
