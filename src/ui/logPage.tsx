@@ -398,7 +398,7 @@ function LogTable(props: { height: number }) {
 			{isSearchMode && (
 				<Box paddingX={1}>
 					<Text color={Colors.brightTeal}>Search: </Text>
-					<Text color="white" backgroundColor={Colors.darkGray}>
+					<Text color="white">
 						{searchQuery}
 						<Text color={Colors.brightTeal}>█</Text>
 					</Text>
