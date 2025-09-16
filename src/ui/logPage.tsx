@@ -162,9 +162,10 @@ function LogTable(props: {
 	};
 
 	let logs: string[];
-	if (appliedSearchQuery && appliedSearchQuery.trim()) {
-		// When search is applied, show search results
-		const searchResults = selectedProcess.logBuffer.search(appliedSearchQuery);
+	const currentSearchQuery = isSearchMode ? searchQuery : appliedSearchQuery;
+	if (currentSearchQuery && currentSearchQuery.trim()) {
+		// When search is active (typing) or applied, show search results
+		const searchResults = selectedProcess.logBuffer.search(currentSearchQuery);
 		logs = searchResults
 			.sort((a, b) => a.lineNumber - b.lineNumber) // Sort by line number
 			.slice(0, linesPerPage) // Limit to page size
@@ -460,8 +461,8 @@ function LogTable(props: {
 					backgroundColor = "#374151"; // Gray-700 for selection
 				}
 
-				const textParts = appliedSearchQuery && appliedSearchQuery.trim()
-					? highlightSearchTerm(log, appliedSearchQuery)
+				const textParts = currentSearchQuery && currentSearchQuery.trim()
+					? highlightSearchTerm(log, currentSearchQuery)
 					: [{ text: log, isHighlight: false }];
 
 				return (
