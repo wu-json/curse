@@ -114,6 +114,7 @@ export function ProcessManagerProvider(props: {
 			command: p.command,
 			status: ProcessStatus.Pending,
 			healthStatus: HealthStatus.None,
+			readinessProbe: p.readiness_probe,
 			logBuffer: new LogBuffer(ENV.LOG_BUFFER_SIZE ?? 5_000),
 		})),
 	);
