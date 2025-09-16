@@ -4,6 +4,7 @@ const server = Bun.serve({
     const url = new URL(req.url);
 
     if (url.pathname === '/health') {
+      console.log(`[${new Date().toISOString()}] Health check accessed`);
       return new Response('OK', { status: 200 });
     }
 
@@ -12,3 +13,15 @@ const server = Bun.serve({
 });
 
 console.log(`Server running on http://localhost:${server.port}`);
+
+process.on('SIGTERM', () => {
+  console.log('Received SIGTERM, shutting down gracefully...');
+  server.stop();
+  process.exit(0);
+});
+
+process.on('SIGINT', () => {
+  console.log('Received SIGINT, shutting down gracefully...');
+  server.stop();
+  process.exit(0);
+});
