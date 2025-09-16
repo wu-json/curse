@@ -17,7 +17,11 @@ function LogTable(props: {
 		requested: boolean;
 	} | null;
 	onViewInContextHandled: () => void;
-	onSearchCursorChange?: (cursorIndex: number, searchResults: Array<{lineNumber: number; text: string}>) => void;
+	onSearchCursorChange?: (
+		cursorIndex: number,
+		searchResults: Array<{ lineNumber: number; text: string }>,
+	) => void;
+	onSelectModeChange?: (isSelectMode: boolean) => void;
 }) {
 	const { selectedProcess, killAllProcesses } = useProcessManager();
 	const [, forceUpdate] = useState(0);
@@ -34,7 +38,15 @@ function LogTable(props: {
 	const [searchViewStartIndex, setSearchViewStartIndex] = useState(0);
 	const [showCopyIndicator, setShowCopyIndicator] = useState(false);
 	const [copyIndicatorText, setCopyIndicatorText] = useState("");
-	const { isSearchMode, searchQuery, appliedSearchQuery, viewInContextRequested, onViewInContextHandled, onSearchCursorChange } = props;
+	const {
+		isSearchMode,
+		searchQuery,
+		appliedSearchQuery,
+		viewInContextRequested,
+		onViewInContextHandled,
+		onSearchCursorChange,
+		onSelectModeChange,
+	} = props;
 
 	// Function to highlight search terms in text
 	const highlightSearchTerm = (text: string, searchTerm: string) => {
@@ -81,7 +93,7 @@ function LogTable(props: {
 			const linesPerPage = props.height - 3;
 			const targetViewStart = Math.max(
 				selectedProcess.logBuffer.getOldestAvailableLineNumber(),
-				targetLineNumber - Math.floor(linesPerPage / 2)
+				targetLineNumber - Math.floor(linesPerPage / 2),
 			);
 
 			// Set the view position
@@ -97,18 +109,34 @@ function LogTable(props: {
 			// Notify parent that we've handled the request
 			onViewInContextHandled();
 		}
-	}, [viewInContextRequested, selectedProcess, props.height, onViewInContextHandled]);
+	}, [
+		viewInContextRequested,
+		selectedProcess,
+		props.height,
+		onViewInContextHandled,
+	]);
 
 	// Notify parent about current search cursor position
 	useEffect(() => {
-		if (onSearchCursorChange && appliedSearchQuery && appliedSearchQuery.trim() && selectedProcess) {
-			const searchResults = selectedProcess.logBuffer.search(appliedSearchQuery);
-			const sortedResults = searchResults.sort((a, b) => a.lineNumber - b.lineNumber);
+		if (
+			onSearchCursorChange &&
+			appliedSearchQuery &&
+			appliedSearchQuery.trim() &&
+			selectedProcess
+		) {
+			const searchResults =
+				selectedProcess.logBuffer.search(appliedSearchQuery);
+			const sortedResults = searchResults.sort(
+				(a, b) => a.lineNumber - b.lineNumber,
+			);
 
 			// Calculate the actual cursor position within search results
 			let actualCursorIndex = 0;
 			if (autoScroll) {
-				actualCursorIndex = Math.max(0, sortedResults.length - (props.height - 3) + cursorIndex);
+				actualCursorIndex = Math.max(
+					0,
+					sortedResults.length - (props.height - 3) + cursorIndex,
+				);
 			} else {
 				actualCursorIndex = searchViewStartIndex + cursorIndex;
 			}
@@ -262,15 +290,20 @@ function LogTable(props: {
 	}, [currentSearchQuery, selectedProcess.logBuffer.getTotalLines()]);
 
 	if (currentSearchQuery && currentSearchQuery.trim()) {
-
 		if (autoScroll) {
 			// In autoscroll mode, show the most recent search results
 			const startIndex = Math.max(0, sortedSearchResults.length - linesPerPage);
 			logs = sortedSearchResults.slice(startIndex).map((result) => result.text);
 		} else {
 			// In manual scroll mode, show results from current view position
-			const startIndex = Math.min(searchViewStartIndex, Math.max(0, sortedSearchResults.length - linesPerPage));
-			const endIndex = Math.min(startIndex + linesPerPage, sortedSearchResults.length);
+			const startIndex = Math.min(
+				searchViewStartIndex,
+				Math.max(0, sortedSearchResults.length - linesPerPage),
+			);
+			const endIndex = Math.min(
+				startIndex + linesPerPage,
+				sortedSearchResults.length,
+			);
 			logs = sortedSearchResults
 				.slice(startIndex, endIndex)
 				.map((result) => result.text);
@@ -341,6 +374,7 @@ function LogTable(props: {
 					await copyToClipboard(selectedText, `copied ${lineCount} lines`);
 					// Exit select mode after copying
 					setIsSelectMode(false);
+					onSelectModeChange?.(false);
 					setSelectionStartAbsoluteLine(0);
 					setSelectionStartViewIndex(0);
 				}
@@ -360,6 +394,7 @@ function LogTable(props: {
 			if (!isSelectMode) {
 				// Enter select mode - record current position
 				setIsSelectMode(true);
+				onSelectModeChange?.(true);
 				setSelectionStartAbsoluteLine(getCurrentAbsoluteLine());
 				setSelectionStartViewIndex(cursorIndex);
 			}
@@ -368,6 +403,7 @@ function LogTable(props: {
 		} else if (key.escape && isSelectMode) {
 			// Exit select mode with backspace
 			setIsSelectMode(false);
+			onSelectModeChange?.(false);
 			setSelectionStartAbsoluteLine(0); // Clear selection
 			setSelectionStartViewIndex(0);
 			setNumberPrefix("");
@@ -725,15 +761,28 @@ export function LogPage() {
 		requested: boolean;
 	} | null>(null);
 	const [currentSearchCursor, setCurrentSearchCursor] = useState(0);
-	const [currentSearchResults, setCurrentSearchResults] = useState<Array<{lineNumber: number; text: string}>>([]);
+	const [currentSearchResults, setCurrentSearchResults] = useState<
+		Array<{ lineNumber: number; text: string }>
+	>([]);
+	const [isSelectMode, setIsSelectMode] = useState(false);
 
-	const handleSearchCursorChange = useCallback((cursorIndex: number, searchResults: Array<{lineNumber: number; text: string}>) => {
-		setCurrentSearchCursor(cursorIndex);
-		setCurrentSearchResults(searchResults);
-	}, []);
+	const handleSearchCursorChange = useCallback(
+		(
+			cursorIndex: number,
+			searchResults: Array<{ lineNumber: number; text: string }>,
+		) => {
+			setCurrentSearchCursor(cursorIndex);
+			setCurrentSearchResults(searchResults);
+		},
+		[],
+	);
 
 	const handleViewInContextHandled = useCallback(() => {
 		setViewInContextRequested(null);
+	}, []);
+
+	const handleSelectModeChange = useCallback((selectMode: boolean) => {
+		setIsSelectMode(selectMode);
 	}, []);
 
 	const { stdout } = useStdout();
@@ -750,7 +799,7 @@ export function LogPage() {
 		"/ to enter search mode",
 		"o to view search result in context",
 		"y to copy line/selection",
-		"esc to exit select/search mode",
+		"esc to go back",
 		"backspace to go back",
 		"q to quit",
 	];
@@ -790,9 +839,18 @@ export function LogPage() {
 			return;
 		}
 
+		// Go back to main page with ESC when not in search mode, no applied search, and not in select mode
+		if (key.escape && !appliedSearchQuery && !isSelectMode) {
+			setPage(ViewPage.Main);
+			return;
+		}
+
 		// Handle "view in context" with 'o' key when search is applied
 		if (input === "o" && appliedSearchQuery && !key.shift) {
-			if (currentSearchResults.length > 0 && currentSearchCursor < currentSearchResults.length) {
+			if (
+				currentSearchResults.length > 0 &&
+				currentSearchCursor < currentSearchResults.length
+			) {
 				const currentResult = currentSearchResults[currentSearchCursor];
 				if (currentResult) {
 					// Clear the search and navigate to that line
@@ -858,6 +916,7 @@ export function LogPage() {
 				viewInContextRequested={viewInContextRequested}
 				onViewInContextHandled={handleViewInContextHandled}
 				onSearchCursorChange={handleSearchCursorChange}
+				onSelectModeChange={handleSelectModeChange}
 			/>
 			<ShortcutFooter shortcuts={shortcuts} showShortcuts={showShortcuts} />
 		</>
