@@ -11,6 +11,7 @@
 	"devDependencies": {
 		"@biomejs/biome": "^2.2.3",
 		"@types/bun": "latest",
+		"@types/shell-quote": "^1.7.5",
 		"react-devtools-core": "^6.1.5"
 	},
 	"peerDependencies": {
@@ -22,6 +23,7 @@
 		"ink": "^6.2.3",
 		"minisearch": "^7.1.2",
 		"react": "^19.1.1",
+		"shell-quote": "^1.8.3",
 		"toml": "^3.0.0"
 	}
 }

@@ -1,5 +1,6 @@
 import { createContext, useContext, useMemo, useState } from "react";
 import { spawn, type Subprocess } from "bun";
+import { parse as parseShellCommand } from "shell-quote";
 import { LogBuffer, readStreamToBuffer } from "./logBuffer";
 
 import type { MarionetteConfig } from "../parser";
@@ -44,8 +45,16 @@ async function execProcess({
 
 	process.logBuffer.clear();
 
+	const parsedCommand = parseShellCommand(process.command);
+	const cmd = parsedCommand.map((entry) => {
+		if (typeof entry !== "string") {
+			throw new Error(`Unsupported shell command entry: ${JSON.stringify(entry)}`);
+		}
+		return entry;
+	});
+
 	const proc = spawn({
-		cmd: [ENV.SHELL, "-c", process.command],
+		cmd,
 		stdout: "pipe",
 		stderr: "pipe",
 	});
