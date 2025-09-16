@@ -242,11 +242,17 @@ function LogTable(props: {
 			if (waitingForSecondG) {
 				// This is 'gg' - jump to beginning
 				if (selectedProcess) {
-					const oldestLine =
-						selectedProcess.logBuffer.getOldestAvailableLineNumber();
-					setViewStartLine(oldestLine);
-					setCursorIndex(0);
-					setAutoScroll(false);
+					if (appliedSearchQuery && appliedSearchQuery.trim()) {
+						// When search is applied, jump to first search result
+						setCursorIndex(0);
+					} else {
+						// Normal behavior for non-search mode
+						const oldestLine =
+							selectedProcess.logBuffer.getOldestAvailableLineNumber();
+						setViewStartLine(oldestLine);
+						setCursorIndex(0);
+						setAutoScroll(false);
+					}
 				}
 				setWaitingForSecondG(false);
 				setNumberPrefix("");
@@ -258,18 +264,24 @@ function LogTable(props: {
 		} else if (key.shift && input === "G") {
 			// Shift+G - jump to end
 			if (selectedProcess) {
-				const newestLine =
-					selectedProcess.logBuffer.getOldestAvailableLineNumber() +
-					selectedProcess.logBuffer.getTotalLines();
-				const maxStartLine = Math.max(0, newestLine - linesPerPage);
-				setViewStartLine(maxStartLine);
-				setCursorIndex(
-					Math.min(
-						linesPerPage - 1,
-						selectedProcess.logBuffer.getTotalLines() - 1,
-					),
-				);
-				setAutoScroll(true); // Jump to end enables autoscroll
+				if (appliedSearchQuery && appliedSearchQuery.trim()) {
+					// When search is applied, jump to last search result
+					setCursorIndex(Math.max(0, logs.length - 1));
+				} else {
+					// Normal behavior for non-search mode
+					const newestLine =
+						selectedProcess.logBuffer.getOldestAvailableLineNumber() +
+						selectedProcess.logBuffer.getTotalLines();
+					const maxStartLine = Math.max(0, newestLine - linesPerPage);
+					setViewStartLine(maxStartLine);
+					setCursorIndex(
+						Math.min(
+							linesPerPage - 1,
+							selectedProcess.logBuffer.getTotalLines() - 1,
+						),
+					);
+					setAutoScroll(true); // Jump to end enables autoscroll
+				}
 			}
 			setWaitingForSecondG(false);
 			setNumberPrefix("");
