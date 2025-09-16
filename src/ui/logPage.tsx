@@ -141,7 +141,14 @@ function LogTable(props: {
 	};
 
 	let logs: string[];
-	if (autoScroll) {
+	if (appliedSearchQuery && appliedSearchQuery.trim()) {
+		// When search is applied, show search results
+		const searchResults = selectedProcess.logBuffer.search(appliedSearchQuery);
+		logs = searchResults
+			.sort((a, b) => a.lineNumber - b.lineNumber) // Sort by line number
+			.slice(0, linesPerPage) // Limit to page size
+			.map(result => result.text);
+	} else if (autoScroll) {
 		logs = selectedProcess.logBuffer.getRecentLines(linesPerPage);
 	} else {
 		if (!selectedProcess.logBuffer.isPositionValid(viewStartLine)) {
@@ -496,6 +503,12 @@ export function LogPage() {
 		if (input === "/" && !key.shift) {
 			setIsSearchMode(true);
 			setSearchQuery("");
+			return;
+		}
+
+		// Clear applied search with ESC when not in search mode
+		if (key.escape && appliedSearchQuery) {
+			setAppliedSearchQuery("");
 			return;
 		}
 
