@@ -7,7 +7,11 @@ import { useProcessManager } from "./useProcessManager";
 import { Colors } from "./colors";
 import { ShortcutFooter, getShortcutFooterHeight } from "./shortcutFooter";
 
-function LogTable(props: { height: number; isSearchMode: boolean }) {
+function LogTable(props: {
+	height: number;
+	isSearchMode: boolean;
+	searchQuery: string;
+}) {
 	const { selectedProcess, killAllProcesses } = useProcessManager();
 	const [, forceUpdate] = useState(0);
 	const [autoScroll, setAutoScroll] = useState(true);
@@ -21,7 +25,7 @@ function LogTable(props: { height: number; isSearchMode: boolean }) {
 		useState(0);
 	const [showCopyIndicator, setShowCopyIndicator] = useState(false);
 	const [copyIndicatorText, setCopyIndicatorText] = useState("");
-	const { isSearchMode } = props;
+	const { isSearchMode, searchQuery } = props;
 
 	// Force re-render every second to update logs and check position validity
 	useEffect(() => {
@@ -163,6 +167,11 @@ function LogTable(props: { height: number; isSearchMode: boolean }) {
 	}
 
 	useInput(async (input, key) => {
+		// Ignore all input when in search mode - let LogPage handle it
+		if (isSearchMode) {
+			return;
+		}
+
 		// Handle number input for vim-style prefixes
 		if (/^[0-9]$/.test(input)) {
 			setNumberPrefix((prev) => prev + input);
@@ -387,7 +396,9 @@ function LogTable(props: { height: number; isSearchMode: boolean }) {
 					)}
 					{waitingForSecondG && <Text color={Colors.brightTeal}> [g]</Text>}
 					{isSelectMode && <Text color="#fbbf24"> [SELECT]</Text>}
-					{isSearchMode && <Text color={Colors.brightTeal}> [SEARCH]</Text>}
+					{isSearchMode && (
+						<Text color={Colors.brightTeal}> &lt;/{searchQuery}&gt;</Text>
+					)}
 					{showCopyIndicator && (
 						<Text color="green"> ✓ {copyIndicatorText}</Text>
 					)}
@@ -526,7 +537,7 @@ export function LogPage() {
 					)
 				}
 				isSearchMode={isSearchMode}
-				setIsSearchMode={setIsSearchMode}
+				searchQuery={searchQuery}
 			/>
 			<ShortcutFooter shortcuts={shortcuts} showShortcuts={showShortcuts} />
 		</>
