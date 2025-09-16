@@ -3,6 +3,7 @@ name = "example configuration"
 [[process]]
 name = "web-server"
 command = "while true; echo \"[$(date '+%Y-%m-%d %H:%M:%S')] INFO: Server listening on port 3000\"; sleep 0.5; echo \"[$(date '+%Y-%m-%d %H:%M:%S')] INFO: GET /api/users - 200 OK ($(math (random) % 50 + 10)ms)\"; sleep 0.8; echo \"[$(date '+%Y-%m-%d %H:%M:%S')] INFO: POST /api/auth/login - 201 Created ($(math (random) % 100 + 50)ms)\"; sleep 0.3; end"
+readiness_probe = { type = "http", host = "127.0.0.1", path = "/health", port = 9070 }
 
 [[process]]
 name = "database"
