@@ -58,6 +58,7 @@ function LogTable(props: {
 		return () => clearInterval(interval);
 	}, []);
 
+
 	const linesPerPage = props.height - 3;
 
 	if (!selectedProcess) {
@@ -194,6 +195,11 @@ function LogTable(props: {
 				linesPerPage,
 			);
 		}
+	}
+
+	// Adjust cursor if it's beyond available logs
+	if (logs.length > 0 && cursorIndex >= logs.length) {
+		setCursorIndex(Math.max(0, logs.length - 1));
 	}
 
 	useInput(async (input, key) => {
