@@ -1,5 +1,5 @@
 import { Box, Text, useInput, useStdout } from "ink";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import { $ } from "bun";
 
 import { usePage, ViewPage } from "./usePage";
@@ -25,6 +25,7 @@ function LogTable(props: {
 	const [selectionStartAbsoluteLine, setSelectionStartAbsoluteLine] =
 		useState(0);
 	const [selectionStartViewIndex, setSelectionStartViewIndex] = useState(0);
+	const [searchViewStartIndex, setSearchViewStartIndex] = useState(0);
 	const [showCopyIndicator, setShowCopyIndicator] = useState(false);
 	const [copyIndicatorText, setCopyIndicatorText] = useState("");
 	const { isSearchMode, searchQuery, appliedSearchQuery } = props;
@@ -198,36 +199,59 @@ function LogTable(props: {
 
 	let logs: string[];
 	const currentSearchQuery = isSearchMode ? searchQuery : appliedSearchQuery;
-	if (currentSearchQuery && currentSearchQuery.trim()) {
-		// When search is active (typing) or applied, show search results
+
+	// Memoize search results to avoid repeated expensive operations
+	const sortedSearchResults = useMemo(() => {
+		if (!currentSearchQuery || !currentSearchQuery.trim()) return [];
 		const searchResults = selectedProcess.logBuffer.search(currentSearchQuery);
-		logs = searchResults
-			.sort((a, b) => a.lineNumber - b.lineNumber) // Sort by line number
-			.slice(0, linesPerPage) // Limit to page size
-			.map((result) => result.text);
-	} else if (autoScroll) {
-		logs = selectedProcess.logBuffer.getRecentLines(linesPerPage);
-	} else {
-		if (!selectedProcess.logBuffer.isPositionValid(viewStartLine)) {
-			// Cap viewStartLine to valid bounds instead of falling back to autoscroll
-			const oldestLine =
-				selectedProcess.logBuffer.getOldestAvailableLineNumber();
-			const newestLine = selectedProcess.logBuffer.getTotalLines() + oldestLine;
-			const maxStartLine = Math.max(oldestLine, newestLine - linesPerPage);
-			const cappedViewStartLine = Math.min(
-				Math.max(viewStartLine, oldestLine),
-				maxStartLine,
-			);
-			setViewStartLine(cappedViewStartLine);
-			logs = selectedProcess.logBuffer.getLinesByAbsolutePosition(
-				cappedViewStartLine,
-				linesPerPage,
-			);
+		return searchResults.sort((a, b) => a.lineNumber - b.lineNumber);
+	}, [currentSearchQuery, selectedProcess.logBuffer.getTotalLines()]);
+
+	if (currentSearchQuery && currentSearchQuery.trim()) {
+
+		if (autoScroll) {
+			// In autoscroll mode, show the most recent search results
+			const startIndex = Math.max(0, sortedSearchResults.length - linesPerPage);
+			logs = sortedSearchResults.slice(startIndex).map((result) => result.text);
 		} else {
-			logs = selectedProcess.logBuffer.getLinesByAbsolutePosition(
-				viewStartLine,
-				linesPerPage,
-			);
+			// In manual scroll mode, show results from current view position
+			const startIndex = Math.min(searchViewStartIndex, Math.max(0, sortedSearchResults.length - linesPerPage));
+			const endIndex = Math.min(startIndex + linesPerPage, sortedSearchResults.length);
+			logs = sortedSearchResults
+				.slice(startIndex, endIndex)
+				.map((result) => result.text);
+		}
+	} else {
+		// Reset search view position when not searching
+		if (searchViewStartIndex > 0) {
+			setSearchViewStartIndex(0);
+		}
+
+		if (autoScroll) {
+			logs = selectedProcess.logBuffer.getRecentLines(linesPerPage);
+		} else {
+			if (!selectedProcess.logBuffer.isPositionValid(viewStartLine)) {
+				// Cap viewStartLine to valid bounds instead of falling back to autoscroll
+				const oldestLine =
+					selectedProcess.logBuffer.getOldestAvailableLineNumber();
+				const newestLine =
+					selectedProcess.logBuffer.getTotalLines() + oldestLine;
+				const maxStartLine = Math.max(oldestLine, newestLine - linesPerPage);
+				const cappedViewStartLine = Math.min(
+					Math.max(viewStartLine, oldestLine),
+					maxStartLine,
+				);
+				setViewStartLine(cappedViewStartLine);
+				logs = selectedProcess.logBuffer.getLinesByAbsolutePosition(
+					cappedViewStartLine,
+					linesPerPage,
+				);
+			} else {
+				logs = selectedProcess.logBuffer.getLinesByAbsolutePosition(
+					viewStartLine,
+					linesPerPage,
+				);
+			}
 		}
 	}
 
@@ -307,9 +331,11 @@ function LogTable(props: {
 			if (waitingForSecondG) {
 				// This is 'gg' - jump to beginning
 				if (selectedProcess) {
-					if (appliedSearchQuery && appliedSearchQuery.trim()) {
-						// When search is applied, jump to first search result
+					if (currentSearchQuery && currentSearchQuery.trim()) {
+						// When search is active, jump to first search result
+						setSearchViewStartIndex(0);
 						setCursorIndex(0);
+						setAutoScroll(false);
 					} else {
 						// Normal behavior for non-search mode
 						const oldestLine =
@@ -329,9 +355,20 @@ function LogTable(props: {
 		} else if (key.shift && input === "G") {
 			// Shift+G - jump to end
 			if (selectedProcess) {
-				if (appliedSearchQuery && appliedSearchQuery.trim()) {
-					// When search is applied, jump to last search result
-					setCursorIndex(Math.max(0, logs.length - 1));
+				if (currentSearchQuery && currentSearchQuery.trim()) {
+					// When search is active, jump to last search result
+					const maxStartIndex = Math.max(
+						0,
+						sortedSearchResults.length - linesPerPage,
+					);
+					setSearchViewStartIndex(maxStartIndex);
+					setCursorIndex(
+						Math.min(
+							linesPerPage - 1,
+							sortedSearchResults.length - maxStartIndex - 1,
+						),
+					);
+					setAutoScroll(true); // Jump to end enables autoscroll
 				} else {
 					// Normal behavior for non-search mode
 					const newestLine =
@@ -373,7 +410,37 @@ function LogTable(props: {
 			}
 			setNumberPrefix(""); // Clear number prefix
 		} else if (key.upArrow || input === "k") {
-			if (autoScroll) {
+			if (currentSearchQuery && currentSearchQuery.trim()) {
+				// In search mode, handle navigation through search results
+				if (autoScroll) {
+					// In autoscroll mode, move cursor up within visible lines
+					setCursorIndex((prev) => Math.max(0, prev - repeatCount));
+				} else {
+					// In manual scroll mode, move cursor or scroll through search results
+					let remainingMoves = repeatCount;
+					let newCursorIndex = cursorIndex;
+					let newSearchViewStart = searchViewStartIndex;
+
+					while (remainingMoves > 0) {
+						if (newCursorIndex > 0) {
+							newCursorIndex--;
+							remainingMoves--;
+						} else if (newSearchViewStart > 0) {
+							// Cursor is at top, scroll up through search results
+							newSearchViewStart--;
+							remainingMoves--;
+						} else {
+							// Can't move up anymore
+							break;
+						}
+					}
+
+					setCursorIndex(newCursorIndex);
+					if (newSearchViewStart !== searchViewStartIndex) {
+						setSearchViewStartIndex(newSearchViewStart);
+					}
+				}
+			} else if (autoScroll) {
 				// In autoscroll mode, move cursor up within visible lines
 				setCursorIndex((prev) => Math.max(0, prev - repeatCount));
 			} else {
@@ -410,7 +477,45 @@ function LogTable(props: {
 			}
 			setNumberPrefix(""); // Clear number prefix after use
 		} else if (key.downArrow || input === "j") {
-			if (autoScroll) {
+			if (currentSearchQuery && currentSearchQuery.trim()) {
+				// In search mode, handle navigation through search results
+				if (autoScroll) {
+					// In autoscroll mode, move cursor down within visible lines
+					const maxCursor = Math.min(linesPerPage - 1, logs.length - 1);
+					setCursorIndex((prev) => Math.min(maxCursor, prev + repeatCount));
+				} else {
+					// In manual scroll mode, move cursor or scroll through search results
+					let remainingMoves = repeatCount;
+					let newCursorIndex = cursorIndex;
+					let newSearchViewStart = searchViewStartIndex;
+
+					while (remainingMoves > 0) {
+						const maxCursor = Math.min(linesPerPage - 1, logs.length - 1);
+						if (newCursorIndex < maxCursor) {
+							newCursorIndex++;
+							remainingMoves--;
+						} else {
+							// Cursor is at bottom, try to scroll down through search results
+							const maxStartIndex = Math.max(
+								0,
+								sortedSearchResults.length - linesPerPage,
+							);
+							if (newSearchViewStart < maxStartIndex) {
+								newSearchViewStart++;
+								remainingMoves--;
+							} else {
+								// Can't move down anymore
+								break;
+							}
+						}
+					}
+
+					setCursorIndex(newCursorIndex);
+					if (newSearchViewStart !== searchViewStartIndex) {
+						setSearchViewStartIndex(newSearchViewStart);
+					}
+				}
+			} else if (autoScroll) {
 				// In autoscroll mode, move cursor down within visible lines
 				const maxCursor = Math.min(linesPerPage - 1, logs.length - 1);
 				setCursorIndex((prev) => Math.min(maxCursor, prev + repeatCount));
