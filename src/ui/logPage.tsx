@@ -7,7 +7,12 @@ import { useProcessManager } from "./useProcessManager";
 import { Colors } from "./colors";
 import { ShortcutFooter, getShortcutFooterHeight } from "./shortcutFooter";
 
-function LogTable(props: { height: number }) {
+function LogTable(props: {
+	height: number;
+	isSearchMode: boolean;
+	searchQuery: string;
+	appliedSearchQuery: string;
+}) {
 	const { selectedProcess, killAllProcesses } = useProcessManager();
 	const [, forceUpdate] = useState(0);
 	const [autoScroll, setAutoScroll] = useState(true);
@@ -19,8 +24,34 @@ function LogTable(props: { height: number }) {
 	const [isSelectMode, setIsSelectMode] = useState(false);
 	const [selectionStartAbsoluteLine, setSelectionStartAbsoluteLine] =
 		useState(0);
+	const [selectionStartViewIndex, setSelectionStartViewIndex] = useState(0);
 	const [showCopyIndicator, setShowCopyIndicator] = useState(false);
 	const [copyIndicatorText, setCopyIndicatorText] = useState("");
+	const { isSearchMode, searchQuery, appliedSearchQuery } = props;
+
+	// Function to highlight search terms in text
+	const highlightSearchTerm = (text: string, searchTerm: string) => {
+		if (!searchTerm || !searchTerm.trim()) {
+			return [{ text, isHighlight: false }];
+		}
+
+		const parts = [];
+		const regex = new RegExp(
+			`(${searchTerm.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")})`,
+			"gi",
+		);
+		const matches = text.split(regex);
+
+		for (let i = 0; i < matches.length; i++) {
+			const part = matches[i];
+			if (part) {
+				const isHighlight = regex.test(part);
+				parts.push({ text: part, isHighlight });
+			}
+		}
+
+		return parts;
+	};
 
 	// Force re-render every second to update logs and check position validity
 	useEffect(() => {
@@ -71,44 +102,75 @@ function LogTable(props: { height: number }) {
 	const isLineSelected = (index: number) => {
 		if (!isSelectMode) return false;
 
-		const currentAbsoluteLine = getCurrentAbsoluteLine();
-		const lineAbsolutePosition = getAbsoluteLineForIndex(index);
+		// When showing search results, use view indices
+		if (currentSearchQuery && currentSearchQuery.trim()) {
+			const selectionStart = Math.min(selectionStartViewIndex, cursorIndex);
+			const selectionEnd = Math.max(selectionStartViewIndex, cursorIndex);
+			return index >= selectionStart && index <= selectionEnd;
+		} else {
+			// Original behavior for non-search mode
+			const currentAbsoluteLine = getCurrentAbsoluteLine();
+			const lineAbsolutePosition = getAbsoluteLineForIndex(index);
 
-		const selectionStart = Math.min(
-			selectionStartAbsoluteLine,
-			currentAbsoluteLine,
-		);
-		const selectionEnd = Math.max(
-			selectionStartAbsoluteLine,
-			currentAbsoluteLine,
-		);
+			const selectionStart = Math.min(
+				selectionStartAbsoluteLine,
+				currentAbsoluteLine,
+			);
+			const selectionEnd = Math.max(
+				selectionStartAbsoluteLine,
+				currentAbsoluteLine,
+			);
 
-		return (
-			lineAbsolutePosition >= selectionStart &&
-			lineAbsolutePosition <= selectionEnd
-		);
+			return (
+				lineAbsolutePosition >= selectionStart &&
+				lineAbsolutePosition <= selectionEnd
+			);
+		}
 	};
 
 	const getSelectedLinesText = () => {
 		if (!selectedProcess) return "";
 
-		const currentAbsoluteLine = getCurrentAbsoluteLine();
-		const selectionStart = Math.min(
-			selectionStartAbsoluteLine,
-			currentAbsoluteLine,
-		);
-		const selectionEnd = Math.max(
-			selectionStartAbsoluteLine,
-			currentAbsoluteLine,
-		);
+		// When showing search results, work with the filtered logs array
+		if (currentSearchQuery && currentSearchQuery.trim()) {
+			const currentIndex = cursorIndex;
+			const selectionStartIndex = Math.min(
+				selectionStartViewIndex || 0,
+				currentIndex,
+			);
+			const selectionEndIndex = Math.max(
+				selectionStartViewIndex || 0,
+				currentIndex,
+			);
 
-		const selectionCount = selectionEnd - selectionStart + 1;
-		const selectedLines = selectedProcess.logBuffer.getLinesByAbsolutePosition(
-			selectionStart,
-			selectionCount,
-		);
+			const selectedLines = [];
+			for (let i = selectionStartIndex; i <= selectionEndIndex; i++) {
+				if (logs[i]) {
+					selectedLines.push(logs[i]);
+				}
+			}
+			return selectedLines.join("\n");
+		} else {
+			// Original behavior for non-search mode
+			const currentAbsoluteLine = getCurrentAbsoluteLine();
+			const selectionStart = Math.min(
+				selectionStartAbsoluteLine,
+				currentAbsoluteLine,
+			);
+			const selectionEnd = Math.max(
+				selectionStartAbsoluteLine,
+				currentAbsoluteLine,
+			);
 
-		return selectedLines.join("\n");
+			const selectionCount = selectionEnd - selectionStart + 1;
+			const selectedLines =
+				selectedProcess.logBuffer.getLinesByAbsolutePosition(
+					selectionStart,
+					selectionCount,
+				);
+
+			return selectedLines.join("\n");
+		}
 	};
 
 	const copyToClipboard = async (text: string, indicatorText: string) => {
@@ -135,13 +197,32 @@ function LogTable(props: { height: number }) {
 	};
 
 	let logs: string[];
-	if (autoScroll) {
+	const currentSearchQuery = isSearchMode ? searchQuery : appliedSearchQuery;
+	if (currentSearchQuery && currentSearchQuery.trim()) {
+		// When search is active (typing) or applied, show search results
+		const searchResults = selectedProcess.logBuffer.search(currentSearchQuery);
+		logs = searchResults
+			.sort((a, b) => a.lineNumber - b.lineNumber) // Sort by line number
+			.slice(0, linesPerPage) // Limit to page size
+			.map((result) => result.text);
+	} else if (autoScroll) {
 		logs = selectedProcess.logBuffer.getRecentLines(linesPerPage);
 	} else {
 		if (!selectedProcess.logBuffer.isPositionValid(viewStartLine)) {
-			setPositionLost(true);
-			setAutoScroll(true);
-			logs = selectedProcess.logBuffer.getRecentLines(linesPerPage);
+			// Cap viewStartLine to valid bounds instead of falling back to autoscroll
+			const oldestLine =
+				selectedProcess.logBuffer.getOldestAvailableLineNumber();
+			const newestLine = selectedProcess.logBuffer.getTotalLines() + oldestLine;
+			const maxStartLine = Math.max(oldestLine, newestLine - linesPerPage);
+			const cappedViewStartLine = Math.min(
+				Math.max(viewStartLine, oldestLine),
+				maxStartLine,
+			);
+			setViewStartLine(cappedViewStartLine);
+			logs = selectedProcess.logBuffer.getLinesByAbsolutePosition(
+				cappedViewStartLine,
+				linesPerPage,
+			);
 		} else {
 			logs = selectedProcess.logBuffer.getLinesByAbsolutePosition(
 				viewStartLine,
@@ -150,7 +231,17 @@ function LogTable(props: { height: number }) {
 		}
 	}
 
+	// Adjust cursor if it's beyond available logs
+	if (logs.length > 0 && cursorIndex >= logs.length) {
+		setCursorIndex(Math.max(0, logs.length - 1));
+	}
+
 	useInput(async (input, key) => {
+		// Ignore all input when in search mode - let LogPage handle it
+		if (isSearchMode) {
+			return;
+		}
+
 		// Handle number input for vim-style prefixes
 		if (/^[0-9]$/.test(input)) {
 			setNumberPrefix((prev) => prev + input);
@@ -173,6 +264,7 @@ function LogTable(props: { height: number }) {
 					// Exit select mode after copying
 					setIsSelectMode(false);
 					setSelectionStartAbsoluteLine(0);
+					setSelectionStartViewIndex(0);
 				}
 			} else {
 				// Copy current line
@@ -191,6 +283,7 @@ function LogTable(props: { height: number }) {
 				// Enter select mode - record current position
 				setIsSelectMode(true);
 				setSelectionStartAbsoluteLine(getCurrentAbsoluteLine());
+				setSelectionStartViewIndex(cursorIndex);
 			}
 			setNumberPrefix("");
 			return;
@@ -198,6 +291,7 @@ function LogTable(props: { height: number }) {
 			// Exit select mode with backspace
 			setIsSelectMode(false);
 			setSelectionStartAbsoluteLine(0); // Clear selection
+			setSelectionStartViewIndex(0);
 			setNumberPrefix("");
 			setWaitingForSecondG(false);
 			return;
@@ -213,11 +307,17 @@ function LogTable(props: { height: number }) {
 			if (waitingForSecondG) {
 				// This is 'gg' - jump to beginning
 				if (selectedProcess) {
-					const oldestLine =
-						selectedProcess.logBuffer.getOldestAvailableLineNumber();
-					setViewStartLine(oldestLine);
-					setCursorIndex(0);
-					setAutoScroll(false);
+					if (appliedSearchQuery && appliedSearchQuery.trim()) {
+						// When search is applied, jump to first search result
+						setCursorIndex(0);
+					} else {
+						// Normal behavior for non-search mode
+						const oldestLine =
+							selectedProcess.logBuffer.getOldestAvailableLineNumber();
+						setViewStartLine(oldestLine);
+						setCursorIndex(0);
+						setAutoScroll(false);
+					}
 				}
 				setWaitingForSecondG(false);
 				setNumberPrefix("");
@@ -229,18 +329,24 @@ function LogTable(props: { height: number }) {
 		} else if (key.shift && input === "G") {
 			// Shift+G - jump to end
 			if (selectedProcess) {
-				const newestLine =
-					selectedProcess.logBuffer.getOldestAvailableLineNumber() +
-					selectedProcess.logBuffer.getTotalLines();
-				const maxStartLine = Math.max(0, newestLine - linesPerPage);
-				setViewStartLine(maxStartLine);
-				setCursorIndex(
-					Math.min(
-						linesPerPage - 1,
-						selectedProcess.logBuffer.getTotalLines() - 1,
-					),
-				);
-				setAutoScroll(true); // Jump to end enables autoscroll
+				if (appliedSearchQuery && appliedSearchQuery.trim()) {
+					// When search is applied, jump to last search result
+					setCursorIndex(Math.max(0, logs.length - 1));
+				} else {
+					// Normal behavior for non-search mode
+					const newestLine =
+						selectedProcess.logBuffer.getOldestAvailableLineNumber() +
+						selectedProcess.logBuffer.getTotalLines();
+					const maxStartLine = Math.max(0, newestLine - linesPerPage);
+					setViewStartLine(maxStartLine);
+					setCursorIndex(
+						Math.min(
+							linesPerPage - 1,
+							selectedProcess.logBuffer.getTotalLines() - 1,
+						),
+					);
+					setAutoScroll(true); // Jump to end enables autoscroll
+				}
 			}
 			setWaitingForSecondG(false);
 			setNumberPrefix("");
@@ -375,6 +481,15 @@ function LogTable(props: { height: number }) {
 					)}
 					{waitingForSecondG && <Text color={Colors.brightTeal}> [g]</Text>}
 					{isSelectMode && <Text color="#fbbf24"> [SELECT]</Text>}
+					{isSearchMode && (
+						<Text color={Colors.brightTeal}> &lt;/{searchQuery}&gt;</Text>
+					)}
+					{!isSearchMode && appliedSearchQuery && (
+						<Text color={Colors.brightTeal}>
+							{" "}
+							&lt;/{appliedSearchQuery}&gt;
+						</Text>
+					)}
 					{showCopyIndicator && (
 						<Text color="green"> ✓ {copyIndicatorText}</Text>
 					)}
@@ -392,6 +507,11 @@ function LogTable(props: { height: number }) {
 					backgroundColor = "#374151"; // Gray-700 for selection
 				}
 
+				const textParts =
+					currentSearchQuery && currentSearchQuery.trim()
+						? highlightSearchTerm(log, currentSearchQuery)
+						: [{ text: log, isHighlight: false }];
+
 				return (
 					<Box key={index} backgroundColor={backgroundColor}>
 						<Text
@@ -407,7 +527,25 @@ function LogTable(props: { height: number }) {
 							bold={isCursor}
 							wrap="truncate"
 						>
-							{log}
+							{textParts.map((part, partIndex) => (
+								<Text
+									key={partIndex}
+									color={
+										part.isHighlight
+											? Colors.brightOrange
+											: isCursor
+												? "white"
+												: isSelected
+													? Colors.lightBlue
+													: log.includes("stderr")
+														? "red"
+														: Colors.lightBlue
+									}
+									bold={part.isHighlight || isCursor}
+								>
+									{part.text}
+								</Text>
+							))}
 						</Text>
 					</Box>
 				);
@@ -420,6 +558,9 @@ export function LogPage() {
 	const { setPage } = usePage();
 	const [showShortcuts, setShowShortcuts] = useState(false);
 	const { selectedProcess } = useProcessManager();
+	const [isSearchMode, setIsSearchMode] = useState(false);
+	const [searchQuery, setSearchQuery] = useState("");
+	const [appliedSearchQuery, setAppliedSearchQuery] = useState("");
 
 	const { stdout } = useStdout();
 	const terminalHeight = stdout.rows;
@@ -432,13 +573,48 @@ export function LogPage() {
 		"shift+g to jump to end",
 		"s to toggle autoscroll",
 		"v to enter select mode",
+		"/ to enter search mode",
 		"y to copy line/selection",
-		"esc to exit select mode",
+		"esc to exit select/search mode",
 		"backspace to go back",
 		"q to quit",
 	];
 
 	useInput(async (input, key) => {
+		// Handle search mode input
+		if (isSearchMode) {
+			if (key.escape) {
+				// Exit search mode without applying
+				setIsSearchMode(false);
+				setSearchQuery("");
+			} else if (key.return) {
+				// Apply search and close search bar
+				setAppliedSearchQuery(searchQuery);
+				setIsSearchMode(false);
+			} else if (key.backspace || key.delete) {
+				// Handle backspace in search
+				setSearchQuery((prev) => prev.slice(0, -1));
+			} else if (input && input.length === 1 && input !== "/") {
+				// Add character to search query
+				setSearchQuery((prev) => prev + input);
+			}
+			// Always return early in search mode
+			return;
+		}
+
+		// Handle search mode entry
+		if (input === "/" && !key.shift) {
+			setIsSearchMode(true);
+			setSearchQuery("");
+			return;
+		}
+
+		// Clear applied search with ESC when not in search mode
+		if (key.escape && appliedSearchQuery) {
+			setAppliedSearchQuery("");
+			return;
+		}
+
 		if (key.backspace || key.delete) {
 			setPage(ViewPage.Main);
 		} else if (input === "?") {
@@ -465,16 +641,29 @@ export function LogPage() {
 					<Text color={Colors.teal}>]</Text>
 				</Text>
 			</Box>
+			{isSearchMode && (
+				<Box paddingX={1}>
+					<Text color={Colors.brightTeal}>Search: </Text>
+					<Text color="white">
+						{searchQuery}
+						<Text color={Colors.brightTeal}>█</Text>
+					</Text>
+				</Box>
+			)}
 			<LogTable
 				height={
 					terminalHeight -
 					6 -
+					(isSearchMode ? 1 : 0) -
 					getShortcutFooterHeight(
 						shortcuts.length,
 						terminalWidth,
 						showShortcuts,
 					)
 				}
+				isSearchMode={isSearchMode}
+				searchQuery={searchQuery}
+				appliedSearchQuery={appliedSearchQuery}
 			/>
 			<ShortcutFooter shortcuts={shortcuts} showShortcuts={showShortcuts} />
 		</>

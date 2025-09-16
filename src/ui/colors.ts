@@ -6,4 +6,5 @@ export const Colors = {
 	teal: "#4dd0a3",
 	brightTeal: "#5ee8b8",
 	brightPink: "#ff1493",
+	brightOrange: "#ff6b35",
 };
