@@ -27,6 +27,7 @@ export type Process = {
 	command: string;
 	status: ProcessStatus;
 	healthStatus: HealthStatus;
+	readinessProbe?: MarionetteConfig["process"][0]["readiness_probe"];
 	proc?: Subprocess;
 	startedAt?: Date;
 	logBuffer: LogBuffer;
