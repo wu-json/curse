@@ -28,6 +28,27 @@ function LogTable(props: {
 	const [copyIndicatorText, setCopyIndicatorText] = useState("");
 	const { isSearchMode, searchQuery, appliedSearchQuery } = props;
 
+	// Function to highlight search terms in text
+	const highlightSearchTerm = (text: string, searchTerm: string) => {
+		if (!searchTerm || !searchTerm.trim()) {
+			return [{ text, isHighlight: false }];
+		}
+
+		const parts = [];
+		const regex = new RegExp(`(${searchTerm.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')})`, 'gi');
+		const matches = text.split(regex);
+
+		for (let i = 0; i < matches.length; i++) {
+			const part = matches[i];
+			if (part) {
+				const isHighlight = regex.test(part);
+				parts.push({ text: part, isHighlight });
+			}
+		}
+
+		return parts;
+	};
+
 	// Force re-render every second to update logs and check position validity
 	useEffect(() => {
 		const interval = setInterval(() => {
@@ -439,6 +460,10 @@ function LogTable(props: {
 					backgroundColor = "#374151"; // Gray-700 for selection
 				}
 
+				const textParts = appliedSearchQuery && appliedSearchQuery.trim()
+					? highlightSearchTerm(log, appliedSearchQuery)
+					: [{ text: log, isHighlight: false }];
+
 				return (
 					<Box key={index} backgroundColor={backgroundColor}>
 						<Text
@@ -454,7 +479,25 @@ function LogTable(props: {
 							bold={isCursor}
 							wrap="truncate"
 						>
-							{log}
+							{textParts.map((part, partIndex) => (
+								<Text
+									key={partIndex}
+									color={
+										part.isHighlight
+											? Colors.brightOrange
+											: isCursor
+												? "white"
+												: isSelected
+													? Colors.lightBlue
+													: log.includes("stderr")
+														? "red"
+														: Colors.lightBlue
+									}
+									bold={part.isHighlight || isCursor}
+								>
+									{part.text}
+								</Text>
+							))}
 						</Text>
 					</Box>
 				);
