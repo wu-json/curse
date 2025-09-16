@@ -139,9 +139,16 @@ function LogTable(props: { height: number }) {
 		logs = selectedProcess.logBuffer.getRecentLines(linesPerPage);
 	} else {
 		if (!selectedProcess.logBuffer.isPositionValid(viewStartLine)) {
-			setPositionLost(true);
-			setAutoScroll(true);
-			logs = selectedProcess.logBuffer.getRecentLines(linesPerPage);
+			// Cap viewStartLine to valid bounds instead of falling back to autoscroll
+			const oldestLine = selectedProcess.logBuffer.getOldestAvailableLineNumber();
+			const newestLine = selectedProcess.logBuffer.getTotalLines() + oldestLine;
+			const maxStartLine = Math.max(oldestLine, newestLine - linesPerPage);
+			const cappedViewStartLine = Math.min(Math.max(viewStartLine, oldestLine), maxStartLine);
+			setViewStartLine(cappedViewStartLine);
+			logs = selectedProcess.logBuffer.getLinesByAbsolutePosition(
+				cappedViewStartLine,
+				linesPerPage,
+			);
 		} else {
 			logs = selectedProcess.logBuffer.getLinesByAbsolutePosition(
 				viewStartLine,
