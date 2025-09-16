@@ -2,7 +2,7 @@ name = "example configuration"
 
 [[process]]
 name = "web-server"
-command = "$SHELL -c 'while true; echo \"[$(date '+%Y-%m-%d %H:%M:%S')] INFO: Server listening on port 3000\"; sleep 0.5; echo \"[$(date '+%Y-%m-%d %H:%M:%S')] INFO: GET /api/users - 200 OK ($(math (random) % 50 + 10)ms)\"; sleep 0.8; echo \"[$(date '+%Y-%m-%d %H:%M:%S')] INFO: POST /api/auth/login - 201 Created ($(math (random) % 100 + 50)ms)\"; sleep 0.3; end'"
+command = "fish -c 'while true; echo \"[$(date '+%Y-%m-%d %H:%M:%S')] INFO: Server listening on port 3000\"; sleep 0.5; echo \"[$(date '+%Y-%m-%d %H:%M:%S')] INFO: GET /api/users - 200 OK ($(math (random) % 50 + 10)ms)\"; sleep 0.8; echo \"[$(date '+%Y-%m-%d %H:%M:%S')] INFO: POST /api/auth/login - 201 Created ($(math (random) % 100 + 50)ms)\"; sleep 0.3; end'"
 
 [[process]]
 name = "real-web-server"
@@ -10,16 +10,16 @@ command = "bun run examples/real-web-server.ts"
 
 [[process]]
 name = "database"
-command = "$SHELL -c 'while true; echo \"[$(date '+%Y-%m-%d %H:%M:%S')] [INFO] Connection pool: 15/20 active connections\"; sleep 5; echo \"[$(date '+%Y-%m-%d %H:%M:%S')] [INFO] Query executed: SELECT * FROM users WHERE id = $(math (random) % 1000 + 1) ($(math (random) % 30 + 5)ms)\"; sleep 3; echo \"[$(date '+%Y-%m-%d %H:%M:%S')] [WARN] Slow query detected: $(math (random) % 200 + 100)ms\"; sleep 8; end'"
+command = "fish -c 'while true; echo \"[$(date '+%Y-%m-%d %H:%M:%S')] [INFO] Connection pool: 15/20 active connections\"; sleep 5; echo \"[$(date '+%Y-%m-%d %H:%M:%S')] [INFO] Query executed: SELECT * FROM users WHERE id = $(math (random) % 1000 + 1) ($(math (random) % 30 + 5)ms)\"; sleep 3; echo \"[$(date '+%Y-%m-%d %H:%M:%S')] [WARN] Slow query detected: $(math (random) % 200 + 100)ms\"; sleep 8; end'"
 
 [[process]]
 name = "worker-queue"
-command = "$SHELL -c 'while true; echo \"[$(date '+%Y-%m-%d %H:%M:%S')] Worker: Processing job #$(math (random) % 10000 + 1000)\"; sleep 2; echo \"[$(date '+%Y-%m-%d %H:%M:%S')] Worker: Email sent to user$(math (random) % 100 + 1)@example.com\"; sleep 4; echo \"[$(date '+%Y-%m-%d %H:%M:%S')] Worker: Image resized: photo_$(math (random) % 500 + 1).jpg\"; sleep 3; end'"
+command = "fish -c 'while true; echo \"[$(date '+%Y-%m-%d %H:%M:%S')] Worker: Processing job #$(math (random) % 10000 + 1000)\"; sleep 2; echo \"[$(date '+%Y-%m-%d %H:%M:%S')] Worker: Email sent to user$(math (random) % 100 + 1)@example.com\"; sleep 4; echo \"[$(date '+%Y-%m-%d %H:%M:%S')] Worker: Image resized: photo_$(math (random) % 500 + 1).jpg\"; sleep 3; end'"
 
 [[process]]
 name = "redis-cache"
-command = "$SHELL -c 'while true; echo \"[$(date '+%Y-%m-%d %H:%M:%S')] Redis: SET session:$(string sub -l 8 (uuidgen)) (EX 3600)\"; sleep 1; echo \"[$(date '+%Y-%m-%d %H:%M:%S')] Redis: GET user:$(math (random) % 1000 + 1):profile - HIT\"; sleep 2; echo \"[$(date '+%Y-%m-%d %H:%M:%S')] Redis: Memory usage: $(math (random) % 30 + 40)MB\"; sleep 6; end'"
+command = "fish -c 'while true; echo \"[$(date '+%Y-%m-%d %H:%M:%S')] Redis: SET session:$(string sub -l 8 (uuidgen)) (EX 3600)\"; sleep 1; echo \"[$(date '+%Y-%m-%d %H:%M:%S')] Redis: GET user:$(math (random) % 1000 + 1):profile - HIT\"; sleep 2; echo \"[$(date '+%Y-%m-%d %H:%M:%S')] Redis: Memory usage: $(math (random) % 30 + 40)MB\"; sleep 6; end'"
 
 [[process]]
 name = "nginx-proxy"
-command = "$SHELL -c 'while true; echo \"$(date '+%d/%b/%Y:%H:%M:%S +0000') \\\"GET /api/health HTTP/1.1\\\" 200 $(math (random) % 500 + 100) \\\"-\\\" \\\"HealthChecker/1.0\\\"\"; sleep 1; echo \"$(date '+%d/%b/%Y:%H:%M:%S +0000') \\\"POST /api/graphql HTTP/1.1\\\" 200 $(math (random) % 2000 + 200) \\\"-\\\" \\\"Mozilla/5.0\\\"\"; sleep 2; end'"
+command = "fish -c 'while true; echo \"$(date '+%d/%b/%Y:%H:%M:%S +0000') \\\"GET /api/health HTTP/1.1\\\" 200 $(math (random) % 500 + 100) \\\"-\\\" \\\"HealthChecker/1.0\\\"\"; sleep 1; echo \"$(date '+%d/%b/%Y:%H:%M:%S +0000') \\\"POST /api/graphql HTTP/1.1\\\" 200 $(math (random) % 2000 + 200) \\\"-\\\" \\\"Mozilla/5.0\\\"\"; sleep 2; end'"
