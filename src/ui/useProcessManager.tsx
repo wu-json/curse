@@ -46,7 +46,12 @@ async function execProcess({
 	process.logBuffer.clear();
 
 	const parsedCommand = parseShellCommand(process.command);
-	const cmd = parsedCommand.map((arg) => String(arg));
+	const cmd = parsedCommand.map((entry) => {
+		if (typeof entry !== "string") {
+			throw new Error(`Unsupported shell command entry: ${JSON.stringify(entry)}`);
+		}
+		return entry;
+	});
 
 	const proc = spawn({
 		cmd,
