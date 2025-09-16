@@ -12,6 +12,12 @@ function LogTable(props: {
 	isSearchMode: boolean;
 	searchQuery: string;
 	appliedSearchQuery: string;
+	viewInContextRequested: {
+		lineNumber: number;
+		requested: boolean;
+	} | null;
+	onViewInContextHandled: () => void;
+	onSearchCursorChange?: (cursorIndex: number, searchResults: Array<{lineNumber: number; text: string}>) => void;
 }) {
 	const { selectedProcess, killAllProcesses } = useProcessManager();
 	const [, forceUpdate] = useState(0);
@@ -28,7 +34,7 @@ function LogTable(props: {
 	const [searchViewStartIndex, setSearchViewStartIndex] = useState(0);
 	const [showCopyIndicator, setShowCopyIndicator] = useState(false);
 	const [copyIndicatorText, setCopyIndicatorText] = useState("");
-	const { isSearchMode, searchQuery, appliedSearchQuery } = props;
+	const { isSearchMode, searchQuery, appliedSearchQuery, viewInContextRequested, onViewInContextHandled, onSearchCursorChange } = props;
 
 	// Function to highlight search terms in text
 	const highlightSearchTerm = (text: string, searchTerm: string) => {
@@ -62,6 +68,54 @@ function LogTable(props: {
 
 		return () => clearInterval(interval);
 	}, []);
+
+	// Handle view in context request
+	useEffect(() => {
+		if (viewInContextRequested?.requested && selectedProcess) {
+			const targetLineNumber = viewInContextRequested.lineNumber;
+
+			// Turn off autoscroll
+			setAutoScroll(false);
+
+			// Calculate the view start position to center the target line
+			const linesPerPage = props.height - 3;
+			const targetViewStart = Math.max(
+				selectedProcess.logBuffer.getOldestAvailableLineNumber(),
+				targetLineNumber - Math.floor(linesPerPage / 2)
+			);
+
+			// Set the view position
+			setViewStartLine(targetViewStart);
+
+			// Set cursor to the target line within the view
+			const cursorPosition = targetLineNumber - targetViewStart;
+			setCursorIndex(Math.max(0, Math.min(cursorPosition, linesPerPage - 1)));
+
+			// Reset search view index
+			setSearchViewStartIndex(0);
+
+			// Notify parent that we've handled the request
+			onViewInContextHandled();
+		}
+	}, [viewInContextRequested, selectedProcess, props.height, onViewInContextHandled]);
+
+	// Notify parent about current search cursor position
+	useEffect(() => {
+		if (onSearchCursorChange && appliedSearchQuery && appliedSearchQuery.trim() && selectedProcess) {
+			const searchResults = selectedProcess.logBuffer.search(appliedSearchQuery);
+			const sortedResults = searchResults.sort((a, b) => a.lineNumber - b.lineNumber);
+
+			// Calculate the actual cursor position within search results
+			let actualCursorIndex = 0;
+			if (autoScroll) {
+				actualCursorIndex = Math.max(0, sortedResults.length - (props.height - 3) + cursorIndex);
+			} else {
+				actualCursorIndex = searchViewStartIndex + cursorIndex;
+			}
+
+			onSearchCursorChange(actualCursorIndex, sortedResults);
+		}
+	}, [cursorIndex, searchViewStartIndex, appliedSearchQuery, autoScroll, selectedProcess, onSearchCursorChange, props.height]);
 
 	const linesPerPage = props.height - 3;
 
@@ -666,6 +720,12 @@ export function LogPage() {
 	const [isSearchMode, setIsSearchMode] = useState(false);
 	const [searchQuery, setSearchQuery] = useState("");
 	const [appliedSearchQuery, setAppliedSearchQuery] = useState("");
+	const [viewInContextRequested, setViewInContextRequested] = useState<{
+		lineNumber: number;
+		requested: boolean;
+	} | null>(null);
+	const [currentSearchCursor, setCurrentSearchCursor] = useState(0);
+	const [currentSearchResults, setCurrentSearchResults] = useState<Array<{lineNumber: number; text: string}>>([]);
 
 	const { stdout } = useStdout();
 	const terminalHeight = stdout.rows;
@@ -679,6 +739,7 @@ export function LogPage() {
 		"s to toggle autoscroll",
 		"v to enter select mode",
 		"/ to enter search mode",
+		"o to view search result in context",
 		"y to copy line/selection",
 		"esc to exit select/search mode",
 		"backspace to go back",
@@ -717,6 +778,22 @@ export function LogPage() {
 		// Clear applied search with ESC when not in search mode
 		if (key.escape && appliedSearchQuery) {
 			setAppliedSearchQuery("");
+			return;
+		}
+
+		// Handle "view in context" with 'o' key when search is applied
+		if (input === "o" && appliedSearchQuery && !key.shift) {
+			if (currentSearchResults.length > 0 && currentSearchCursor < currentSearchResults.length) {
+				const currentResult = currentSearchResults[currentSearchCursor];
+				if (currentResult) {
+					// Clear the search and navigate to that line
+					setAppliedSearchQuery("");
+					setViewInContextRequested({
+						lineNumber: currentResult.lineNumber,
+						requested: true,
+					});
+				}
+			}
 			return;
 		}
 
@@ -769,6 +846,12 @@ export function LogPage() {
 				isSearchMode={isSearchMode}
 				searchQuery={searchQuery}
 				appliedSearchQuery={appliedSearchQuery}
+				viewInContextRequested={viewInContextRequested}
+				onViewInContextHandled={() => setViewInContextRequested(null)}
+				onSearchCursorChange={(cursorIndex, searchResults) => {
+					setCurrentSearchCursor(cursorIndex);
+					setCurrentSearchResults(searchResults);
+				}}
 			/>
 			<ShortcutFooter shortcuts={shortcuts} showShortcuts={showShortcuts} />
 		</>
