@@ -7,7 +7,7 @@ import { useProcessManager } from "./useProcessManager";
 import { Colors } from "./colors";
 import { ShortcutFooter, getShortcutFooterHeight } from "./shortcutFooter";
 
-function LogTable(props: { height: number }) {
+function LogTable(props: { height: number; isSearchMode: boolean }) {
 	const { selectedProcess, killAllProcesses } = useProcessManager();
 	const [, forceUpdate] = useState(0);
 	const [autoScroll, setAutoScroll] = useState(true);
@@ -21,8 +21,7 @@ function LogTable(props: { height: number }) {
 		useState(0);
 	const [showCopyIndicator, setShowCopyIndicator] = useState(false);
 	const [copyIndicatorText, setCopyIndicatorText] = useState("");
-	const [isSearchMode, setIsSearchMode] = useState(false);
-	const [searchQuery, setSearchQuery] = useState("");
+	const { isSearchMode } = props;
 
 	// Force re-render every second to update logs and check position validity
 	useEffect(() => {
@@ -33,7 +32,7 @@ function LogTable(props: { height: number }) {
 		return () => clearInterval(interval);
 	}, []);
 
-	const linesPerPage = props.height - 3 - (isSearchMode ? 2 : 0);
+	const linesPerPage = props.height - 3;
 
 	if (!selectedProcess) {
 		return null;
@@ -164,33 +163,6 @@ function LogTable(props: { height: number }) {
 	}
 
 	useInput(async (input, key) => {
-		// Handle search mode input
-		if (isSearchMode) {
-			if (key.escape) {
-				// Exit search mode
-				setIsSearchMode(false);
-				setSearchQuery("");
-				return;
-			} else if (key.backspace || key.delete) {
-				// Handle backspace in search
-				setSearchQuery((prev) => prev.slice(0, -1));
-				return;
-			} else if (input && input.length === 1 && input !== "/") {
-				// Add character to search query
-				setSearchQuery((prev) => prev + input);
-				return;
-			}
-			// Ignore other keys in search mode
-			return;
-		}
-
-		// Handle search mode entry
-		if (input === "/" && !isSelectMode && !waitingForSecondG) {
-			setIsSearchMode(true);
-			setSearchQuery("");
-			return;
-		}
-
 		// Handle number input for vim-style prefixes
 		if (/^[0-9]$/.test(input)) {
 			setNumberPrefix((prev) => prev + input);
@@ -394,76 +366,65 @@ function LogTable(props: { height: number }) {
 	});
 
 	return (
-		<Box flexDirection="column" height={props.height}>
-			{isSearchMode && (
-				<Box paddingX={1}>
-					<Text color={Colors.brightTeal}>Search: </Text>
-					<Text color="white">
-						{searchQuery}
-						<Text color={Colors.brightTeal}>█</Text>
+		<Box
+			flexDirection="column"
+			borderStyle="single"
+			borderColor={Colors.darkGray}
+			paddingX={1}
+			height={props.height}
+		>
+			<Box justifyContent="center" borderBottom borderColor={Colors.darkGray}>
+				<Text color={Colors.darkGray}>
+					Autoscroll:
+					<Text color={autoScroll ? "green" : "#4b5563"}>
+						{autoScroll ? "on" : "off"}
 					</Text>
-				</Box>
-			)}
-			<Box
-				flexDirection="column"
-				borderStyle="single"
-				borderColor={Colors.darkGray}
-				paddingX={1}
-				height={props.height - (isSearchMode ? 2 : 0)}
-			>
-				<Box justifyContent="center" borderBottom borderColor={Colors.darkGray}>
-					<Text color={Colors.darkGray}>
-						Autoscroll:
-						<Text color={autoScroll ? "green" : "#4b5563"}>
-							{autoScroll ? "on" : "off"}
-						</Text>
-						{positionLost && (
-							<Text color="#fbbf24"> (position lost, returned to tail)</Text>
-						)}
-						{numberPrefix && (
-							<Text color={Colors.brightPink}> [{numberPrefix}]</Text>
-						)}
-						{waitingForSecondG && <Text color={Colors.brightTeal}> [g]</Text>}
-						{isSelectMode && <Text color="#fbbf24"> [SELECT]</Text>}
-						{isSearchMode && <Text color={Colors.brightTeal}> [SEARCH]</Text>}
-						{showCopyIndicator && (
-							<Text color="green"> ✓ {copyIndicatorText}</Text>
-						)}
-					</Text>
-				</Box>
-				{logs.map((log, index) => {
-					const isCursor = index === cursorIndex;
-					const isSelected = isLineSelected(index);
-
-					// Determine background color: cursor takes priority, then selection
-					let backgroundColor;
-					if (isCursor) {
-						backgroundColor = Colors.blue; // Cursor color
-					} else if (isSelected) {
-						backgroundColor = "#374151"; // Gray-700 for selection
-					}
-
-					return (
-						<Box key={index} backgroundColor={backgroundColor}>
-							<Text
-								color={
-									isCursor
-										? "white"
-										: isSelected
-											? Colors.lightBlue
-											: log.includes("stderr")
-												? "red"
-												: Colors.lightBlue
-								}
-								bold={isCursor}
-								wrap="truncate"
-							>
-								{log}
-							</Text>
-						</Box>
-					);
-				})}
+					{positionLost && (
+						<Text color="#fbbf24"> (position lost, returned to tail)</Text>
+					)}
+					{numberPrefix && (
+						<Text color={Colors.brightPink}> [{numberPrefix}]</Text>
+					)}
+					{waitingForSecondG && <Text color={Colors.brightTeal}> [g]</Text>}
+					{isSelectMode && <Text color="#fbbf24"> [SELECT]</Text>}
+					{isSearchMode && <Text color={Colors.brightTeal}> [SEARCH]</Text>}
+					{showCopyIndicator && (
+						<Text color="green"> ✓ {copyIndicatorText}</Text>
+					)}
+				</Text>
 			</Box>
+			{logs.map((log, index) => {
+				const isCursor = index === cursorIndex;
+				const isSelected = isLineSelected(index);
+
+				// Determine background color: cursor takes priority, then selection
+				let backgroundColor;
+				if (isCursor) {
+					backgroundColor = Colors.blue; // Cursor color
+				} else if (isSelected) {
+					backgroundColor = "#374151"; // Gray-700 for selection
+				}
+
+				return (
+					<Box key={index} backgroundColor={backgroundColor}>
+						<Text
+							color={
+								isCursor
+									? "white"
+									: isSelected
+										? Colors.lightBlue
+										: log.includes("stderr")
+											? "red"
+											: Colors.lightBlue
+							}
+							bold={isCursor}
+							wrap="truncate"
+						>
+							{log}
+						</Text>
+					</Box>
+				);
+			})}
 		</Box>
 	);
 }
@@ -472,6 +433,8 @@ export function LogPage() {
 	const { setPage } = usePage();
 	const [showShortcuts, setShowShortcuts] = useState(false);
 	const { selectedProcess } = useProcessManager();
+	const [isSearchMode, setIsSearchMode] = useState(false);
+	const [searchQuery, setSearchQuery] = useState("");
 
 	const { stdout } = useStdout();
 	const terminalHeight = stdout.rows;
@@ -492,6 +455,30 @@ export function LogPage() {
 	];
 
 	useInput(async (input, key) => {
+		// Handle search mode input
+		if (isSearchMode) {
+			if (key.escape) {
+				// Exit search mode
+				setIsSearchMode(false);
+				setSearchQuery("");
+			} else if (key.backspace || key.delete) {
+				// Handle backspace in search
+				setSearchQuery((prev) => prev.slice(0, -1));
+			} else if (input && input.length === 1 && input !== "/") {
+				// Add character to search query
+				setSearchQuery((prev) => prev + input);
+			}
+			// Always return early in search mode
+			return;
+		}
+
+		// Handle search mode entry
+		if (input === "/" && !key.shift) {
+			setIsSearchMode(true);
+			setSearchQuery("");
+			return;
+		}
+
 		if (key.backspace || key.delete) {
 			setPage(ViewPage.Main);
 		} else if (input === "?") {
@@ -518,16 +505,28 @@ export function LogPage() {
 					<Text color={Colors.teal}>]</Text>
 				</Text>
 			</Box>
+			{isSearchMode && (
+				<Box paddingX={1}>
+					<Text color={Colors.brightTeal}>Search: </Text>
+					<Text color="white">
+						{searchQuery}
+						<Text color={Colors.brightTeal}>█</Text>
+					</Text>
+				</Box>
+			)}
 			<LogTable
 				height={
 					terminalHeight -
 					6 -
+					(isSearchMode ? 1 : 0) -
 					getShortcutFooterHeight(
 						shortcuts.length,
 						terminalWidth,
 						showShortcuts,
 					)
 				}
+				isSearchMode={isSearchMode}
+				setIsSearchMode={setIsSearchMode}
 			/>
 			<ShortcutFooter shortcuts={shortcuts} showShortcuts={showShortcuts} />
 		</>
