@@ -1,5 +1,5 @@
 import { Box, Text, useInput, useStdout } from "ink";
-import { useEffect, useState, useMemo } from "react";
+import { useEffect, useState, useMemo, useCallback } from "react";
 import { $ } from "bun";
 
 import { usePage, ViewPage } from "./usePage";
@@ -115,7 +115,7 @@ function LogTable(props: {
 
 			onSearchCursorChange(actualCursorIndex, sortedResults);
 		}
-	}, [cursorIndex, searchViewStartIndex, appliedSearchQuery, autoScroll, selectedProcess, onSearchCursorChange, props.height]);
+	}, [cursorIndex, searchViewStartIndex, appliedSearchQuery, autoScroll]);
 
 	const linesPerPage = props.height - 3;
 
@@ -727,6 +727,15 @@ export function LogPage() {
 	const [currentSearchCursor, setCurrentSearchCursor] = useState(0);
 	const [currentSearchResults, setCurrentSearchResults] = useState<Array<{lineNumber: number; text: string}>>([]);
 
+	const handleSearchCursorChange = useCallback((cursorIndex: number, searchResults: Array<{lineNumber: number; text: string}>) => {
+		setCurrentSearchCursor(cursorIndex);
+		setCurrentSearchResults(searchResults);
+	}, []);
+
+	const handleViewInContextHandled = useCallback(() => {
+		setViewInContextRequested(null);
+	}, []);
+
 	const { stdout } = useStdout();
 	const terminalHeight = stdout.rows;
 	const terminalWidth = stdout.columns;
@@ -847,11 +856,8 @@ export function LogPage() {
 				searchQuery={searchQuery}
 				appliedSearchQuery={appliedSearchQuery}
 				viewInContextRequested={viewInContextRequested}
-				onViewInContextHandled={() => setViewInContextRequested(null)}
-				onSearchCursorChange={(cursorIndex, searchResults) => {
-					setCurrentSearchCursor(cursorIndex);
-					setCurrentSearchResults(searchResults);
-				}}
+				onViewInContextHandled={handleViewInContextHandled}
+				onSearchCursorChange={handleSearchCursorChange}
 			/>
 			<ShortcutFooter shortcuts={shortcuts} showShortcuts={showShortcuts} />
 		</>
