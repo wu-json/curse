@@ -201,10 +201,20 @@ function LogTable(props: {
 	if (currentSearchQuery && currentSearchQuery.trim()) {
 		// When search is active (typing) or applied, show search results
 		const searchResults = selectedProcess.logBuffer.search(currentSearchQuery);
-		logs = searchResults
-			.sort((a, b) => a.lineNumber - b.lineNumber) // Sort by line number
-			.slice(0, linesPerPage) // Limit to page size
-			.map((result) => result.text);
+		const sortedResults = searchResults.sort((a, b) => a.lineNumber - b.lineNumber);
+
+		if (autoScroll) {
+			// In autoscroll mode with search, show the most recent search results
+			logs = sortedResults
+				.slice(-linesPerPage) // Take the last N results (most recent)
+				.map(result => result.text);
+		} else {
+			// In manual scroll mode with search, show results from a specific position
+			// For now, just show first N results (this could be enhanced later)
+			logs = sortedResults
+				.slice(0, linesPerPage)
+				.map(result => result.text);
+		}
 	} else if (autoScroll) {
 		logs = selectedProcess.logBuffer.getRecentLines(linesPerPage);
 	} else {
