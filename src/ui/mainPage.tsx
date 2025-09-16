@@ -112,7 +112,7 @@ export function MainPage() {
 
 	const shortcuts = [
 		"↑/↓ or j/k to navigate",
-		"enter to show logs",
+		"enter/l to show logs",
 		"shift+r to restart process",
 		"shift+k to kill process",
 		"q to quit",
@@ -132,7 +132,7 @@ export function MainPage() {
 			process.exit(0);
 		} else if (input === "?") {
 			setShowShortcuts((prev) => !prev);
-		} else if (key.return) {
+		} else if (input === "l" || key.return) {
 			setPage(ViewPage.Logs);
 		}
 	});
