@@ -125,7 +125,8 @@ export class LogBuffer {
 		}
 
 		const results = this.searchIndex.search(query, {
-			fuzzy: 0.2,
+			fuzzy: false,
+			prefix: true,
 		});
 
 		return results.map((result) => ({
