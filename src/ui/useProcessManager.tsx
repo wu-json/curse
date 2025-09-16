@@ -1,5 +1,6 @@
 import { createContext, useContext, useMemo, useState } from "react";
 import { spawn, type Subprocess } from "bun";
+import { parse } from "shell-quote";
 import { LogBuffer, readStreamToBuffer } from "./logBuffer";
 
 import type { MarionetteConfig } from "../parser";
@@ -44,8 +45,11 @@ async function execProcess({
 
 	process.logBuffer.clear();
 
+	const parsedCommand = parse(process.command);
+	const cmd = parsedCommand.map(arg => String(arg));
+
 	const proc = spawn({
-		cmd: [ENV.SHELL, "-c", process.command],
+		cmd,
 		stdout: "pipe",
 		stderr: "pipe",
 	});
