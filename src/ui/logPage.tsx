@@ -21,6 +21,8 @@ function LogTable(props: { height: number }) {
 		useState(0);
 	const [showCopyIndicator, setShowCopyIndicator] = useState(false);
 	const [copyIndicatorText, setCopyIndicatorText] = useState("");
+	const [isSearchMode, setIsSearchMode] = useState(false);
+	const [searchQuery, setSearchQuery] = useState("");
 
 	// Force re-render every second to update logs and check position validity
 	useEffect(() => {
@@ -31,7 +33,7 @@ function LogTable(props: { height: number }) {
 		return () => clearInterval(interval);
 	}, []);
 
-	const linesPerPage = props.height - 3;
+	const linesPerPage = props.height - 3 - (isSearchMode ? 2 : 0);
 
 	if (!selectedProcess) {
 		return null;
@@ -140,10 +142,14 @@ function LogTable(props: { height: number }) {
 	} else {
 		if (!selectedProcess.logBuffer.isPositionValid(viewStartLine)) {
 			// Cap viewStartLine to valid bounds instead of falling back to autoscroll
-			const oldestLine = selectedProcess.logBuffer.getOldestAvailableLineNumber();
+			const oldestLine =
+				selectedProcess.logBuffer.getOldestAvailableLineNumber();
 			const newestLine = selectedProcess.logBuffer.getTotalLines() + oldestLine;
 			const maxStartLine = Math.max(oldestLine, newestLine - linesPerPage);
-			const cappedViewStartLine = Math.min(Math.max(viewStartLine, oldestLine), maxStartLine);
+			const cappedViewStartLine = Math.min(
+				Math.max(viewStartLine, oldestLine),
+				maxStartLine,
+			);
 			setViewStartLine(cappedViewStartLine);
 			logs = selectedProcess.logBuffer.getLinesByAbsolutePosition(
 				cappedViewStartLine,
@@ -158,6 +164,33 @@ function LogTable(props: { height: number }) {
 	}
 
 	useInput(async (input, key) => {
+		// Handle search mode input
+		if (isSearchMode) {
+			if (key.escape) {
+				// Exit search mode
+				setIsSearchMode(false);
+				setSearchQuery("");
+				return;
+			} else if (key.backspace || key.delete) {
+				// Handle backspace in search
+				setSearchQuery((prev) => prev.slice(0, -1));
+				return;
+			} else if (input && input.length === 1 && input !== "/") {
+				// Add character to search query
+				setSearchQuery((prev) => prev + input);
+				return;
+			}
+			// Ignore other keys in search mode
+			return;
+		}
+
+		// Handle search mode entry
+		if (input === "/" && !isSelectMode && !waitingForSecondG) {
+			setIsSearchMode(true);
+			setSearchQuery("");
+			return;
+		}
+
 		// Handle number input for vim-style prefixes
 		if (/^[0-9]$/.test(input)) {
 			setNumberPrefix((prev) => prev + input);
@@ -361,64 +394,76 @@ function LogTable(props: { height: number }) {
 	});
 
 	return (
-		<Box
-			flexDirection="column"
-			borderStyle="single"
-			borderColor={Colors.darkGray}
-			paddingX={1}
-			height={props.height}
-		>
-			<Box justifyContent="center" borderBottom borderColor={Colors.darkGray}>
-				<Text color={Colors.darkGray}>
-					Autoscroll:
-					<Text color={autoScroll ? "green" : "#4b5563"}>
-						{autoScroll ? "on" : "off"}
+		<Box flexDirection="column" height={props.height}>
+			{isSearchMode && (
+				<Box paddingX={1}>
+					<Text color={Colors.brightTeal}>Search: </Text>
+					<Text color="white" backgroundColor={Colors.darkGray}>
+						{searchQuery}
+						<Text color={Colors.brightTeal}>█</Text>
 					</Text>
-					{positionLost && (
-						<Text color="#fbbf24"> (position lost, returned to tail)</Text>
-					)}
-					{numberPrefix && (
-						<Text color={Colors.brightPink}> [{numberPrefix}]</Text>
-					)}
-					{waitingForSecondG && <Text color={Colors.brightTeal}> [g]</Text>}
-					{isSelectMode && <Text color="#fbbf24"> [SELECT]</Text>}
-					{showCopyIndicator && (
-						<Text color="green"> ✓ {copyIndicatorText}</Text>
-					)}
-				</Text>
-			</Box>
-			{logs.map((log, index) => {
-				const isCursor = index === cursorIndex;
-				const isSelected = isLineSelected(index);
-
-				// Determine background color: cursor takes priority, then selection
-				let backgroundColor;
-				if (isCursor) {
-					backgroundColor = Colors.blue; // Cursor color
-				} else if (isSelected) {
-					backgroundColor = "#374151"; // Gray-700 for selection
-				}
-
-				return (
-					<Box key={index} backgroundColor={backgroundColor}>
-						<Text
-							color={
-								isCursor
-									? "white"
-									: isSelected
-										? Colors.lightBlue
-										: log.includes("stderr")
-											? "red"
-											: Colors.lightBlue
-							}
-							bold={isCursor}
-							wrap="truncate"
-						>
-							{log}
+				</Box>
+			)}
+			<Box
+				flexDirection="column"
+				borderStyle="single"
+				borderColor={Colors.darkGray}
+				paddingX={1}
+				height={props.height - (isSearchMode ? 2 : 0)}
+			>
+				<Box justifyContent="center" borderBottom borderColor={Colors.darkGray}>
+					<Text color={Colors.darkGray}>
+						Autoscroll:
+						<Text color={autoScroll ? "green" : "#4b5563"}>
+							{autoScroll ? "on" : "off"}
 						</Text>
-					</Box>
-				);
-			})}
+						{positionLost && (
+							<Text color="#fbbf24"> (position lost, returned to tail)</Text>
+						)}
+						{numberPrefix && (
+							<Text color={Colors.brightPink}> [{numberPrefix}]</Text>
+						)}
+						{waitingForSecondG && <Text color={Colors.brightTeal}> [g]</Text>}
+						{isSelectMode && <Text color="#fbbf24"> [SELECT]</Text>}
+						{isSearchMode && <Text color={Colors.brightTeal}> [SEARCH]</Text>}
+						{showCopyIndicator && (
+							<Text color="green"> ✓ {copyIndicatorText}</Text>
+						)}
+					</Text>
+				</Box>
+				{logs.map((log, index) => {
+					const isCursor = index === cursorIndex;
+					const isSelected = isLineSelected(index);
+
+					// Determine background color: cursor takes priority, then selection
+					let backgroundColor;
+					if (isCursor) {
+						backgroundColor = Colors.blue; // Cursor color
+					} else if (isSelected) {
+						backgroundColor = "#374151"; // Gray-700 for selection
+					}
+
+					return (
+						<Box key={index} backgroundColor={backgroundColor}>
+							<Text
+								color={
+									isCursor
+										? "white"
+										: isSelected
+											? Colors.lightBlue
+											: log.includes("stderr")
+												? "red"
+												: Colors.lightBlue
+								}
+								bold={isCursor}
+								wrap="truncate"
+							>
+								{log}
+							</Text>
+						</Box>
+					);
+				})}
+			</Box>
 		</Box>
 	);
 }
@@ -439,8 +484,9 @@ export function LogPage() {
 		"shift+g to jump to end",
 		"s to toggle autoscroll",
 		"v to enter select mode",
+		"/ to enter search mode",
 		"y to copy line/selection",
-		"esc to exit select mode",
+		"esc to exit select/search mode",
 		"backspace to go back",
 		"q to quit",
 	];
