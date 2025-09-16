@@ -1,5 +1,5 @@
 import { Box, Text, useInput, useStdout } from "ink";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import { $ } from "bun";
 
 import { usePage, ViewPage } from "./usePage";
@@ -200,22 +200,24 @@ function LogTable(props: {
 	let logs: string[];
 	const currentSearchQuery = isSearchMode ? searchQuery : appliedSearchQuery;
 
-	if (currentSearchQuery && currentSearchQuery.trim()) {
-		// When search is active (typing) or applied, get fresh search results
+	// Memoize search results to avoid repeated expensive operations
+	const sortedSearchResults = useMemo(() => {
+		if (!currentSearchQuery || !currentSearchQuery.trim()) return [];
 		const searchResults = selectedProcess.logBuffer.search(currentSearchQuery);
-		const sortedResults = searchResults.sort(
-			(a, b) => a.lineNumber - b.lineNumber,
-		);
+		return searchResults.sort((a, b) => a.lineNumber - b.lineNumber);
+	}, [currentSearchQuery, selectedProcess.logBuffer.getTotalLines()]);
+
+	if (currentSearchQuery && currentSearchQuery.trim()) {
 
 		if (autoScroll) {
 			// In autoscroll mode, show the most recent search results
-			const startIndex = Math.max(0, sortedResults.length - linesPerPage);
-			logs = sortedResults.slice(startIndex).map((result) => result.text);
+			const startIndex = Math.max(0, sortedSearchResults.length - linesPerPage);
+			logs = sortedSearchResults.slice(startIndex).map((result) => result.text);
 		} else {
 			// In manual scroll mode, show results from current view position
-			const startIndex = Math.min(searchViewStartIndex, Math.max(0, sortedResults.length - linesPerPage));
-			const endIndex = Math.min(startIndex + linesPerPage, sortedResults.length);
-			logs = sortedResults
+			const startIndex = Math.min(searchViewStartIndex, Math.max(0, sortedSearchResults.length - linesPerPage));
+			const endIndex = Math.min(startIndex + linesPerPage, sortedSearchResults.length);
+			logs = sortedSearchResults
 				.slice(startIndex, endIndex)
 				.map((result) => result.text);
 		}
@@ -355,16 +357,15 @@ function LogTable(props: {
 			if (selectedProcess) {
 				if (currentSearchQuery && currentSearchQuery.trim()) {
 					// When search is active, jump to last search result
-					const searchResults = selectedProcess.logBuffer.search(currentSearchQuery);
 					const maxStartIndex = Math.max(
 						0,
-						searchResults.length - linesPerPage,
+						sortedSearchResults.length - linesPerPage,
 					);
 					setSearchViewStartIndex(maxStartIndex);
 					setCursorIndex(
 						Math.min(
 							linesPerPage - 1,
-							searchResults.length - maxStartIndex - 1,
+							sortedSearchResults.length - maxStartIndex - 1,
 						),
 					);
 					setAutoScroll(true); // Jump to end enables autoscroll
@@ -495,10 +496,9 @@ function LogTable(props: {
 							remainingMoves--;
 						} else {
 							// Cursor is at bottom, try to scroll down through search results
-							const searchResults = selectedProcess.logBuffer.search(currentSearchQuery);
 							const maxStartIndex = Math.max(
 								0,
-								searchResults.length - linesPerPage,
+								sortedSearchResults.length - linesPerPage,
 							);
 							if (newSearchViewStart < maxStartIndex) {
 								newSearchViewStart++;
