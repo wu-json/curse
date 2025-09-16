@@ -18,6 +18,7 @@ function LogTable(props: {
 	} | null;
 	onViewInContextHandled: () => void;
 	onSearchCursorChange?: (cursorIndex: number, searchResults: Array<{lineNumber: number; text: string}>) => void;
+	onSelectModeChange?: (isSelectMode: boolean) => void;
 }) {
 	const { selectedProcess, killAllProcesses } = useProcessManager();
 	const [, forceUpdate] = useState(0);
@@ -34,7 +35,7 @@ function LogTable(props: {
 	const [searchViewStartIndex, setSearchViewStartIndex] = useState(0);
 	const [showCopyIndicator, setShowCopyIndicator] = useState(false);
 	const [copyIndicatorText, setCopyIndicatorText] = useState("");
-	const { isSearchMode, searchQuery, appliedSearchQuery, viewInContextRequested, onViewInContextHandled, onSearchCursorChange } = props;
+	const { isSearchMode, searchQuery, appliedSearchQuery, viewInContextRequested, onViewInContextHandled, onSearchCursorChange, onSelectModeChange } = props;
 
 	// Function to highlight search terms in text
 	const highlightSearchTerm = (text: string, searchTerm: string) => {
@@ -341,6 +342,7 @@ function LogTable(props: {
 					await copyToClipboard(selectedText, `copied ${lineCount} lines`);
 					// Exit select mode after copying
 					setIsSelectMode(false);
+					onSelectModeChange?.(false);
 					setSelectionStartAbsoluteLine(0);
 					setSelectionStartViewIndex(0);
 				}
@@ -360,6 +362,7 @@ function LogTable(props: {
 			if (!isSelectMode) {
 				// Enter select mode - record current position
 				setIsSelectMode(true);
+				onSelectModeChange?.(true);
 				setSelectionStartAbsoluteLine(getCurrentAbsoluteLine());
 				setSelectionStartViewIndex(cursorIndex);
 			}
@@ -368,6 +371,7 @@ function LogTable(props: {
 		} else if (key.escape && isSelectMode) {
 			// Exit select mode with backspace
 			setIsSelectMode(false);
+			onSelectModeChange?.(false);
 			setSelectionStartAbsoluteLine(0); // Clear selection
 			setSelectionStartViewIndex(0);
 			setNumberPrefix("");
@@ -726,6 +730,7 @@ export function LogPage() {
 	} | null>(null);
 	const [currentSearchCursor, setCurrentSearchCursor] = useState(0);
 	const [currentSearchResults, setCurrentSearchResults] = useState<Array<{lineNumber: number; text: string}>>([]);
+	const [isSelectMode, setIsSelectMode] = useState(false);
 
 	const handleSearchCursorChange = useCallback((cursorIndex: number, searchResults: Array<{lineNumber: number; text: string}>) => {
 		setCurrentSearchCursor(cursorIndex);
@@ -734,6 +739,10 @@ export function LogPage() {
 
 	const handleViewInContextHandled = useCallback(() => {
 		setViewInContextRequested(null);
+	}, []);
+
+	const handleSelectModeChange = useCallback((selectMode: boolean) => {
+		setIsSelectMode(selectMode);
 	}, []);
 
 	const { stdout } = useStdout();
@@ -787,6 +796,12 @@ export function LogPage() {
 		// Clear applied search with ESC when not in search mode
 		if (key.escape && appliedSearchQuery) {
 			setAppliedSearchQuery("");
+			return;
+		}
+
+		// Go back to main page with ESC when not in search mode, no applied search, and not in select mode
+		if (key.escape && !appliedSearchQuery && !isSelectMode) {
+			setPage(ViewPage.Main);
 			return;
 		}
 
@@ -858,6 +873,7 @@ export function LogPage() {
 				viewInContextRequested={viewInContextRequested}
 				onViewInContextHandled={handleViewInContextHandled}
 				onSearchCursorChange={handleSearchCursorChange}
+				onSelectModeChange={handleSelectModeChange}
 			/>
 			<ShortcutFooter shortcuts={shortcuts} showShortcuts={showShortcuts} />
 		</>
