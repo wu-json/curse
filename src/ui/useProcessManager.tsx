@@ -16,17 +16,11 @@ export enum ProcessStatus {
 	Killed = "killed",
 }
 
-export enum HealthStatus {
-	None = "none",
-	Ready = "ready",
-	NotReady = "not_ready",
-}
-
 export type Process = {
 	name: string;
 	command: string;
 	status: ProcessStatus;
-	healthStatus: HealthStatus;
+	isReady?: boolean;
 	readinessProbe?: MarionetteConfig["process"][0]["readiness_probe"];
 	proc?: Subprocess;
 	startedAt?: Date;
@@ -113,7 +107,7 @@ export function ProcessManagerProvider(props: {
 			name: p.name,
 			command: p.command,
 			status: ProcessStatus.Pending,
-			healthStatus: HealthStatus.None,
+			isReady: p.readiness_probe ? false : undefined,
 			readinessProbe: p.readiness_probe,
 			logBuffer: new LogBuffer(ENV.LOG_BUFFER_SIZE ?? 5_000),
 		})),
