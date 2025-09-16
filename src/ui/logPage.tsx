@@ -11,6 +11,7 @@ function LogTable(props: {
 	height: number;
 	isSearchMode: boolean;
 	searchQuery: string;
+	appliedSearchQuery: string;
 }) {
 	const { selectedProcess, killAllProcesses } = useProcessManager();
 	const [, forceUpdate] = useState(0);
@@ -25,7 +26,7 @@ function LogTable(props: {
 		useState(0);
 	const [showCopyIndicator, setShowCopyIndicator] = useState(false);
 	const [copyIndicatorText, setCopyIndicatorText] = useState("");
-	const { isSearchMode, searchQuery } = props;
+	const { isSearchMode, searchQuery, appliedSearchQuery } = props;
 
 	// Force re-render every second to update logs and check position validity
 	useEffect(() => {
@@ -399,6 +400,9 @@ function LogTable(props: {
 					{isSearchMode && (
 						<Text color={Colors.brightTeal}> &lt;/{searchQuery}&gt;</Text>
 					)}
+					{!isSearchMode && appliedSearchQuery && (
+						<Text color={Colors.brightTeal}> &lt;/{appliedSearchQuery}&gt;</Text>
+					)}
 					{showCopyIndicator && (
 						<Text color="green"> ✓ {copyIndicatorText}</Text>
 					)}
@@ -446,6 +450,7 @@ export function LogPage() {
 	const { selectedProcess } = useProcessManager();
 	const [isSearchMode, setIsSearchMode] = useState(false);
 	const [searchQuery, setSearchQuery] = useState("");
+	const [appliedSearchQuery, setAppliedSearchQuery] = useState("");
 
 	const { stdout } = useStdout();
 	const terminalHeight = stdout.rows;
@@ -469,9 +474,13 @@ export function LogPage() {
 		// Handle search mode input
 		if (isSearchMode) {
 			if (key.escape) {
-				// Exit search mode
+				// Exit search mode without applying
 				setIsSearchMode(false);
 				setSearchQuery("");
+			} else if (key.return) {
+				// Apply search and close search bar
+				setAppliedSearchQuery(searchQuery);
+				setIsSearchMode(false);
 			} else if (key.backspace || key.delete) {
 				// Handle backspace in search
 				setSearchQuery((prev) => prev.slice(0, -1));
@@ -538,6 +547,7 @@ export function LogPage() {
 				}
 				isSearchMode={isSearchMode}
 				searchQuery={searchQuery}
+				appliedSearchQuery={appliedSearchQuery}
 			/>
 			<ShortcutFooter shortcuts={shortcuts} showShortcuts={showShortcuts} />
 		</>
