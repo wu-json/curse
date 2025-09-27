@@ -23,6 +23,7 @@ export type Process = {
 	isReady?: boolean;
 	readinessProbe?: MarionetteConfig["process"][0]["readiness_probe"];
 	readinessTimer?: NodeJS.Timeout;
+	readinessProbeInProgress?: boolean;
 	proc?: Subprocess;
 	startedAt?: Date;
 	logBuffer: LogBuffer;
@@ -34,6 +35,7 @@ type UpdateProcessFields = {
 	startedAt?: Date;
 	isReady?: boolean;
 	readinessTimer?: NodeJS.Timeout;
+	readinessProbeInProgress?: boolean;
 };
 
 async function performReadinessProbe(probe: NonNullable<Process['readinessProbe']>): Promise<boolean> {
@@ -63,8 +65,13 @@ function startReadinessTimer(
 	}
 
 	const timer = setInterval(async () => {
+		if (process.readinessProbeInProgress) {
+			return;
+		}
+
+		updateProcess({ readinessProbeInProgress: true });
 		const isReady = await performReadinessProbe(process.readinessProbe!);
-		updateProcess({ isReady });
+		updateProcess({ isReady, readinessProbeInProgress: false });
 	}, 500);
 
 	return timer;
@@ -117,7 +124,8 @@ async function execProcess({
 	updateProcess({
 		status: result === 0 ? ProcessStatus.Success : ProcessStatus.Error,
 		readinessTimer: undefined,
-		isReady: undefined
+		isReady: undefined,
+		readinessProbeInProgress: false
 	});
 }
 
@@ -227,7 +235,8 @@ export function ProcessManagerProvider(props: {
 		updateProcess(processIdx, {
 			status: ProcessStatus.Killed,
 			readinessTimer: undefined,
-			isReady: undefined
+			isReady: undefined,
+			readinessProbeInProgress: false
 		});
 	};
 
