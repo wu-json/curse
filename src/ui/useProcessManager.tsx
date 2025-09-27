@@ -76,15 +76,11 @@ function startReadinessTimer(
 		updateProcess({ readinessProbeInProgress: true });
 		const isReady = await performReadinessProbe(process.readinessProbe!);
 
-		if (isReady && process.status === ProcessStatus.Starting) {
-			updateProcess({
-				isReady,
-				readinessProbeInProgress: false,
-				status: ProcessStatus.Running
-			});
-		} else {
-			updateProcess({ isReady, readinessProbeInProgress: false });
-		}
+		updateProcess({
+			isReady,
+			readinessProbeInProgress: false,
+			...(isReady ? { status: ProcessStatus.Running } : {})
+		});
 	}, 500);
 
 	return timer;
