@@ -11,7 +11,8 @@ readiness_probe = { type = "http", host = "127.0.0.1", path = "/health", port = 
 
 [[process]]
 name = "real-web-server-other"
-command = "PORT=9071 bun run examples/real-web-server.ts"
+command = "bun run examples/real-web-server.ts"
+env = { PORT = 9071 }
 readiness_probe = { type = "http", host = "127.0.0.1", path = "/health", port = 9071 }
 
 [[process]]
