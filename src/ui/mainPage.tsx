@@ -37,6 +37,9 @@ function ProcessTable() {
 				<Box width={10} marginLeft={2}>
 					<Text bold>STATUS</Text>
 				</Box>
+				<Box width={8} marginLeft={2}>
+					<Text bold>READY</Text>
+				</Box>
 				<Box width={8}>
 					<Text bold>AGE</Text>
 				</Box>
@@ -64,6 +67,20 @@ function ProcessTable() {
 								bold={isSelected}
 							>
 								{process.status}
+							</Text>
+						</Box>
+						<Box width={8} marginLeft={2}>
+							<Text
+								color={isSelected ? "white" : Colors.blue}
+								bold={isSelected}
+							>
+								{process.readinessProbe === undefined
+									? "-"
+									: process.isReady === undefined
+									? "?"
+									: process.isReady
+									? "✓"
+									: "✗"}
 							</Text>
 						</Box>
 						<Box width={8}>
