@@ -13,6 +13,7 @@ const MarionetteConfig = type({
 			path: "string",
 			port: "number",
 		},
+		"deps?": "string[]",
 	}).array(),
 });
 
