@@ -21,7 +21,7 @@ export type Process = {
 	command: string;
 	status: ProcessStatus;
 	deps?: string[];
-	env?: Record<string, string>;
+	env?: Record<string, string | number>;
 	isReady?: boolean;
 	readinessProbe?: MarionetteConfig["process"][0]["readiness_probe"];
 	readinessTimer?: NodeJS.Timeout;
