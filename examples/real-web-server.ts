@@ -1,3 +1,5 @@
+await new Promise(resolve => setTimeout(resolve, 5000));
+
 const server = Bun.serve({
 	port: 9070,
 	fetch(req) {
@@ -25,4 +27,3 @@ process.on("SIGINT", () => {
 	server.stop();
 	process.exit(0);
 });
-

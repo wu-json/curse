@@ -7,6 +7,7 @@ command = "fish -c 'while true\necho \"[$(date \"+%Y-%m-%d %H:%M:%S\")] INFO: Se
 [[process]]
 name = "real-web-server"
 command = "bun run examples/real-web-server.ts"
+readiness_probe = { type = "http", host = "127.0.0.1", path = "/health", port = 9070 }
 
 [[process]]
 name = "database"
