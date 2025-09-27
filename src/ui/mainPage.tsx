@@ -4,18 +4,21 @@ import { useEffect, useState } from "react";
 import { usePage, ViewPage } from "./usePage";
 import { useProcessManager } from "./useProcessManager";
 import { Colors } from "./colors";
-import { ShortcutFooter } from "./shortcutFooter";
+import { ShortcutFooter, getShortcutFooterHeight } from "./shortcutFooter";
+import { LogTailPreview } from "./logTailPreview";
 
 function ProcessTable() {
 	const { processes, selectedProcessIdx } = useProcessManager();
 	const [, forceUpdate] = useState(0);
 	const { stdout } = useStdout();
 
-	// Calculate dynamic column widths
 	const terminalWidth = stdout?.columns ?? 80;
 	const fixedColumnsWidth = 10 + 2 + 8 + 2 + 8; // STATUS + margin + READY + margin + AGE
 	const borderAndPadding = 4; // border + padding
-	const nameColumnWidth = Math.max(20, terminalWidth - fixedColumnsWidth - borderAndPadding);
+	const nameColumnWidth = Math.max(
+		20,
+		terminalWidth - fixedColumnsWidth - borderAndPadding,
+	);
 
 	// Force re-render every second to update age display
 	useEffect(() => {
@@ -83,17 +86,18 @@ function ProcessTable() {
 								color={isSelected ? "white" : Colors.blue}
 								bold={isSelected}
 							>
-								{process.readinessProbe === undefined || process.status === "killed"
+								{process.readinessProbe === undefined ||
+								process.status === "killed"
 									? "-"
 									: process.status === "starting" && process.readinessProbe
-									? "-"
-									: process.status === "error" && process.readinessProbe
-									? "x"
-									: process.isReady === undefined
-									? "?"
-									: process.isReady
-									? "✓"
-									: "✗"}
+										? "-"
+										: process.status === "error" && process.readinessProbe
+											? "x"
+											: process.isReady === undefined
+												? "?"
+												: process.isReady
+													? "✓"
+													: "✗"}
 							</Text>
 						</Box>
 						<Box width={8}>
@@ -139,6 +143,7 @@ export function MainPage() {
 
 	const { setPage } = usePage();
 	const [showShortcuts, setShowShortcuts] = useState(false);
+	const { stdout } = useStdout();
 
 	const shortcuts = [
 		"↑/↓ or j/k to navigate",
@@ -167,10 +172,27 @@ export function MainPage() {
 		}
 	});
 
+	const terminalHeight = stdout?.rows ?? 24;
+	const terminalWidth = stdout?.columns ?? 80;
+
+	const shortcutFooterHeight = getShortcutFooterHeight(
+		shortcuts.length,
+		terminalWidth,
+		showShortcuts,
+	);
+
+	const processTableHeight = processes.length + 3;
+
+	const headerHeight = 4;
+	const availableForLogs =
+		terminalHeight - headerHeight - processTableHeight - shortcutFooterHeight;
+	const logPreviewHeight = Math.max(4, availableForLogs - 1);
+
 	return (
-		<>
+		<Box flexDirection="column">
 			<ProcessTable />
+			<LogTailPreview height={logPreviewHeight} />
 			<ShortcutFooter shortcuts={shortcuts} showShortcuts={showShortcuts} />
-		</>
+		</Box>
 	);
 }
