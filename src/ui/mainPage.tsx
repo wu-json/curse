@@ -76,6 +76,8 @@ function ProcessTable() {
 							>
 								{process.readinessProbe === undefined || process.status === "killed"
 									? "-"
+									: process.status === "error" && process.readinessProbe
+									? "x"
 									: process.isReady === undefined
 									? "?"
 									: process.isReady

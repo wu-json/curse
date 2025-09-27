@@ -20,6 +20,7 @@ export type Process = {
 	name: string;
 	command: string;
 	status: ProcessStatus;
+	deps?: string[];
 	isReady?: boolean;
 	readinessProbe?: MarionetteConfig["process"][0]["readiness_probe"];
 	readinessTimer?: NodeJS.Timeout;
@@ -83,6 +84,28 @@ function clearReadinessTimer(timer?: NodeJS.Timeout) {
 	if (timer) {
 		clearInterval(timer);
 	}
+}
+
+function areDependenciesSatisfied(
+	process: Process,
+	allProcesses: Process[],
+): boolean {
+	if (!process.deps || process.deps.length === 0) {
+		return true;
+	}
+
+	return process.deps.every((depName) => {
+		const depProcess = allProcesses.find((p) => p.name === depName);
+		if (!depProcess) {
+			return false;
+		}
+
+		if (depProcess.readinessProbe) {
+			return depProcess.isReady === true;
+		} else {
+			return depProcess.status !== ProcessStatus.Pending;
+		}
+	});
 }
 
 async function execProcess({
@@ -165,6 +188,7 @@ export function ProcessManagerProvider(props: {
 			name: p.name,
 			command: p.command,
 			status: ProcessStatus.Pending,
+			deps: p.deps,
 			isReady: p.readiness_probe ? false : undefined,
 			readinessProbe: p.readiness_probe,
 			logBuffer: new LogBuffer(ENV.LOG_BUFFER_SIZE ?? 5_000),
@@ -188,7 +212,10 @@ export function ProcessManagerProvider(props: {
 
 	const runPendingProcesses = () => {
 		processes.map((p, i) => {
-			if (p.status === ProcessStatus.Pending) {
+			if (
+				p.status === ProcessStatus.Pending &&
+				areDependenciesSatisfied(p, processes)
+			) {
 				execProcess({
 					process: p,
 					updateProcess: (fields: UpdateProcessFields) =>

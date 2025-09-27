@@ -1,7 +1,7 @@
-await new Promise(resolve => setTimeout(resolve, 5000));
+await new Promise((resolve) => setTimeout(resolve, 5000));
 
 const server = Bun.serve({
-	port: 9070,
+	port: process.env.PORT ?? 9070,
 	fetch(req) {
 		const url = new URL(req.url);
 
