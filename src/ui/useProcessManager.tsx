@@ -38,15 +38,17 @@ type UpdateProcessFields = {
 	readinessProbeInProgress?: boolean;
 };
 
-async function performReadinessProbe(probe: NonNullable<Process['readinessProbe']>): Promise<boolean> {
+async function performReadinessProbe(
+	probe: NonNullable<Process["readinessProbe"]>,
+): Promise<boolean> {
 	try {
 		const url = `http://${probe.host}:${probe.port}${probe.path}`;
 		const controller = new AbortController();
-		const timeoutId = setTimeout(() => controller.abort(), 5000);
+		const timeoutId = setTimeout(() => controller.abort(), 3_000);
 
 		const response = await fetch(url, {
-			method: 'GET',
-			signal: controller.signal
+			method: "GET",
+			signal: controller.signal,
 		});
 
 		clearTimeout(timeoutId);
@@ -58,7 +60,7 @@ async function performReadinessProbe(probe: NonNullable<Process['readinessProbe'
 
 function startReadinessTimer(
 	process: Process,
-	updateProcess: (updates: UpdateProcessFields) => void
+	updateProcess: (updates: UpdateProcessFields) => void,
 ): NodeJS.Timeout | undefined {
 	if (!process.readinessProbe) {
 		return undefined;
@@ -125,7 +127,7 @@ async function execProcess({
 		status: result === 0 ? ProcessStatus.Success : ProcessStatus.Error,
 		readinessTimer: undefined,
 		isReady: undefined,
-		readinessProbeInProgress: false
+		readinessProbeInProgress: false,
 	});
 }
 
@@ -236,7 +238,7 @@ export function ProcessManagerProvider(props: {
 			status: ProcessStatus.Killed,
 			readinessTimer: undefined,
 			isReady: undefined,
-			readinessProbeInProgress: false
+			readinessProbeInProgress: false,
 		});
 	};
 
