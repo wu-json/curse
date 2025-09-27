@@ -4,7 +4,8 @@ import { useEffect, useState } from "react";
 import { usePage, ViewPage } from "./usePage";
 import { useProcessManager } from "./useProcessManager";
 import { Colors } from "./colors";
-import { ShortcutFooter } from "./shortcutFooter";
+import { ShortcutFooter, getShortcutFooterHeight } from "./shortcutFooter";
+import { LogTailPreview } from "./logTailPreview";
 
 function ProcessTable() {
 	const { processes, selectedProcessIdx } = useProcessManager();
@@ -139,6 +140,7 @@ export function MainPage() {
 
 	const { setPage } = usePage();
 	const [showShortcuts, setShowShortcuts] = useState(false);
+	const { stdout } = useStdout();
 
 	const shortcuts = [
 		"↑/↓ or j/k to navigate",
@@ -167,10 +169,26 @@ export function MainPage() {
 		}
 	});
 
+	const terminalHeight = stdout?.rows ?? 24;
+	const terminalWidth = stdout?.columns ?? 80;
+
+	// Calculate available space for the log preview
+	const shortcutFooterHeight = getShortcutFooterHeight(
+		shortcuts.length,
+		terminalWidth,
+		showShortcuts,
+	);
+
+	// Process table takes minimum space needed plus some buffer
+	const minProcessTableHeight = Math.min(processes.length + 3, 12); // header + processes + border
+	const remainingHeight = terminalHeight - shortcutFooterHeight - minProcessTableHeight;
+	const logPreviewHeight = Math.max(8, remainingHeight); // Minimum 8 lines for log preview
+
 	return (
-		<>
+		<Box flexDirection="column" height={terminalHeight}>
 			<ProcessTable />
+			<LogTailPreview height={logPreviewHeight} />
 			<ShortcutFooter shortcuts={shortcuts} showShortcuts={showShortcuts} />
-		</>
+		</Box>
 	);
 }
