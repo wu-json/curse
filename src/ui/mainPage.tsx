@@ -12,7 +12,6 @@ function ProcessTable() {
 	const [, forceUpdate] = useState(0);
 	const { stdout } = useStdout();
 
-	// Calculate dynamic column widths
 	const terminalWidth = stdout?.columns ?? 80;
 	const fixedColumnsWidth = 10 + 2 + 8 + 2 + 8; // STATUS + margin + READY + margin + AGE
 	const borderAndPadding = 4; // border + padding
@@ -176,22 +175,18 @@ export function MainPage() {
 	const terminalHeight = stdout?.rows ?? 24;
 	const terminalWidth = stdout?.columns ?? 80;
 
-	// Calculate available space for the log preview
 	const shortcutFooterHeight = getShortcutFooterHeight(
 		shortcuts.length,
 		terminalWidth,
 		showShortcuts,
 	);
 
-	// Process table height: header (1) + processes + borders (2)
 	const processTableHeight = processes.length + 3;
 
-	// Calculate remaining space for log preview
-	// Total space - header (2 lines) - process table - footer - buffer for spacing
-	const headerHeight = 4; // "Marionette 🎭 v{version}" + "Config: {config.name}" from view.tsx
+	const headerHeight = 4;
 	const availableForLogs =
 		terminalHeight - headerHeight - processTableHeight - shortcutFooterHeight;
-	const logPreviewHeight = Math.max(4, availableForLogs - 1); // Minimum 4 lines, -1 for spacing
+	const logPreviewHeight = Math.max(4, availableForLogs - 1);
 
 	return (
 		<Box flexDirection="column">
