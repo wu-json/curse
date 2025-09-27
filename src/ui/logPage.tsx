@@ -665,17 +665,17 @@ function LogTable(props: {
 			<Box justifyContent="center" borderBottom borderColor={Colors.darkGray}>
 				<Text color={Colors.darkGray}>
 					Autoscroll:
-					<Text color={autoScroll ? "green" : "#4b5563"}>
+					<Text color={autoScroll ? Colors.brightTeal : Colors.darkGray}>
 						{autoScroll ? "on" : "off"}
 					</Text>
 					{positionLost && (
-						<Text color="#fbbf24"> (position lost, returned to tail)</Text>
+						<Text color={Colors.brightOrange}> (position lost, returned to tail)</Text>
 					)}
 					{numberPrefix && (
 						<Text color={Colors.brightPink}> [{numberPrefix}]</Text>
 					)}
 					{waitingForSecondG && <Text color={Colors.brightTeal}> [g]</Text>}
-					{isSelectMode && <Text color="#fbbf24"> [SELECT]</Text>}
+					{isSelectMode && <Text color={Colors.brightOrange}> [SELECT]</Text>}
 					{isSearchMode && (
 						<Text color={Colors.brightTeal}> &lt;/{searchQuery}&gt;</Text>
 					)}
@@ -686,7 +686,7 @@ function LogTable(props: {
 						</Text>
 					)}
 					{showCopyIndicator && (
-						<Text color="green"> ✓ {copyIndicatorText}</Text>
+						<Text color={Colors.brightTeal}> ✓ {copyIndicatorText}</Text>
 					)}
 				</Text>
 			</Box>
@@ -699,7 +699,7 @@ function LogTable(props: {
 				if (isCursor) {
 					backgroundColor = Colors.blue; // Cursor color
 				} else if (isSelected) {
-					backgroundColor = "#374151"; // Gray-700 for selection
+					backgroundColor = Colors.darkGray; // Charcoal for selection
 				}
 
 				const textParts =

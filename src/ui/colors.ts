@@ -1,10 +1,10 @@
 export const Colors = {
-	primary: "#a855f7",
-	darkGray: "#6b7280",
-	blue: "#3b82f6",
-	lightBlue: "#60a5fa",
-	teal: "#4dd0a3",
-	brightTeal: "#5ee8b8",
-	brightPink: "#ff1493",
-	brightOrange: "#ff6b35",
+	primary: "#8b5cf6",
+	darkGray: "#4b5563",
+	blue: "#6366f1",
+	lightBlue: "#a78bfa",
+	teal: "#10b981",
+	brightTeal: "#34d399",
+	brightPink: "#ec4899",
+	brightOrange: "#f97316",
 };
