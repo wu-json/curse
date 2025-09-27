@@ -32,7 +32,49 @@ type UpdateProcessFields = {
 	proc?: Subprocess;
 	status?: ProcessStatus;
 	startedAt?: Date;
+	isReady?: boolean;
+	readinessTimer?: NodeJS.Timeout;
 };
+
+async function performReadinessProbe(probe: NonNullable<Process['readinessProbe']>): Promise<boolean> {
+	try {
+		const url = `http://${probe.host}:${probe.port}${probe.path}`;
+		const controller = new AbortController();
+		const timeoutId = setTimeout(() => controller.abort(), 5000);
+
+		const response = await fetch(url, {
+			method: 'GET',
+			signal: controller.signal
+		});
+
+		clearTimeout(timeoutId);
+		return response.ok;
+	} catch {
+		return false;
+	}
+}
+
+function startReadinessTimer(
+	process: Process,
+	updateProcess: (updates: UpdateProcessFields) => void
+): NodeJS.Timeout | undefined {
+	if (!process.readinessProbe) {
+		return undefined;
+	}
+
+	const timer = setInterval(async () => {
+		const isReady = await performReadinessProbe(process.readinessProbe!);
+		updateProcess({ isReady });
+	}, 500);
+
+	return timer;
+}
+
+function clearReadinessTimer(timer?: NodeJS.Timeout) {
+	if (timer) {
+		clearInterval(timer);
+	}
+}
 
 async function execProcess({
 	process,
@@ -63,14 +105,19 @@ async function execProcess({
 		stdout: "pipe",
 		stderr: "pipe",
 	});
-	updateProcess({ status: ProcessStatus.Running, proc });
+
+	const readinessTimer = startReadinessTimer(process, updateProcess);
+	updateProcess({ status: ProcessStatus.Running, proc, readinessTimer });
 
 	readStreamToBuffer(proc.stdout, process.logBuffer);
 	readStreamToBuffer(proc.stderr, process.logBuffer);
 
 	const result = await proc.exited;
+	clearReadinessTimer(readinessTimer);
 	updateProcess({
 		status: result === 0 ? ProcessStatus.Success : ProcessStatus.Error,
+		readinessTimer: undefined,
+		isReady: undefined
 	});
 }
 
@@ -160,11 +207,13 @@ export function ProcessManagerProvider(props: {
 		if (!processes[processIdx]) {
 			return;
 		}
-		const { proc, status } = processes[processIdx];
+		const { proc, status, readinessTimer } = processes[processIdx];
 		if (!proc || status !== ProcessStatus.Running) {
 			return;
 		}
 		updateProcess(processIdx, { status: ProcessStatus.Killing });
+
+		clearReadinessTimer(readinessTimer);
 
 		proc.kill("SIGTERM");
 		const timeout = setTimeout(() => {
@@ -175,7 +224,11 @@ export function ProcessManagerProvider(props: {
 
 		await proc.exited;
 		clearTimeout(timeout);
-		updateProcess(processIdx, { status: ProcessStatus.Killed });
+		updateProcess(processIdx, {
+			status: ProcessStatus.Killed,
+			readinessTimer: undefined,
+			isReady: undefined
+		});
 	};
 
 	const killSelectedProcess = async () => {
