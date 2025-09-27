@@ -14,6 +14,7 @@ const MarionetteConfig = type({
 			port: "number",
 		},
 		"deps?": "string[]",
+		"env?": "Record<string, string>",
 	}).array(),
 });
 
