@@ -16,7 +16,10 @@ function ProcessTable() {
 	const terminalWidth = stdout?.columns ?? 80;
 	const fixedColumnsWidth = 10 + 2 + 8 + 2 + 8; // STATUS + margin + READY + margin + AGE
 	const borderAndPadding = 4; // border + padding
-	const nameColumnWidth = Math.max(20, terminalWidth - fixedColumnsWidth - borderAndPadding);
+	const nameColumnWidth = Math.max(
+		20,
+		terminalWidth - fixedColumnsWidth - borderAndPadding,
+	);
 
 	// Force re-render every second to update age display
 	useEffect(() => {
@@ -84,17 +87,18 @@ function ProcessTable() {
 								color={isSelected ? "white" : Colors.blue}
 								bold={isSelected}
 							>
-								{process.readinessProbe === undefined || process.status === "killed"
+								{process.readinessProbe === undefined ||
+								process.status === "killed"
 									? "-"
 									: process.status === "starting" && process.readinessProbe
-									? "-"
-									: process.status === "error" && process.readinessProbe
-									? "x"
-									: process.isReady === undefined
-									? "?"
-									: process.isReady
-									? "✓"
-									: "✗"}
+										? "-"
+										: process.status === "error" && process.readinessProbe
+											? "x"
+											: process.isReady === undefined
+												? "?"
+												: process.isReady
+													? "✓"
+													: "✗"}
 							</Text>
 						</Box>
 						<Box width={8}>
@@ -179,13 +183,18 @@ export function MainPage() {
 		showShortcuts,
 	);
 
-	// Process table takes minimum space needed plus some buffer
-	const minProcessTableHeight = Math.min(processes.length + 3, 12); // header + processes + border
-	const remainingHeight = terminalHeight - shortcutFooterHeight - minProcessTableHeight;
-	const logPreviewHeight = Math.max(8, remainingHeight); // Minimum 8 lines for log preview
+	// Process table height: header (1) + processes + borders (2)
+	const processTableHeight = processes.length + 3;
+
+	// Calculate remaining space for log preview
+	// Total space - header (2 lines) - process table - footer - buffer for spacing
+	const headerHeight = 4; // "Marionette 🎭 v{version}" + "Config: {config.name}" from view.tsx
+	const availableForLogs =
+		terminalHeight - headerHeight - processTableHeight - shortcutFooterHeight;
+	const logPreviewHeight = Math.max(4, availableForLogs - 1); // Minimum 4 lines, -1 for spacing
 
 	return (
-		<Box flexDirection="column" height={terminalHeight}>
+		<Box flexDirection="column">
 			<ProcessTable />
 			<LogTailPreview height={logPreviewHeight} />
 			<ShortcutFooter shortcuts={shortcuts} showShortcuts={showShortcuts} />
