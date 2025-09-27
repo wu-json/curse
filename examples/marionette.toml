@@ -10,8 +10,14 @@ command = "bun run examples/real-web-server.ts"
 readiness_probe = { type = "http", host = "127.0.0.1", path = "/health", port = 9070 }
 
 [[process]]
+name = "real-web-server-other"
+command = "bun run examples/real-web-server.ts"
+readiness_probe = { type = "http", host = "127.0.0.1", path = "/health", port = 9070 }
+
+[[process]]
 name = "database"
 command = "fish -c 'while true\necho \"[$(date \"+%Y-%m-%d %H:%M:%S\")] [INFO] Connection pool: 15/20 active connections\"\nsleep 5\necho \"[$(date \"+%Y-%m-%d %H:%M:%S\")] [INFO] Query executed: SELECT * FROM users WHERE id = $(math (random) % 1000 + 1) ($(math (random) % 30 + 5)ms)\"\nsleep 3\necho \"[$(date \"+%Y-%m-%d %H:%M:%S\")] [WARN] Slow query detected: $(math (random) % 200 + 100)ms\"\nsleep 8\nend'"
+deps = ["real-web-server"]
 
 [[process]]
 name = "worker-queue"
