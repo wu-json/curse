@@ -1,4 +1,4 @@
-# marionette
+# curse
 
 ## Specs
 - Should use simple toml file for configuration; no overlays

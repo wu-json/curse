@@ -1,7 +1,7 @@
 import { Box, render, Text, useInput } from "ink";
 import { useEffect } from "react";
 
-import type { MarionetteConfig } from "../parser";
+import type { CurseConfig } from "../parser";
 import { Colors } from "./colors";
 import { LogPage } from "./logPage";
 import { MainPage } from "./mainPage";
@@ -11,7 +11,7 @@ import { usePage, PageProvider, ViewPage } from "./usePage";
 import { useProcessManager } from "./useProcessManager";
 import { version } from "../version";
 
-function View(props: { config: MarionetteConfig }) {
+function View(props: { config: CurseConfig }) {
 	const { isReady } = useAltScreen();
 	const { runPendingProcesses, killAllProcesses } = useProcessManager();
 	const { page } = usePage();
@@ -35,7 +35,7 @@ function View(props: { config: MarionetteConfig }) {
 		<Box flexDirection="column">
 			<Box flexDirection="row">
 				<Text bold color={Colors.primary}>
-					Marionette 🎭
+					Curse 🎭
 				</Text>
 				<Text color={Colors.darkGray}> v{version}</Text>
 			</Box>
@@ -59,7 +59,7 @@ function View(props: { config: MarionetteConfig }) {
 	);
 }
 
-export function renderView(config: MarionetteConfig) {
+export function renderView(config: CurseConfig) {
 	render(
 		<ProcessManagerProvider config={config}>
 			<PageProvider>
