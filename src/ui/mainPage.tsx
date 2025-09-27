@@ -1,4 +1,4 @@
-import { Box, Text, useInput } from "ink";
+import { Box, Text, useInput, useStdout } from "ink";
 import { useEffect, useState } from "react";
 
 import { usePage, ViewPage } from "./usePage";
@@ -9,6 +9,13 @@ import { ShortcutFooter } from "./shortcutFooter";
 function ProcessTable() {
 	const { processes, selectedProcessIdx } = useProcessManager();
 	const [, forceUpdate] = useState(0);
+	const { stdout } = useStdout();
+
+	// Calculate dynamic column widths
+	const terminalWidth = stdout?.columns ?? 80;
+	const fixedColumnsWidth = 10 + 2 + 8 + 2 + 8; // STATUS + margin + READY + margin + AGE
+	const borderAndPadding = 4; // border + padding
+	const nameColumnWidth = Math.max(20, terminalWidth - fixedColumnsWidth - borderAndPadding);
 
 	// Force re-render every second to update age display
 	useEffect(() => {
@@ -31,7 +38,7 @@ function ProcessTable() {
 				borderBottom
 				borderColor={Colors.darkGray}
 			>
-				<Box width={20}>
+				<Box width={nameColumnWidth}>
 					<Text bold>NAME</Text>
 				</Box>
 				<Box width={10} marginLeft={2}>
@@ -53,12 +60,14 @@ function ProcessTable() {
 						paddingX={1}
 						backgroundColor={isSelected ? Colors.blue : undefined}
 					>
-						<Box width={20}>
+						<Box width={nameColumnWidth}>
 							<Text
 								color={isSelected ? "white" : Colors.blue}
 								bold={isSelected}
 							>
-								{process.name}
+								{process.name.length > nameColumnWidth - 2
+									? process.name.slice(0, nameColumnWidth - 3) + "…"
+									: process.name}
 							</Text>
 						</Box>
 						<Box width={10} marginLeft={2}>

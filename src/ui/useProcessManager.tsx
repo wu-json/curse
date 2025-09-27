@@ -21,6 +21,7 @@ export type Process = {
 	command: string;
 	status: ProcessStatus;
 	deps?: string[];
+	env?: Record<string, string | number>;
 	isReady?: boolean;
 	readinessProbe?: MarionetteConfig["process"][0]["readiness_probe"];
 	readinessTimer?: NodeJS.Timeout;
@@ -108,8 +109,24 @@ function areDependenciesSatisfied(
 	});
 }
 
+function createEnv(
+	processEnv?: Record<string, string | number>,
+): Record<string, string | undefined> {
+	const mappedEnv: Record<string, string> = {};
+	if (processEnv) {
+		for (const [key, value] of Object.entries(processEnv)) {
+			mappedEnv[key] = String(value);
+		}
+	}
+
+	return {
+		...Bun.env,
+		...mappedEnv,
+	};
+}
+
 async function execProcess({
-	process,
+	process: p,
 	updateProcess,
 }: {
 	process: Process;
@@ -120,9 +137,9 @@ async function execProcess({
 		startedAt: new Date(),
 	});
 
-	process.logBuffer.clear();
+	p.logBuffer.clear();
 
-	const parsedCommand = parseShellCommand(process.command);
+	const parsedCommand = parseShellCommand(p.command);
 	const cmd = parsedCommand.map((entry) => {
 		if (typeof entry !== "string") {
 			throw new Error(
@@ -136,13 +153,14 @@ async function execProcess({
 		cmd,
 		stdout: "pipe",
 		stderr: "pipe",
+		env: createEnv(p.env),
 	});
 
-	const readinessTimer = startReadinessTimer(process, updateProcess);
+	const readinessTimer = startReadinessTimer(p, updateProcess);
 	updateProcess({ status: ProcessStatus.Running, proc, readinessTimer });
 
-	readStreamToBuffer(proc.stdout, process.logBuffer);
-	readStreamToBuffer(proc.stderr, process.logBuffer);
+	readStreamToBuffer(proc.stdout, p.logBuffer);
+	readStreamToBuffer(proc.stderr, p.logBuffer);
 
 	const result = await proc.exited;
 	clearReadinessTimer(readinessTimer);
@@ -189,6 +207,7 @@ export function ProcessManagerProvider(props: {
 			command: p.command,
 			status: ProcessStatus.Pending,
 			deps: p.deps,
+			env: p.env,
 			isReady: p.readiness_probe ? false : undefined,
 			readinessProbe: p.readiness_probe,
 			logBuffer: new LogBuffer(ENV.LOG_BUFFER_SIZE ?? 5_000),
