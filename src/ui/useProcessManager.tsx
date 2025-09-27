@@ -109,16 +109,20 @@ function areDependenciesSatisfied(
 	});
 }
 
-function mapEnvVars(
-	env?: Record<string, string | number>,
-): Record<string, string> | undefined {
-	if (!env) return undefined;
-
-	const result: Record<string, string> = {};
-	for (const [key, value] of Object.entries(env)) {
-		result[key] = String(value);
+function createEnv(
+	processEnv?: Record<string, string | number>,
+): Record<string, string | undefined> {
+	const mappedEnv: Record<string, string> = {};
+	if (processEnv) {
+		for (const [key, value] of Object.entries(processEnv)) {
+			mappedEnv[key] = String(value);
+		}
 	}
-	return result;
+
+	return {
+		...Bun.env,
+		...mappedEnv,
+	};
 }
 
 async function execProcess({
@@ -149,7 +153,7 @@ async function execProcess({
 		cmd,
 		stdout: "pipe",
 		stderr: "pipe",
-		env: mapEnvVars(p.env),
+		env: createEnv(p.env),
 	});
 
 	const readinessTimer = startReadinessTimer(p, updateProcess);
