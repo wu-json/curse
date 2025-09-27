@@ -144,7 +144,7 @@ async function execProcess({
 	p.logBuffer.clear();
 
 	const proc = spawn({
-		cmd: ["sh", "-c", p.command],
+		cmd: [ENV.SHELL ?? "sh", "-c", p.command],
 		stdout: "pipe",
 		stderr: "pipe",
 		env: createEnv(p.env),

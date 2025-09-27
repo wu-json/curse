@@ -6,6 +6,7 @@ const envSchema = type({
 		"=>",
 		(logBufferSize) => Number(logBufferSize),
 	],
+	"SHELL?": "string",
 });
 
 const parsedEnv = envSchema(process.env);
