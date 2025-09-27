@@ -9,7 +9,7 @@ import {
 import { spawn, type Subprocess } from "bun";
 import { LogBuffer, readStreamToBuffer } from "./logBuffer";
 
-import type { MarionetteConfig } from "../parser";
+import type { CurseConfig } from "../parser";
 import { ENV } from "../env";
 
 export enum ProcessStatus {
@@ -29,7 +29,7 @@ export type Process = {
 	deps?: string[];
 	env?: Record<string, string | number>;
 	isReady?: boolean;
-	readinessProbe?: MarionetteConfig["process"][0]["readiness_probe"];
+	readinessProbe?: CurseConfig["process"][0]["readiness_probe"];
 	readinessTimer?: NodeJS.Timeout;
 	readinessProbeInProgress?: boolean;
 	proc?: Subprocess;
@@ -203,7 +203,7 @@ const ProcessManagerCtx = createContext<ProcessManagerCtx>({
 });
 
 export function ProcessManagerProvider(props: {
-	config: MarionetteConfig;
+	config: CurseConfig;
 	children: React.ReactNode;
 }) {
 	const [selectedProcessIdx, setSelectedProcessIdx] = useState(0);
