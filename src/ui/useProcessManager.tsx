@@ -1,6 +1,5 @@
 import { createContext, useContext, useMemo, useState } from "react";
 import { spawn, type Subprocess } from "bun";
-import { parse as parseShellCommand } from "shell-quote";
 import { LogBuffer, readStreamToBuffer } from "./logBuffer";
 
 import type { MarionetteConfig } from "../parser";
@@ -79,7 +78,7 @@ function startReadinessTimer(
 		updateProcess({
 			isReady,
 			readinessProbeInProgress: false,
-			...(isReady ? { status: ProcessStatus.Running } : {})
+			...(isReady ? { status: ProcessStatus.Running } : {}),
 		});
 	}, 500);
 
@@ -144,18 +143,8 @@ async function execProcess({
 
 	p.logBuffer.clear();
 
-	const parsedCommand = parseShellCommand(p.command);
-	const cmd = parsedCommand.map((entry) => {
-		if (typeof entry !== "string") {
-			throw new Error(
-				`Unsupported shell command entry: ${JSON.stringify(entry)}`,
-			);
-		}
-		return entry;
-	});
-
 	const proc = spawn({
-		cmd,
+		cmd: ["sh", "-c", p.command],
 		stdout: "pipe",
 		stderr: "pipe",
 		env: createEnv(p.env),
