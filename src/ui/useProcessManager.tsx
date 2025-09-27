@@ -75,7 +75,12 @@ function startReadinessTimer(
 
 		updateProcess({ readinessProbeInProgress: true });
 		const isReady = await performReadinessProbe(process.readinessProbe!);
-		updateProcess({ isReady, readinessProbeInProgress: false });
+
+		updateProcess({
+			isReady,
+			readinessProbeInProgress: false,
+			...(isReady ? { status: ProcessStatus.Running } : {})
+		});
 	}, 500);
 
 	return timer;
@@ -157,7 +162,12 @@ async function execProcess({
 	});
 
 	const readinessTimer = startReadinessTimer(p, updateProcess);
-	updateProcess({ status: ProcessStatus.Running, proc, readinessTimer });
+
+	if (p.readinessProbe) {
+		updateProcess({ proc, readinessTimer });
+	} else {
+		updateProcess({ status: ProcessStatus.Running, proc, readinessTimer });
+	}
 
 	readStreamToBuffer(proc.stdout, p.logBuffer);
 	readStreamToBuffer(proc.stderr, p.logBuffer);
