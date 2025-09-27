@@ -1,4 +1,11 @@
-import { createContext, useContext, useMemo, useState, useCallback, useEffect } from "react";
+import {
+	createContext,
+	useContext,
+	useMemo,
+	useState,
+	useCallback,
+	useEffect,
+} from "react";
 import { spawn, type Subprocess } from "bun";
 import { LogBuffer, readStreamToBuffer } from "./logBuffer";
 
@@ -220,7 +227,6 @@ export function ProcessManagerProvider(props: {
 		return processes[selectedProcessIdx] ?? null;
 	}, [processes, selectedProcessIdx]);
 
-
 	const updateProcess = (processIdx: number, fields: UpdateProcessFields) => {
 		setProcesses((prev) =>
 			prev.map((process, i) =>
@@ -246,15 +252,11 @@ export function ProcessManagerProvider(props: {
 
 	// Watch for processes becoming ready and trigger pending process checks
 	useEffect(() => {
-		const readyProcesses = processes.filter(p => p.isReady === true);
+		const readyProcesses = processes.filter((p) => p.isReady === true);
 		if (readyProcesses.length > 0) {
-			// Use setTimeout to avoid calling during render
-			const timeout = setTimeout(() => {
-				runPendingProcesses();
-			}, 100);
-			return () => clearTimeout(timeout);
+			runPendingProcesses();
 		}
-	}, [processes.map(p => p.isReady).join(','), runPendingProcesses]);
+	}, [processes.map((p) => p.isReady).join(","), runPendingProcesses]);
 
 	const restartSelectedProcess = async () => {
 		const process = processes[selectedProcessIdx];

@@ -1,5 +1,4 @@
 import { Box, render, Text, useInput } from "ink";
-import { useEffect } from "react";
 
 import type { MarionetteConfig } from "../parser";
 import { Colors } from "./colors";
@@ -13,7 +12,7 @@ import { version } from "../version";
 
 function View(props: { config: MarionetteConfig }) {
 	const { isReady } = useAltScreen();
-	const { runPendingProcesses, killAllProcesses } = useProcessManager();
+	const { killAllProcesses } = useProcessManager();
 	const { page } = usePage();
 
 	useInput(async (input, key) => {
@@ -22,10 +21,6 @@ function View(props: { config: MarionetteConfig }) {
 			process.exit(0);
 		}
 	});
-
-	useEffect(() => {
-		runPendingProcesses();
-	}, []);
 
 	if (!isReady) {
 		return null;
