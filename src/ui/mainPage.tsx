@@ -74,7 +74,7 @@ function ProcessTable() {
 								color={isSelected ? "white" : Colors.blue}
 								bold={isSelected}
 							>
-								{process.readinessProbe === undefined
+								{process.readinessProbe === undefined || process.status === "killed"
 									? "-"
 									: process.isReady === undefined
 									? "?"
