@@ -1,4 +1,11 @@
-import { createContext, useContext, useMemo, useState } from "react";
+import {
+	createContext,
+	useContext,
+	useMemo,
+	useState,
+	useCallback,
+	useEffect,
+} from "react";
 import { spawn, type Subprocess } from "bun";
 import { LogBuffer, readStreamToBuffer } from "./logBuffer";
 
@@ -228,7 +235,7 @@ export function ProcessManagerProvider(props: {
 		);
 	};
 
-	const runPendingProcesses = () => {
+	const runPendingProcesses = useCallback(() => {
 		processes.map((p, i) => {
 			if (
 				p.status === ProcessStatus.Pending &&
@@ -241,7 +248,15 @@ export function ProcessManagerProvider(props: {
 				});
 			}
 		});
-	};
+	}, [processes]);
+
+	// Watch for processes becoming ready and trigger pending process checks
+	useEffect(() => {
+		const readyProcesses = processes.filter((p) => p.isReady === true);
+		if (readyProcesses.length > 0) {
+			runPendingProcesses();
+		}
+	}, [processes.map((p) => p.isReady).join(","), runPendingProcesses]);
 
 	const restartSelectedProcess = async () => {
 		const process = processes[selectedProcessIdx];
