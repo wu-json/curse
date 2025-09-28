@@ -49,7 +49,7 @@ cd app/client yarn start
 
 If the above made you cringe, then you're not alone because many others have too. Existing solutions to this problem have come in various forms. 
 
-- [S(hell) Scripts](https://pythonspeed.com/articles/shell-scripts/): Works but makes viewing output for each process difficult. You could hook into TMux or Wezterm panes but that isn't ideal for everyone.
+- [s(hell) Scripts](https://pythonspeed.com/articles/shell-scripts/): Works but makes viewing output for each process difficult. You could hook into TMux or Wezterm panes but that isn't ideal for everyone.
 
 - [docker-compose](https://github.com/docker/compose): Requires containerizing all parts of your application. Not ideal unless you have a neckbeard.
 
