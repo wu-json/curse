@@ -121,37 +121,24 @@ function clearReadinessTimer(timer?: NodeJS.Timeout) {
 async function getProcessProfile(
 	proc: Subprocess,
 ): Promise<ProcessProfile | null> {
-	try {
-		const pid = proc.pid;
-		if (!pid) return null;
+	if (!proc.pid) return null;
 
-		// Use ps command to get memory and CPU usage
+	try {
 		const psResult = spawn({
-			cmd: ["ps", "-o", "rss,pcpu", "-p", pid.toString()],
+			cmd: ["ps", "-o", "rss,pcpu", "-p", proc.pid.toString()],
 			stdout: "pipe",
 		});
 
 		const output = await new Response(psResult.stdout).text();
-		const lines = output.trim().split("\n");
-
-		if (lines.length < 2) return null;
-
-		const dataLine = lines[1];
+		const [, dataLine] = output.trim().split("\n");
 		if (!dataLine) return null;
 
-		const data = dataLine.trim().split(/\s+/);
-		if (data.length < 2) return null;
-
-		const memoryStr = data[0];
-		const cpuStr = data[1];
+		const [memoryStr, cpuStr] = dataLine.trim().split(/\s+/);
 		if (!memoryStr || !cpuStr) return null;
 
-		const memoryKB = parseInt(memoryStr) || 0;
-		const cpuPercent = parseFloat(cpuStr) || 0;
-
 		return {
-			memoryUsageMB: Math.round(memoryKB / 1024),
-			cpuUsagePercent: cpuPercent,
+			memoryUsageMB: Math.round((parseInt(memoryStr) || 0) / 1024),
+			cpuUsagePercent: parseFloat(cpuStr) || 0,
 			lastUpdated: new Date(),
 		};
 	} catch {
