@@ -37,12 +37,10 @@ cd app/client yarn start
 # start
 ```
 
-<table style="border-collapse: collapse; border: 0;">
-<tr style="border: 0;">
-<td style="border: 0; padding: 0;"><img src="https://media.tenor.com/tbQSXR4MGU0AAAAe/aoi-todo.png" width="300" alt="aoi-todo" /></td>
-<td style="border: 0; vertical-align: middle; padding-left: 15px;"><i>"onboarding is easy bro"</i><br/>- Aoi Todo</td>
-</tr>
-</table>
+<div style="display: flex; align-items: center; gap: 15px;">
+<img src="https://media.tenor.com/tbQSXR4MGU0AAAAe/aoi-todo.png" width="300" alt="aoi-todo" />
+<div><i>"onboarding is easy bro"</i><br/>- Aoi Todo</div>
+</div>
 
 If the above made you cringe, then you're not alone because many others have too. Existing solutions to this problem have come in various forms. 
 
