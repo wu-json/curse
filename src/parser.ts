@@ -17,7 +17,9 @@ const CurseConfig = type({
 	}).array(),
 });
 
-export type CurseConfig = typeof CurseConfig.infer;
+export type CurseConfig = typeof CurseConfig.infer & {
+	fileName: string;
+};
 
 export async function parseCurseConfig(path: string): Promise<CurseConfig> {
 	const file = Bun.file(path);
@@ -38,5 +40,10 @@ export async function parseCurseConfig(path: string): Promise<CurseConfig> {
 		);
 	}
 
-	return result;
+	const fileName = path.split('/').pop() || path;
+
+	return {
+		...result,
+		fileName
+	};
 }
