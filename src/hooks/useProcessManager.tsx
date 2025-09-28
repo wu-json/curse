@@ -184,7 +184,7 @@ function areDependenciesSatisfied(
 		if (depProcess.readinessProbe) {
 			return depProcess.isReady === true;
 		} else {
-			return depProcess.status !== ProcessStatus.Pending;
+			return depProcess.status === ProcessStatus.Success;
 		}
 	});
 }
