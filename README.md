@@ -10,13 +10,14 @@ Curse is a dead simple Terminal UI for running processes, configurable through i
 
 ## The Origin Story
 
-<img src="https://ih1.redbubble.net/image.5538369487.3481/raf,360x360,075,t,fafafa:ca443f4786.jpg" width="200" alt="jjk-cute-demons" align="right" />
+<img src="https://ih1.redbubble.net/image.5538369487.3481/raf,360x360,075,t,fafafa:ca443f4786.jpg" width="180" alt="jjk-cute-demons" align="right" />
 
 _Local development feels like a very special curse at times._ Just like these fellows on the right.
 
 If you've been writing code for a while, you're probably no stranger to instructions in the company `README.md` that look like this.
 
 <br clear="right" />
+<br />
 
 ```
 ## Starting Application Locally
