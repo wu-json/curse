@@ -92,12 +92,13 @@ function startReadinessTimer(
 		updateProcess({ readinessProbeInProgress: true });
 		const isReady = await performReadinessProbe(process.readinessProbe!);
 
-		if (isReady && !process.profileTimer && process.proc) {
+		// Start profiling timer if process is running and we don't have one yet
+		if (!process.profileTimer && process.proc) {
 			const profileTimer = startProfileTimer(process.proc, updateProcess);
 			updateProcess({
 				isReady,
 				readinessProbeInProgress: false,
-				status: ProcessStatus.Running,
+				...(isReady ? { status: ProcessStatus.Running } : {}),
 				profileTimer,
 			});
 		} else {
@@ -225,17 +226,19 @@ async function execProcess({
 		env: createEnv(p.env),
 	});
 
-	const readinessTimer = startReadinessTimer(p, updateProcess);
 	let profileTimer: NodeJS.Timeout | undefined;
 
 	if (p.readinessProbe) {
-		updateProcess({ proc, readinessTimer });
+		// Update process with proc first
+		p.proc = proc;
+		updateProcess({ proc });
+		const readinessTimer = startReadinessTimer(p, updateProcess);
+		updateProcess({ readinessTimer });
 	} else {
 		profileTimer = startProfileTimer(proc, updateProcess);
 		updateProcess({
 			status: ProcessStatus.Running,
 			proc,
-			readinessTimer,
 			profileTimer,
 		});
 	}
