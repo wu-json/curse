@@ -14,9 +14,6 @@ function makeCursePath(rawPath: string): string {
 async function resolveConfigPath(cliPath?: string): Promise<string | null> {
 	if (cliPath) {
 		// Priority 1: CLI path argument
-		if (!cliPath.endsWith(".toml")) {
-			return null;
-		}
 		return makeCursePath(cliPath);
 	}
 
