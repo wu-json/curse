@@ -23,3 +23,5 @@ jobs:
 
       - name: Build
         run: just build
+        env:
+          GITHUB_TOKEN: stub
