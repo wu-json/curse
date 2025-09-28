@@ -19,7 +19,7 @@ jobs:
         run: bun install
 
       - name: Typecheck
-        run: bun run typecheck
+        run: just typecheck
 
       - name: Build
-        run: bun run build
+        run: just release dryrun=true

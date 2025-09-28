@@ -4,12 +4,6 @@
 	"module": "src/index.ts",
 	"type": "module",
 	"private": false,
-	"scripts": {
-		"build": "bun ./scripts/build.ts",
-		"typecheck": "tsc --noEmit",
-		"gen:version": "echo \"export const version = \\\"$(jq -r .version package.json)\\\";\" > src/version.ts",
-		"release:dry-run": "goreleaser release --snapshot --clean"
-	},
 	"devDependencies": {
 		"@biomejs/biome": "^2.2.3",
 		"@types/bun": "latest",
