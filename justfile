@@ -18,12 +18,13 @@ version semver:
 
 bump-and-commit-version bump_type:
   #!/usr/bin/env bash
+  bun install
   new_version=$(svu {{bump_type}})
   echo $new_version 
   just version $new_version
-  git tag v$new_version
   git add -A
   git commit -m "chore(release): v$new_version"
+  git tag v$new_version
   git push --follow-tags
 
 build:
@@ -31,6 +32,5 @@ build:
   rm -f .*.bun-build
 
 release:
-  bun install
   goreleaser release --clean {{ if dry_run == "true" { "--snapshot" } else { "" } }}
   rm -f .*.bun-build
