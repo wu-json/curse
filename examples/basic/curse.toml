@@ -10,9 +10,17 @@ command = "bun run examples/server.ts"
 env = { PORT = 9071 }
 readiness_probe = { type = "http", host = "127.0.0.1", path = "/health", port = 9071 }
 
-# Dependency Command
+# Dependency on Command with Readiness Probe
 [[process]]
 name = "my-script"
 command = "echo 'my dependencies are done!'"
-deps = ["my-server", "my-server-1"]
+deps = ["my-server-1"]
+
+[[process]]
+name = "buy-groceries"
+command = "echo 'buying groceries' && sleep 3"
+
+[[process]]
+name = "cook-dinner"
+command = "echo 'buying groceries' && sleep 3"
 
