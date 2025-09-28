@@ -2,10 +2,33 @@ import { Box, Text, useInput, useStdout } from "ink";
 import { useEffect, useState } from "react";
 
 import { usePage, ViewPage } from "./usePage";
-import { useProcessManager } from "./useProcessManager";
+import { useProcessManager, type Process } from "./useProcessManager";
 import { Colors } from "./colors";
 import { ShortcutFooter, getShortcutFooterHeight } from "./shortcutFooter";
 import { LogTailPreview } from "./logTailPreview";
+
+function getReadinessDisplay(process: Process): { char: string; color: string } {
+	const char = process.readinessProbe === undefined ||
+		process.status === "killed"
+			? "-"
+			: process.status === "starting" && process.readinessProbe
+				? "-"
+				: process.status === "error" && process.readinessProbe
+					? "x"
+					: process.isReady === undefined
+						? "?"
+						: process.isReady
+							? "✓"
+							: "✗";
+
+	const color = char === "x" || char === "✗"
+		? "red"
+		: char === "✓"
+			? Colors.teal
+			: Colors.blue;
+
+	return { char, color };
+}
 
 function ProcessTable() {
 	const { processes, selectedProcessIdx } = useProcessManager();
@@ -88,32 +111,17 @@ function ProcessTable() {
 							</Text>
 						</Box>
 						<Box width={8} marginLeft={2}>
-							<Text
-								color={
-									isSelected
-										? "white"
-										: (process.status === "error" && process.readinessProbe) ||
-											process.isReady === false
-											? "red"
-											: process.isReady === true
-												? Colors.teal
-												: Colors.blue
-								}
-								bold={isSelected}
-							>
-								{process.readinessProbe === undefined ||
-								process.status === "killed"
-									? "-"
-									: process.status === "starting" && process.readinessProbe
-										? "-"
-										: process.status === "error" && process.readinessProbe
-											? "x"
-											: process.isReady === undefined
-												? "?"
-												: process.isReady
-													? "✓"
-													: "✗"}
-							</Text>
+							{(() => {
+								const { char, color } = getReadinessDisplay(process);
+								return (
+									<Text
+										color={isSelected ? "white" : color}
+										bold={isSelected}
+									>
+										{char}
+									</Text>
+								);
+							})()}
 						</Box>
 						<Box width={8} marginLeft={2}>
 							<Text
