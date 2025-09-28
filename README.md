@@ -93,13 +93,21 @@ If the above made you cringe, then you're not alone because many others have too
 
 - [process-compose](https://github.com/F1bonacc1/process-compose): Has a lot of features I don't use and feels sluggish.
 
-Out of all of the options above, `process-compose` got the closest to the experience I wanted but was still far from it. It felt quite slow, had limited tooling around logging, and resulted in composed configuration files that were unpleasant to maintain. I also felt that a lot of the beefier orchestration features (e.g. replicas, process forking, etc.) were not really important for my local development use-case.
+Out of all of the options above, `process-compose` got the closest to the experience I wanted but was still far from it. It felt quite slow, had limited tooling around logging, and resulted in composed configuration files that were unpleasant to maintain. 
 
-## Goals For Curse
+## Design Principles
 
-- Focus on the local development use-case
-- Keep things extremely simple
-- Make interacting with logs delightful
+### Simplicity: Focus on the Local Development Use-Case
+
+Scoping curse to the local development script use-case means we can drop a lot of the beefier orchestration features that `process-compose` has (e.g. replicas, process forking, etc.). This keeps the feature-set of curse minimal and allows us to focus on a relatively simple DX.
+
+### Make Interacting with Logs Delightful
+
+Local logs are really useful, and are often the reason we want to run things locally in the first place. Navigating and interacting with logs should feel like a first-class experience.
+
+### Familiarity
+
+Coming from `k9s`, constantly having to context switch shortcuts between `k9s` and `process-compose` was extremely painful; especially given that they look so similar. The key-binds in curse are meant to feel warm and familiar such that anyone using vim motions should feel right at home.
 
 # Features Planned
 
