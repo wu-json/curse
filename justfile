@@ -4,6 +4,9 @@ dry_run := "true"
 fmt *args:
   bun run biome format --write {{args}}
 
+checkout-release:
+  git checkout -b "release-v{{current_version}}" "v{{current_version}}"
+
 current-version:
   #!/usr/bin/env bash
   echo {{current_version}}

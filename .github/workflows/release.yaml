@@ -26,9 +26,7 @@ jobs:
         run: just tag
 
       - name: Checkout tag commit
-        run: |
-          TAG="v$(just current-version)"
-          git checkout -b "release-${TAG}" "${TAG}"
+        run: just checkout-release
 
       - name: Release
         run: just dry_run=false release
