@@ -1,6 +1,31 @@
 {
   "checksums": [
     {
+      "id": "github_release/github.com/casey/just/1.43.0/just-1.43.0-aarch64-apple-darwin.tar.gz",
+      "checksum": "BB0D35F6CA04709B798A19217693C16F4086170C580CC3B5C2531AD2794D2E32",
+      "algorithm": "sha256"
+    },
+    {
+      "id": "github_release/github.com/casey/just/1.43.0/just-1.43.0-aarch64-unknown-linux-musl.tar.gz",
+      "checksum": "4FCD8310081C32742EB984B1FDD0EEE2E5D4D0F1BE9629318012D42606EC9B3E",
+      "algorithm": "sha256"
+    },
+    {
+      "id": "github_release/github.com/casey/just/1.43.0/just-1.43.0-x86_64-apple-darwin.tar.gz",
+      "checksum": "687F66A6BD4D7D946EF5FF1E3EFEBB3D39DADAD151A8C6B1DE884CC93ADC06A5",
+      "algorithm": "sha256"
+    },
+    {
+      "id": "github_release/github.com/casey/just/1.43.0/just-1.43.0-x86_64-pc-windows-msvc.zip",
+      "checksum": "04BE7B6D7F8419288CE75532F1962CEE1756992E494E6C8063BB3AB8DB21B52C",
+      "algorithm": "sha256"
+    },
+    {
+      "id": "github_release/github.com/casey/just/1.43.0/just-1.43.0-x86_64-unknown-linux-musl.tar.gz",
+      "checksum": "A1BC93654F31669FD964EA3011A5E5E9676B9B6F8ADCD762606E5140632EA72D",
+      "algorithm": "sha256"
+    },
+    {
       "id": "github_release/github.com/goreleaser/goreleaser/v2.12.3/goreleaser_Darwin_all.tar.gz",
       "checksum": "7AF0CE76660556F8A7CEB6C3D1B438E170EE3F551D5408153830697EB25F5962",
       "algorithm": "sha256"
