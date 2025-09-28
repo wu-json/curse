@@ -87,6 +87,8 @@ function ProcessTable() {
 			</Box>
 			{processes.map((process: Process, index: number) => {
 				const isSelected = index === selectedProcessIdx;
+				const isSuccess = process.status === "success";
+				const textColor = isSelected ? "white" : isSuccess ? Colors.darkGray : Colors.blue;
 				return (
 					<Box
 						key={process.name}
@@ -96,7 +98,7 @@ function ProcessTable() {
 					>
 						<Box width={nameColumnWidth}>
 							<Text
-								color={isSelected ? "white" : Colors.blue}
+								color={textColor}
 								bold={isSelected}
 							>
 								{process.name.length > nameColumnWidth - 2
@@ -106,7 +108,7 @@ function ProcessTable() {
 						</Box>
 						<Box width={10} marginLeft={2}>
 							<Text
-								color={isSelected ? "white" : Colors.blue}
+								color={textColor}
 								bold={isSelected}
 							>
 								{process.status}
@@ -117,7 +119,7 @@ function ProcessTable() {
 								const { char, color } = getReadinessDisplay(process);
 								return (
 									<Text
-										color={isSelected ? "white" : color}
+										color={isSelected ? "white" : isSuccess ? Colors.darkGray : color}
 										bold={isSelected}
 									>
 										{char}
@@ -127,7 +129,7 @@ function ProcessTable() {
 						</Box>
 						<Box width={8} marginLeft={2}>
 							<Text
-								color={isSelected ? "white" : Colors.blue}
+								color={textColor}
 								bold={isSelected}
 							>
 								{process.startedAt
@@ -155,9 +157,11 @@ function ProcessTable() {
 								color={
 									isSelected
 										? "white"
-										: process.profile?.memoryUsageMB !== undefined
-											? Colors.blue
-											: Colors.darkGray
+										: isSuccess
+											? Colors.darkGray
+											: process.profile?.memoryUsageMB !== undefined
+												? Colors.blue
+												: Colors.darkGray
 								}
 								bold={isSelected}
 							>
@@ -171,9 +175,11 @@ function ProcessTable() {
 								color={
 									isSelected
 										? "white"
-										: process.profile?.cpuUsagePercent !== undefined
-											? Colors.blue
-											: Colors.darkGray
+										: isSuccess
+											? Colors.darkGray
+											: process.profile?.cpuUsagePercent !== undefined
+												? Colors.blue
+												: Colors.darkGray
 								}
 								bold={isSelected}
 							>
