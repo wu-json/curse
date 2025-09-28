@@ -37,11 +37,12 @@ cd app/client yarn start
 # start
 ```
 
-<img src="https://media.tenor.com/tbQSXR4MGU0AAAAe/aoi-todo.png" width="300" alt="aoi-todo" align="left" />
-
-onboarding is easy bro
-
-<br clear="left" />
+<table>
+<tr>
+<td><img src="https://media.tenor.com/tbQSXR4MGU0AAAAe/aoi-todo.png" width="300" alt="aoi-todo" /></td>
+<td style="vertical-align: middle;"><i>"onboarding is easy bro"</i></td>
+</tr>
+</table>
 
 If the above made you cringe, then you're not alone because many others have too. Existing solutions to this problem have come in various forms. 
 
