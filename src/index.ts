@@ -73,5 +73,4 @@ await cli(process.argv.slice(2), command, {
 	name: "curse",
 	version,
 	description: "Manage processes in your terminal.",
-	usageSilent: true,
 });

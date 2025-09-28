@@ -13,9 +13,7 @@ Curse is a dead simple Terminal UI for running processes, configured through a s
 
 Curse is a single binary and it's _definitely lightweight._ Not like I shoved bun in there or anything.
 
-1. `brew install curse`
-
-2. Create your `curse.toml` and put it in your project root.
+1. Create your `curse.toml` and put it in your project root.
 
 ```toml
 # curse.toml example
@@ -41,7 +39,7 @@ readiness_probe = { type = "http", host = "127.0.0.1", path = "/health", port = 
 deps = ["seed-data"]
 ```
 
-3. Run `curse`.
+2. Run `curse`.
 
 > [!NOTE]
 > Curse will select a configuration file with the following priority from highest to lowest:
