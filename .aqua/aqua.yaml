@@ -11,3 +11,4 @@ packages:
   - name: goreleaser/goreleaser@v2.12.3
   - name: casey/just@1.43.0
   - name: oven-sh/bun@bun-v1.2.22
+  - name: caarlos0/svu@v3.2.4
