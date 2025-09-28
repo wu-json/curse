@@ -2,10 +2,14 @@ name: Release
 on:
   workflow_dispatch:
     inputs:
-      version:
-        description: "Version to release (semver e.g., 1.0.0)"
+      version_type:
+        description: "Type of version bump"
         required: true
-        type: string
+        type: choice
+        options:
+          - major
+          - minor
+          - patch
 jobs:
   release:
     runs-on: ubuntu-latest

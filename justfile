@@ -27,12 +27,16 @@ version semver:
   echo "export const version = \"{{semver}}\";" > src/version.ts
   just fmt package.json src/version.ts
 
-version-and-commit semver:
-  just version {{semver}}
-  just tag
-  git add -A
-  git commit -m "version: v{{semver}}"
-  git push --follow-tags
+bump-version-and-commit bump_type:
+  #!/usr/bin/env bash
+  new_version=$(svu {{bump_type}})
+  echo $new_version 
+  just version $new_version
+  # just version {{semver}}
+  # just tag
+  # git add -A
+  # git commit -m "version: v{{semver}}"
+  # git push --follow-tags
 
 build:
   GORELEASER_CURRENT_TAG=v{{current_version}} goreleaser build --clean --snapshot
