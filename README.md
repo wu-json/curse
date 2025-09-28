@@ -8,7 +8,7 @@ Curse is a dead simple Terminal UI for running processes, configurable through i
 
 <img width="1146" height="885" alt="スクリーンショット 2025-09-27 午後7 49 04" src="https://github.com/user-attachments/assets/580b87e6-8823-4c18-b05e-6de15b810d2c" />
 
-## Setup
+## Installation & Setup
 
 1. `brew install curse`
 
@@ -38,7 +38,7 @@ readiness_probe = { type = "http", host = "127.0.0.1", path = "/health", port = 
 deps = ["seed-data"]
 ```
 
-3. Run `curse`
+3. Run `curse`.
 
 ## The Origin Story
 
