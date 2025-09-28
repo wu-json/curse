@@ -10,11 +10,11 @@ current-version:
 
 tag:
   #!/usr/bin/env bash
-  if git ls-remote --exit-code --tags origin "refs/tags/{{current_version}}" >/dev/null 2>&1; then
-    echo "Tag {{current_version}} already exists on remote, skipping..."
+  if git ls-remote --exit-code --tags origin "refs/tags/v{{current_version}}" >/dev/null 2>&1; then
+    echo "Tag v{{current_version}} already exists on remote, skipping..."
   else
-    git tag {{current_version}}
-    git push origin {{current_version}}
+    git tag v{{current_version}}
+    git push origin v{{current_version}}
   fi
 
 typecheck:
