@@ -93,10 +93,13 @@ If the above made you cringe, then you're not alone because many others have too
 
 - [process-compose](https://github.com/F1bonacc1/process-compose): Has a lot of features I don't use and feels sluggish.
 
-Out of all of the options above, `process-compose` got the closest to the experience I wanted but was still far from it. It felt pretty slow, had limited tooling around logging, and resulted in composed configuration files that were annoying to debug and maintain.
+Out of all of the options above, `process-compose` got the closest to the experience I wanted but was still far from it. It felt quite slow, had limited tooling around logging, and resulted in composed configuration files that were unpleasant to maintain. I also felt that a lot of the beefier orchestration features (e.g. replicas, process forking, etc.) were not really important for my local development use-case.
 
 ## Goals For Curse
 
+- Focus on the local development use-case
+- Keep things extremely simple
+- Make interacting with logs delightful
 
 # Features Planned
 
