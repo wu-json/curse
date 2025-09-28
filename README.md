@@ -56,7 +56,6 @@ _Local development feels like a very special curse at times._ Just like these ki
 If you've been writing code for a while, you're likely no stranger to the sacred art that is reading unmaintained instructions in the company `README.md`.
 
 <br clear="right" />
-<br />
 
 ```
 ## Starting Application Locally
