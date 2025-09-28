@@ -8,6 +8,38 @@ Curse is a dead simple Terminal UI for running processes, configurable through i
 
 <img width="1146" height="885" alt="スクリーンショット 2025-09-27 午後7 49 04" src="https://github.com/user-attachments/assets/580b87e6-8823-4c18-b05e-6de15b810d2c" />
 
+## Setup
+
+1. `brew install curse`
+
+2. Create your `curse.toml` and put it in your project root.
+
+```toml
+# curse.toml example
+[[process]]
+name = "db-migrate"
+command = "bun run examples/large/db-migrate.ts"
+
+[[process]]
+name = "seed-data"
+command = "bun run examples/large/seed-data.ts"
+deps = ["db-migrate"]
+
+[[process]]
+name = "database"
+command = "bun run examples/large/mock-database.ts"
+deps = ["seed-data"]
+
+[[process]]
+name = "api-server"
+command = "bun run examples/large/api-server.ts"
+env = { PORT = 8001, SERVICE_NAME = "API Server" }
+readiness_probe = { type = "http", host = "127.0.0.1", path = "/health", port = 8001 }
+deps = ["seed-data"]
+```
+
+3. Run `curse`
+
 ## The Origin Story
 
 <img src="https://ih1.redbubble.net/image.5538369487.3481/raf,360x360,075,t,fafafa:ca443f4786.jpg" width="180" alt="jjk-cute-demons" align="right" />
@@ -49,13 +81,13 @@ cd app/client yarn start
 
 If the above made you cringe, then you're not alone because many others have too. Existing solutions to this problem have come in various forms. 
 
-- [s(hell) Scripts](https://pythonspeed.com/articles/shell-scripts/): Works but makes viewing output for each process difficult. You could hook into TMux or Wezterm panes but that isn't ideal for everyone.
+- [s(hell) Scripts](https://pythonspeed.com/articles/shell-scripts/): How do you view the ongoing output of each process?. You could hook into TMux or Wezterm panes but that isn't ideal for everyone.
 
-- [docker-compose](https://github.com/docker/compose): Requires containerizing all parts of your application. Not ideal unless you have a neckbeard.
+- [docker-compose](https://github.com/docker/compose): Requires containerizing all local resources for your application. Not ideal unless you have a neckbeard.
 
-- [process-compose](https://github.com/F1bonacc1/process-compose): Works and was my daily driver for a bit, but has a lot of features that I don't use and doesn't have the most intuitive developer experience for interacting with logs. Also, for what I was using it for composition caused more pain than it was worth; especially given that everyone on my team wanted to run their local setups _slightly_ differently (e.g. with remote databases).
+- [process-compose](https://github.com/F1bonacc1/process-compose): Has a lot of features I don't use and feels sluggish.
 
-I've used all of the above before and nothing felt quite right, so I made my own.
+Out of all of the solutions above, `process-compose` got the closest to the experience I wanted but was still far from it.
 
 # Features Planned
 
