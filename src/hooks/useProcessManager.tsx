@@ -60,17 +60,30 @@ async function performReadinessProbe(
 	probe: NonNullable<Process["readinessProbe"]>,
 ): Promise<boolean> {
 	try {
-		const url = `http://${probe.host}:${probe.port}${probe.path}`;
-		const controller = new AbortController();
-		const timeoutId = setTimeout(() => controller.abort(), 3_000);
+		if (probe.type === "http") {
+			const url = `http://${probe.host}:${probe.port}${probe.path}`;
+			const controller = new AbortController();
+			const timeoutId = setTimeout(() => controller.abort(), 3_000);
 
-		const response = await fetch(url, {
-			method: "GET",
-			signal: controller.signal,
-		});
+			const response = await fetch(url, {
+				method: "GET",
+				signal: controller.signal,
+			});
 
-		clearTimeout(timeoutId);
-		return response.ok;
+			clearTimeout(timeoutId);
+			return response.ok;
+		} else if (probe.type === "exec") {
+			const proc = spawn({
+				cmd: ["sh", "-c", probe.command],
+				stdout: "ignore",
+				stderr: "ignore",
+			});
+
+			const result = await proc.exited;
+			return result === 0;
+		}
+
+		return false;
 	} catch {
 		return false;
 	}
