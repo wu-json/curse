@@ -1,4 +1,4 @@
-import { cli, define } from "gunshi";
+import { cli, define, type CommandContext } from "gunshi";
 import { resolve } from "path";
 
 import { parseCurseConfig } from "./parser";
@@ -69,8 +69,16 @@ const command = define({
 	},
 });
 
+async function renderHeader(ctx: CommandContext): Promise<string> {
+	if (ctx.values.help) {
+		return `${ctx.env.description} (curse v${version})`;
+	}
+	return "";
+}
+
 await cli(process.argv.slice(2), command, {
 	name: "curse",
 	version,
 	description: "Manage processes in your terminal.",
+	renderHeader,
 });
