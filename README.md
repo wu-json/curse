@@ -93,10 +93,10 @@ If the above made you cringe, then you're not alone because many others have too
 
 - [process-compose](https://github.com/F1bonacc1/process-compose): Has a lot of features I don't use and feels sluggish.
 
-Out of all of the options above, `process-compose` got the closest to the experience I wanted but was still far from it. It was slow, had limited tooling around logging, and resulted in complicated composed configuration files that no one wanted to read.
+Out of all of the options above, `process-compose` got the closest to the experience I wanted but was still far from it. It felt pretty slow, had limited tooling around logging, and resulted in composed configuration files that were annoying to debug and maintain.
 
- > [!NOTE]
-> This is a note callout. Use this to highlight important information.
+## Goals For Curse
+
 
 # Features Planned
 
