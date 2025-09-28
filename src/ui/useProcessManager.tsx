@@ -26,7 +26,6 @@ export type ProcessProfile = {
 	memoryUsage: number; // MB
 	cpuUsage: number; // percentage
 	lastUpdated: Date;
-	lastCpuTime?: number; // microseconds for delta calculation
 };
 
 export type Process = {
@@ -119,29 +118,41 @@ function clearReadinessTimer(timer?: NodeJS.Timeout) {
 	}
 }
 
-function getProcessProfile(proc: Subprocess, previousProfile?: ProcessProfile | null): ProcessProfile | null {
+async function getProcessProfile(
+	proc: Subprocess,
+): Promise<ProcessProfile | null> {
 	try {
-		const usage = proc.resourceUsage();
-		if (!usage) return null;
+		const pid = proc.pid;
+		if (!pid) return null;
 
-		const now = new Date();
-		let cpuUsage = 0;
+		// Use ps command to get memory and CPU usage
+		const psResult = spawn({
+			cmd: ["ps", "-o", "rss,pcpu", "-p", pid.toString()],
+			stdout: "pipe",
+		});
 
-		if (previousProfile?.lastCpuTime !== undefined) {
-			const cpuTimeDelta = usage.cpuTime.total - previousProfile.lastCpuTime;
-			const timeDelta = now.getTime() - previousProfile.lastUpdated.getTime();
+		const output = await new Response(psResult.stdout).text();
+		const lines = output.trim().split("\n");
 
-			// Calculate CPU percentage: (cpu_delta_microseconds / time_delta_milliseconds) / 10
-			if (timeDelta > 0) {
-				cpuUsage = (cpuTimeDelta / (timeDelta * 1000)) * 100; // Convert to percentage
-			}
-		}
+		if (lines.length < 2) return null;
+
+		const dataLine = lines[1];
+		if (!dataLine) return null;
+
+		const data = dataLine.trim().split(/\s+/);
+		if (data.length < 2) return null;
+
+		const memoryStr = data[0];
+		const cpuStr = data[1];
+		if (!memoryStr || !cpuStr) return null;
+
+		const memoryKB = parseInt(memoryStr) || 0;
+		const cpuPercent = parseFloat(cpuStr) || 0;
 
 		return {
-			memoryUsage: Math.round(usage.maxRSS / 1024 / 1024), // Convert to MB
-			cpuUsage: Math.max(0, Math.min(100, cpuUsage)), // Clamp between 0-100%
-			lastUpdated: now,
-			lastCpuTime: usage.cpuTime.total,
+			memoryUsage: Math.round(memoryKB / 1024), // Convert KB to MB
+			cpuUsage: cpuPercent,
+			lastUpdated: new Date(),
 		};
 	} catch {
 		return null;
@@ -152,12 +163,9 @@ function startProfileTimer(
 	proc: Subprocess,
 	updateProcess: (updates: UpdateProcessFields) => void,
 ): NodeJS.Timeout {
-	let previousProfile: ProcessProfile | null = null;
-
-	const timer = setInterval(() => {
-		const profile = getProcessProfile(proc, previousProfile);
+	const timer = setInterval(async () => {
+		const profile = await getProcessProfile(proc);
 		if (profile) {
-			previousProfile = profile;
 			updateProcess({ profile });
 		}
 	}, 2000); // Update every 2 seconds for performance
@@ -237,7 +245,12 @@ async function execProcess({
 		updateProcess({ proc, readinessTimer });
 	} else {
 		profileTimer = startProfileTimer(proc, updateProcess);
-		updateProcess({ status: ProcessStatus.Running, proc, readinessTimer, profileTimer });
+		updateProcess({
+			status: ProcessStatus.Running,
+			proc,
+			readinessTimer,
+			profileTimer,
+		});
 	}
 
 	readStreamToBuffer(proc.stdout, p.logBuffer);
@@ -357,7 +370,8 @@ export function ProcessManagerProvider(props: {
 		if (!processes[processIdx]) {
 			return;
 		}
-		const { proc, status, readinessTimer, profileTimer } = processes[processIdx];
+		const { proc, status, readinessTimer, profileTimer } =
+			processes[processIdx];
 		if (!proc || status !== ProcessStatus.Running) {
 			return;
 		}
