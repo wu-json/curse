@@ -39,8 +39,10 @@ cd app/client yarn start
 
 <img src="https://media.tenor.com/tbQSXR4MGU0AAAAe/aoi-todo.png" width="300" alt="aoi-todo" align="left" />
 
+<div style="margin-top: 50px;">
 <i>"onboarding is easy bro"</i><br/>
-  &nbsp;&nbsp;&nbsp;&nbsp;— Aoi Todo
+<div style="text-align: right;">— Aoi Todo</div>
+</div>
 
 <br clear="left" />
 <br />
