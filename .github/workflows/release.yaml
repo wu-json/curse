@@ -31,11 +31,8 @@ jobs:
         with:
           aqua_version: v2.43.1
 
-      - name: Tag
-        run: just tag
-
-      - name: Checkout tag commit
-        run: just checkout-release
+      - name: Version
+        run: just bump-and-commit-version ${{ github.event.inputs.version_type }}
 
       - name: Release
         run: just dry_run=false release
