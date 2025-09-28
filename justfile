@@ -15,8 +15,7 @@ version semver:
   just fmt package.json src/version.ts
 
 build:
-  goreleaser build
-  rm -f .*.bun-build
+  just dry_run=true release
 
 release:
   goreleaser release --clean {{ if dry_run == "true" { "--snapshot" } else { "" } }}
