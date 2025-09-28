@@ -9,8 +9,13 @@ current-version:
   echo {{current_version}}
 
 tag:
-  git tag v{{current_version}}
-  git push origin v{{current_version}}
+  #!/usr/bin/env bash
+  if ! git rev-parse "v{{current_version}}" >/dev/null 2>&1; then
+    git tag v{{current_version}}
+    git push origin v{{current_version}}
+  else
+    echo "Tag v{{current_version}} already exists, skipping..."
+  fi
 
 typecheck:
   tsc --noEmit
