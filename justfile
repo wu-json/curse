@@ -18,5 +18,5 @@ build:
   just dry_run=true release
 
 release:
-  goreleaser release --clean {{ if dry_run == "true" { "--skip=publish" } else { "" } }}
+  goreleaser release --clean {{ if dry_run == "true" { "--snapshot" } else { "" } }}
   rm -f .*.bun-build
