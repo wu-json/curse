@@ -12,9 +12,9 @@ Curse is a dead simple Terminal UI for running processes, configurable through i
 
 <img src="https://ih1.redbubble.net/image.5538369487.3481/raf,360x360,075,t,fafafa:ca443f4786.jpg" width="200" alt="jjk-cute-demons" align="right" />
 
-Local development feels like a very special curse
+Local development feels like a very special curse at times. If you've been writing code for a while, you're probably no stranger to instructions like this:
 
-If you've been writing code for a while, you're probably no stranger to instructions like this:
+<br clear="right" />
 
 ```
 ## Starting Application Locally
