@@ -15,7 +15,6 @@ tag:
   #!/usr/bin/env bash
   if ! git rev-parse "v{{current_version}}" >/dev/null 2>&1; then
     git tag v{{current_version}}
-    git push origin v{{current_version}}
   else
     echo "Tag v{{current_version}} already exists, skipping..."
   fi
@@ -28,8 +27,16 @@ version semver:
   echo "export const version = \"{{semver}}\";" > src/version.ts
   just fmt package.json src/version.ts
 
+version-and-commit semver:
+  just version {{semver}}
+  just tag
+  git add -A
+  git commit -m "version: v{{semver}}"
+  git push --follow-tags
+
 build:
   GORELEASER_CURRENT_TAG=v{{current_version}} goreleaser build --clean --snapshot
+  rm -f .*.bun-build
 
 release:
   bun install
