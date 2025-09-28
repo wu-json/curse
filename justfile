@@ -13,11 +13,6 @@ version semver:
   just fmt package.json src/version.ts
 
 release:
-    #!/usr/bin/env bash
     export GORELEASER_CURRENT_TAG={{current_version}}
-    if [ "{{dry_run}}" = "true" ]; then
-        goreleaser release --snapshot --clean
-    else
-        goreleaser release --clean
-    fi
+    goreleaser release --clean {{ if dry_run == "true" { "--snapshot" } else { "" } }}
     rm -f .*.bun-build
