@@ -3,7 +3,6 @@ import toml from "toml";
 
 const CurseConfig = type({
 	"+": "delete",
-	name: "string",
 	process: type({
 		name: "string",
 		command: "string",
@@ -18,11 +17,11 @@ const CurseConfig = type({
 	}).array(),
 });
 
-export type CurseConfig = typeof CurseConfig.infer;
+export type CurseConfig = typeof CurseConfig.infer & {
+	fileName: string;
+};
 
-export async function parseCurseConfig(
-	path: string,
-): Promise<CurseConfig> {
+export async function parseCurseConfig(path: string): Promise<CurseConfig> {
 	const file = Bun.file(path);
 	const contents = await file.text();
 	const result = CurseConfig.assert(toml.parse(contents));
@@ -41,5 +40,10 @@ export async function parseCurseConfig(
 		);
 	}
 
-	return result;
+	const fileName = path.split('/').pop() || path;
+
+	return {
+		...result,
+		fileName
+	};
 }
