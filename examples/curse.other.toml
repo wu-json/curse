@@ -1,0 +1,31 @@
+[[process]]
+name = "web-server"
+command = "fish -c 'while true\necho \"[$(date \"+%Y-%m-%d %H:%M:%S\")] INFO: Server listening on port 3000\"\nsleep 0.5\necho \"[$(date \"+%Y-%m-%d %H:%M:%S\")] INFO: GET /api/users - 200 OK $(math (random) % 50 + 10)ms\"\nsleep 0.8\necho \"[$(date \"+%Y-%m-%d %H:%M:%S\")] INFO: POST /api/auth/login - 201 Created $(math (random) % 100 + 50)ms\"\nsleep 0.3\nend'"
+
+[[process]]
+name = "real-web-server"
+command = "bun run examples/real-web-server.ts"
+readiness_probe = { type = "http", host = "127.0.0.1", path = "/health", port = 9070 }
+
+[[process]]
+name = "real-web-server-other"
+command = "bun run examples/real-web-server.ts"
+env = { PORT = 9071 }
+readiness_probe = { type = "http", host = "127.0.0.1", path = "/health", port = 9071 }
+
+[[process]]
+name = "database"
+command = "fish -c 'while true\necho \"[$(date \"+%Y-%m-%d %H:%M:%S\")] [INFO] Connection pool: 15/20 active connections\"\nsleep 5\necho \"[$(date \"+%Y-%m-%d %H:%M:%S\")] [INFO] Query executed: SELECT * FROM users WHERE id = $(math (random) % 1000 + 1) ($(math (random) % 30 + 5)ms)\"\nsleep 3\necho \"[$(date \"+%Y-%m-%d %H:%M:%S\")] [WARN] Slow query detected: $(math (random) % 200 + 100)ms\"\nsleep 8\nend'"
+deps = ["real-web-server"]
+
+[[process]]
+name = "worker-queue"
+command = "fish -c 'while true\necho \"[$(date \"+%Y-%m-%d %H:%M:%S\")] Worker: Processing job #$(math (random) % 10000 + 1000)\"\nsleep 2\necho \"[$(date \"+%Y-%m-%d %H:%M:%S\")] Worker: Email sent to user$(math (random) % 100 + 1)@example.com\"\nsleep 4\necho \"[$(date \"+%Y-%m-%d %H:%M:%S\")] Worker: Image resized: photo_$(math (random) % 500 + 1).jpg\"\nsleep 3\nend'"
+
+[[process]]
+name = "redis-cache"
+command = "fish -c 'while true\necho \"[$(date \"+%Y-%m-%d %H:%M:%S\")] Redis: SET session:$(string sub -l 8 (uuidgen)) (EX 3600)\"\nsleep 1\necho \"[$(date \"+%Y-%m-%d %H:%M:%S\")] Redis: GET user:$(math (random) % 1000 + 1):profile - HIT\"\nsleep 2\necho \"[$(date \"+%Y-%m-%d %H:%M:%S\")] Redis: Memory usage: $(math (random) % 30 + 40)MB\"\nsleep 6\nend'"
+
+[[process]]
+name = "nginx-proxy"
+command = "fish -c 'while true\necho \"$(date \"+%d/%b/%Y:%H:%M:%S +0000\") \\\"GET /api/health HTTP/1.1\\\" 200 $(math (random) % 500 + 100) \\\"-\\\" \\\"HealthChecker/1.0\\\"\"\nsleep 1\necho \"$(date \"+%d/%b/%Y:%H:%M:%S +0000\") \\\"POST /api/graphql HTTP/1.1\\\" 200 $(math (random) % 2000 + 200) \\\"-\\\" \\\"Mozilla/5.0\\\"\"\nsleep 2\nend'"
