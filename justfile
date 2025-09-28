@@ -18,3 +18,4 @@ release:
     else
         goreleaser release --clean
     fi
+    rm -f .*.bun-build
