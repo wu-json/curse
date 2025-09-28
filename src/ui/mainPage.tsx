@@ -2,10 +2,35 @@ import { Box, Text, useInput, useStdout } from "ink";
 import { useEffect, useState } from "react";
 
 import { usePage, ViewPage } from "./usePage";
-import { useProcessManager } from "./useProcessManager";
+import { useProcessManager, type Process } from "./useProcessManager";
 import { Colors } from "./colors";
 import { ShortcutFooter, getShortcutFooterHeight } from "./shortcutFooter";
 import { LogTailPreview } from "./logTailPreview";
+
+function getReadinessDisplay(process: Process): { char: string; color: string } {
+	const char = process.readinessProbe === undefined ||
+		process.status === "killed"
+			? "-"
+			: process.status === "starting" && process.readinessProbe
+				? "-"
+				: process.status === "error" && process.readinessProbe
+					? "x"
+					: process.isReady === undefined
+						? "?"
+						: process.isReady
+							? "✓"
+							: "✗";
+
+	const color = char === "x" || char === "✗"
+		? "red"
+		: char === "✓"
+			? Colors.teal
+			: char === "-"
+				? Colors.darkGray
+				: Colors.blue;
+
+	return { char, color };
+}
 
 function ProcessTable() {
 	const { processes, selectedProcessIdx } = useProcessManager();
@@ -13,7 +38,7 @@ function ProcessTable() {
 	const { stdout } = useStdout();
 
 	const terminalWidth = stdout?.columns ?? 80;
-	const fixedColumnsWidth = 10 + 2 + 8 + 2 + 8; // STATUS + margin + READY + margin + AGE
+	const fixedColumnsWidth = 10 + 2 + 8 + 2 + 8 + 2 + 8 + 2 + 8; // STATUS + margin + READY + margin + AGE + margin + MEM + margin + CPU
 	const borderAndPadding = 4; // border + padding
 	const nameColumnWidth = Math.max(
 		20,
@@ -50,8 +75,14 @@ function ProcessTable() {
 				<Box width={8} marginLeft={2}>
 					<Text bold>READY</Text>
 				</Box>
-				<Box width={8}>
+				<Box width={8} marginLeft={2}>
 					<Text bold>AGE</Text>
+				</Box>
+				<Box width={8} marginLeft={2}>
+					<Text bold>MEM</Text>
+				</Box>
+				<Box width={8} marginLeft={2}>
+					<Text bold>CPU</Text>
 				</Box>
 			</Box>
 			{processes.map((process, index) => {
@@ -82,35 +113,19 @@ function ProcessTable() {
 							</Text>
 						</Box>
 						<Box width={8} marginLeft={2}>
-							<Text
-								color={
-									isSelected
-										? "white"
-										: process.status === "error" && process.readinessProbe
-											? "red"
-											: process.isReady === true
-												? Colors.teal
-												: process.isReady === false
-													? "red"
-													: Colors.blue
-								}
-								bold={isSelected}
-							>
-								{process.readinessProbe === undefined ||
-								process.status === "killed"
-									? "-"
-									: process.status === "starting" && process.readinessProbe
-										? "-"
-										: process.status === "error" && process.readinessProbe
-											? "x"
-											: process.isReady === undefined
-												? "?"
-												: process.isReady
-													? "✓"
-													: "✗"}
-							</Text>
+							{(() => {
+								const { char, color } = getReadinessDisplay(process);
+								return (
+									<Text
+										color={isSelected ? "white" : color}
+										bold={isSelected}
+									>
+										{char}
+									</Text>
+								);
+							})()}
 						</Box>
-						<Box width={8}>
+						<Box width={8} marginLeft={2}>
 							<Text
 								color={isSelected ? "white" : Colors.blue}
 								bold={isSelected}
@@ -132,6 +147,38 @@ function ProcessTable() {
 												return `${ageInSeconds}s`;
 											}
 										})()
+									: "-"}
+							</Text>
+						</Box>
+						<Box width={8} marginLeft={2}>
+							<Text
+								color={
+									isSelected
+										? "white"
+										: process.profile?.memoryUsageMB !== undefined
+											? Colors.blue
+											: Colors.darkGray
+								}
+								bold={isSelected}
+							>
+								{process.profile?.memoryUsageMB !== undefined
+									? `${process.profile.memoryUsageMB}MB`
+									: "-"}
+							</Text>
+						</Box>
+						<Box width={8} marginLeft={2}>
+							<Text
+								color={
+									isSelected
+										? "white"
+										: process.profile?.cpuUsagePercent !== undefined
+											? Colors.blue
+											: Colors.darkGray
+								}
+								bold={isSelected}
+							>
+								{process.profile?.cpuUsagePercent !== undefined
+									? `${process.profile.cpuUsagePercent.toFixed(1)}%`
 									: "-"}
 							</Text>
 						</Box>

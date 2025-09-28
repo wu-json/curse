@@ -22,6 +22,12 @@ export enum ProcessStatus {
 	Killed = "killed",
 }
 
+export type ProcessProfile = {
+	memoryUsageMB: number;
+	cpuUsagePercent: number;
+	lastUpdated: Date;
+};
+
 export type Process = {
 	name: string;
 	command: string;
@@ -35,6 +41,8 @@ export type Process = {
 	proc?: Subprocess;
 	startedAt?: Date;
 	logBuffer: LogBuffer;
+	profile?: ProcessProfile;
+	profileTimer?: NodeJS.Timeout;
 };
 
 type UpdateProcessFields = {
@@ -44,6 +52,8 @@ type UpdateProcessFields = {
 	isReady?: boolean;
 	readinessTimer?: NodeJS.Timeout;
 	readinessProbeInProgress?: boolean;
+	profile?: ProcessProfile;
+	profileTimer?: NodeJS.Timeout;
 };
 
 async function performReadinessProbe(
@@ -82,17 +92,75 @@ function startReadinessTimer(
 		updateProcess({ readinessProbeInProgress: true });
 		const isReady = await performReadinessProbe(process.readinessProbe!);
 
-		updateProcess({
-			isReady,
-			readinessProbeInProgress: false,
-			...(isReady ? { status: ProcessStatus.Running } : {}),
-		});
+		if (isReady && !process.profileTimer && process.proc) {
+			const profileTimer = startProfileTimer(process.proc, updateProcess);
+			updateProcess({
+				isReady,
+				readinessProbeInProgress: false,
+				status: ProcessStatus.Running,
+				profileTimer,
+			});
+		} else {
+			updateProcess({
+				isReady,
+				readinessProbeInProgress: false,
+				...(isReady ? { status: ProcessStatus.Running } : {}),
+			});
+		}
 	}, 500);
 
 	return timer;
 }
 
 function clearReadinessTimer(timer?: NodeJS.Timeout) {
+	if (timer) {
+		clearInterval(timer);
+	}
+}
+
+async function getProcessProfile(
+	proc: Subprocess,
+): Promise<ProcessProfile | null> {
+	if (!proc.pid) return null;
+
+	try {
+		const psResult = spawn({
+			cmd: ["ps", "-o", "rss,pcpu", "-p", proc.pid.toString()],
+			stdout: "pipe",
+		});
+
+		const output = await new Response(psResult.stdout).text();
+		const [, dataLine] = output.trim().split("\n");
+		if (!dataLine) return null;
+
+		const [memoryStr, cpuStr] = dataLine.trim().split(/\s+/);
+		if (!memoryStr || !cpuStr) return null;
+
+		return {
+			memoryUsageMB: Math.round((parseInt(memoryStr) || 0) / 1024),
+			cpuUsagePercent: parseFloat(cpuStr) || 0,
+			lastUpdated: new Date(),
+		};
+	} catch {
+		return null;
+	}
+}
+
+function startProfileTimer(
+	proc: Subprocess,
+	updateProcess: (updates: UpdateProcessFields) => void,
+): NodeJS.Timeout {
+	const timer = setInterval(async () => {
+		const profile = await getProcessProfile(proc);
+		if (profile) {
+			updateProcess({ profile });
+		}
+	}, 2000); // Update every 2 seconds for performance
+
+	return timer;
+}
+
+function clearProfileTimer(timer?: NodeJS.Timeout) {
 	if (timer) {
 		clearInterval(timer);
 	}
@@ -158,11 +226,18 @@ async function execProcess({
 	});
 
 	const readinessTimer = startReadinessTimer(p, updateProcess);
+	let profileTimer: NodeJS.Timeout | undefined;
 
 	if (p.readinessProbe) {
 		updateProcess({ proc, readinessTimer });
 	} else {
-		updateProcess({ status: ProcessStatus.Running, proc, readinessTimer });
+		profileTimer = startProfileTimer(proc, updateProcess);
+		updateProcess({
+			status: ProcessStatus.Running,
+			proc,
+			readinessTimer,
+			profileTimer,
+		});
 	}
 
 	readStreamToBuffer(proc.stdout, p.logBuffer);
@@ -170,11 +245,16 @@ async function execProcess({
 
 	const result = await proc.exited;
 	clearReadinessTimer(readinessTimer);
+	if (profileTimer) {
+		clearProfileTimer(profileTimer);
+	}
 	updateProcess({
 		status: result === 0 ? ProcessStatus.Success : ProcessStatus.Error,
 		readinessTimer: undefined,
+		profileTimer: undefined,
 		isReady: undefined,
 		readinessProbeInProgress: false,
+		profile: undefined,
 	});
 }
 
@@ -277,13 +357,15 @@ export function ProcessManagerProvider(props: {
 		if (!processes[processIdx]) {
 			return;
 		}
-		const { proc, status, readinessTimer } = processes[processIdx];
+		const { proc, status, readinessTimer, profileTimer } =
+			processes[processIdx];
 		if (!proc || status !== ProcessStatus.Running) {
 			return;
 		}
 		updateProcess(processIdx, { status: ProcessStatus.Killing });
 
 		clearReadinessTimer(readinessTimer);
+		clearProfileTimer(profileTimer);
 
 		proc.kill("SIGTERM");
 		const timeout = setTimeout(() => {
@@ -297,8 +379,10 @@ export function ProcessManagerProvider(props: {
 		updateProcess(processIdx, {
 			status: ProcessStatus.Killed,
 			readinessTimer: undefined,
+			profileTimer: undefined,
 			isReady: undefined,
 			readinessProbeInProgress: false,
+			profile: undefined,
 		});
 	};
 
