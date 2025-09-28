@@ -22,4 +22,4 @@ jobs:
         run: just typecheck
 
       - name: Build
-        run: just dryrun=true release
+        run: just dry_run=true release

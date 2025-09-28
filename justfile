@@ -1,4 +1,5 @@
-dryrun := "true"
+current_version := `jq -r '.version' package.json`
+dry_run := "true"
 
 fmt *args:
   bun run biome format --write {{args}}
@@ -13,7 +14,7 @@ version semver:
 
 release:
     #!/usr/bin/env bash
-    if [ "{{dryrun}}" = "true" ]; then
+    if [ "{{dry_run}}" = "true" ]; then
         goreleaser release --snapshot --clean
     else
         goreleaser release --clean
