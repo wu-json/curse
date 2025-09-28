@@ -40,10 +40,10 @@ export async function parseCurseConfig(path: string): Promise<CurseConfig> {
 		);
 	}
 
-	const fileName = path.split('/').pop() || path;
+	const fileName = path.split("/").pop() || path;
 
 	return {
 		...result,
-		fileName
+		fileName,
 	};
 }

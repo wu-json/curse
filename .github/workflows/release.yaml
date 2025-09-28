@@ -1,9 +1,6 @@
-name: Source Quality
+name: Release
 on:
-  push:
-    branches: [main]
-  pull_request:
-    branches: [main]
+  workflow_dispatch:
 jobs:
   source-quality:
     runs-on: ubuntu-latest
@@ -15,11 +12,12 @@ jobs:
         with:
           aqua_version: v2.43.1
 
-      - name: Install dependencies
-        run: bun install
+      - name: Tag
+        run: just tag
+        env:
+          GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
 
-      - name: Typecheck
-        run: just typecheck
-
-      - name: Build
-        run: just build
+      - name: Release
+        run: just dry_run=false release
+        env:
+          GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}

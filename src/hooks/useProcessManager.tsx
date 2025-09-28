@@ -337,14 +337,16 @@ export function ProcessManagerProvider(props: {
 	// Watch for processes becoming ready or completing successfully and trigger pending process checks
 	useEffect(() => {
 		const readyProcesses = processes.filter((p) => p.isReady === true);
-		const successProcesses = processes.filter((p) => p.status === ProcessStatus.Success);
+		const successProcesses = processes.filter(
+			(p) => p.status === ProcessStatus.Success,
+		);
 		if (readyProcesses.length > 0 || successProcesses.length > 0) {
 			runPendingProcesses();
 		}
 	}, [
 		processes.map((p) => p.isReady).join(","),
 		processes.map((p) => p.status).join(","),
-		runPendingProcesses
+		runPendingProcesses,
 	]);
 
 	const restartSelectedProcess = async () => {

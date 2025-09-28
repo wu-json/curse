@@ -4,11 +4,18 @@ import { useEffect, useState } from "react";
 import { usePage, ViewPage } from "../../hooks/usePage";
 import { useProcessManager, type Process } from "../../hooks/useProcessManager";
 import { Colors } from "../../lib/Colors";
-import { ShortcutFooter, getShortcutFooterHeight } from "../components/ShortcutFooter";
+import {
+	ShortcutFooter,
+	getShortcutFooterHeight,
+} from "../components/ShortcutFooter";
 import { LogTailPreview } from "../components/LogTailPreview";
 
-function getReadinessDisplay(process: Process): { char: string; color: string } {
-	const char = process.readinessProbe === undefined ||
+function getReadinessDisplay(process: Process): {
+	char: string;
+	color: string;
+} {
+	const char =
+		process.readinessProbe === undefined ||
 		process.status === "killed" ||
 		process.status === "pending"
 			? "-"
@@ -22,13 +29,14 @@ function getReadinessDisplay(process: Process): { char: string; color: string } 
 							? "✓"
 							: "✗";
 
-	const color = char === "x" || char === "✗"
-		? "red"
-		: char === "✓"
-			? Colors.teal
-			: char === "-"
-				? Colors.darkGray
-				: Colors.blue;
+	const color =
+		char === "x" || char === "✗"
+			? "red"
+			: char === "✓"
+				? Colors.teal
+				: char === "-"
+					? Colors.darkGray
+					: Colors.blue;
 
 	return { char, color };
 }
@@ -89,7 +97,11 @@ function ProcessTable() {
 			{processes.map((process: Process, index: number) => {
 				const isSelected = index === selectedProcessIdx;
 				const isSuccess = process.status === "success";
-				const textColor = isSelected ? "white" : isSuccess ? Colors.darkGray : Colors.blue;
+				const textColor = isSelected
+					? "white"
+					: isSuccess
+						? Colors.darkGray
+						: Colors.blue;
 				return (
 					<Box
 						key={process.name}
@@ -98,20 +110,14 @@ function ProcessTable() {
 						backgroundColor={isSelected ? Colors.blue : undefined}
 					>
 						<Box width={nameColumnWidth}>
-							<Text
-								color={textColor}
-								bold={isSelected}
-							>
+							<Text color={textColor} bold={isSelected}>
 								{process.name.length > nameColumnWidth - 2
 									? process.name.slice(0, nameColumnWidth - 3) + "…"
 									: process.name}
 							</Text>
 						</Box>
 						<Box width={10} marginLeft={2}>
-							<Text
-								color={textColor}
-								bold={isSelected}
-							>
+							<Text color={textColor} bold={isSelected}>
 								{process.status}
 							</Text>
 						</Box>
@@ -120,7 +126,9 @@ function ProcessTable() {
 								const { char, color } = getReadinessDisplay(process);
 								return (
 									<Text
-										color={isSelected ? "white" : isSuccess ? Colors.darkGray : color}
+										color={
+											isSelected ? "white" : isSuccess ? Colors.darkGray : color
+										}
 										bold={isSelected}
 									>
 										{char}
@@ -129,10 +137,7 @@ function ProcessTable() {
 							})()}
 						</Box>
 						<Box width={8} marginLeft={2}>
-							<Text
-								color={textColor}
-								bold={isSelected}
-							>
+							<Text color={textColor} bold={isSelected}>
 								{process.startedAt
 									? (() => {
 											const ageInSeconds = Math.floor(
@@ -219,7 +224,9 @@ export function MainPage() {
 
 	useInput(async (input, key) => {
 		if (key.downArrow || input === "j") {
-			setSelectedProcessIdx((prev: number) => Math.min(prev + 1, processes.length - 1));
+			setSelectedProcessIdx((prev: number) =>
+				Math.min(prev + 1, processes.length - 1),
+			);
 		} else if (key.upArrow || input === "k") {
 			setSelectedProcessIdx((prev: number) => Math.max(prev - 1, 0));
 		} else if (key.shift && input === "R") {

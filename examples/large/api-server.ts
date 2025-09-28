@@ -1,11 +1,15 @@
 process.on("SIGTERM", () => {
-	console.log(`[${process.env.SERVICE_NAME}] Received SIGTERM, shutting down gracefully...`);
+	console.log(
+		`[${process.env.SERVICE_NAME}] Received SIGTERM, shutting down gracefully...`,
+	);
 	server.stop();
 	process.exit(0);
 });
 
 process.on("SIGINT", () => {
-	console.log(`[${process.env.SERVICE_NAME}] Received SIGINT, shutting down gracefully...`);
+	console.log(
+		`[${process.env.SERVICE_NAME}] Received SIGINT, shutting down gracefully...`,
+	);
 	server.stop();
 	process.exit(0);
 });
@@ -16,7 +20,7 @@ console.log(`[${process.env.SERVICE_NAME}] Starting up...`);
 await new Promise((resolve) => setTimeout(resolve, 3000));
 
 let requestCount = 0;
-const endpoints = ['/users', '/orders', '/products', '/auth/login', '/health'];
+const endpoints = ["/users", "/orders", "/products", "/auth/login", "/health"];
 
 const server = Bun.serve({
 	port: process.env.PORT ?? 8001,
@@ -25,7 +29,9 @@ const server = Bun.serve({
 		requestCount++;
 
 		if (url.pathname === "/health") {
-			console.log(`[${process.env.SERVICE_NAME}] Health check accessed (${requestCount} total requests)`);
+			console.log(
+				`[${process.env.SERVICE_NAME}] Health check accessed (${requestCount} total requests)`,
+			);
 			return new Response("OK", { status: 200 });
 		}
 
@@ -33,22 +39,25 @@ const server = Bun.serve({
 		if (endpoints.includes(url.pathname)) {
 			const method = req.method;
 			const responseTime = Math.random() * 200 + 50;
-			const statusCode = Math.random() > 0.95 ? 500 : Math.random() > 0.9 ? 404 : 200;
+			const statusCode =
+				Math.random() > 0.95 ? 500 : Math.random() > 0.9 ? 404 : 200;
 
 			setTimeout(() => {
-				console.log(`[${process.env.SERVICE_NAME}] ${method} ${url.pathname} - ${statusCode} (${responseTime.toFixed(0)}ms)`);
+				console.log(
+					`[${process.env.SERVICE_NAME}] ${method} ${url.pathname} - ${statusCode} (${responseTime.toFixed(0)}ms)`,
+				);
 			}, 0);
 
 			return new Response(
 				JSON.stringify({
-					status: statusCode === 200 ? 'success' : 'error',
+					status: statusCode === 200 ? "success" : "error",
 					endpoint: url.pathname,
-					timestamp: new Date().toISOString()
+					timestamp: new Date().toISOString(),
 				}),
 				{
 					status: statusCode,
-					headers: { 'Content-Type': 'application/json' }
-				}
+					headers: { "Content-Type": "application/json" },
+				},
 			);
 		}
 
@@ -56,13 +65,22 @@ const server = Bun.serve({
 	},
 });
 
-console.log(`[${process.env.SERVICE_NAME}] API server running on http://localhost:${server.port}`);
-console.log(`[${process.env.SERVICE_NAME}] Available endpoints: ${endpoints.join(', ')}`);
+console.log(
+	`[${process.env.SERVICE_NAME}] API server running on http://localhost:${server.port}`,
+);
+console.log(
+	`[${process.env.SERVICE_NAME}] Available endpoints: ${endpoints.join(", ")}`,
+);
 
 // Simulate periodic activity
-setInterval(() => {
-	if (Math.random() > 0.7) {
-		const activeConnections = Math.floor(Math.random() * 20);
-		console.log(`[${process.env.SERVICE_NAME}] Active connections: ${activeConnections}, Total requests: ${requestCount}`);
-	}
-}, 5000 + Math.random() * 5000);
+setInterval(
+	() => {
+		if (Math.random() > 0.7) {
+			const activeConnections = Math.floor(Math.random() * 20);
+			console.log(
+				`[${process.env.SERVICE_NAME}] Active connections: ${activeConnections}, Total requests: ${requestCount}`,
+			);
+		}
+	},
+	5000 + Math.random() * 5000,
+);
