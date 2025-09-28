@@ -2,7 +2,8 @@ import { cli, define } from "gunshi";
 import { resolve } from "path";
 
 import { parseCurseConfig } from "./parser";
-import { renderView } from "./ui/View";
+import { renderView } from "./View.tsx";
+import { version } from "./version";
 
 function makeCursePath(rawPath: string): string {
 	if (rawPath.startsWith("/")) {
@@ -70,7 +71,7 @@ const command = define({
 
 await cli(process.argv.slice(2), command, {
 	name: "curse",
-	version: "0.0.0",
+	version,
 	description: "Manage processes in your terminal.",
 	usageSilent: true,
 });
