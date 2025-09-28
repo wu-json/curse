@@ -37,10 +37,12 @@ cd app/client yarn start
 # start
 ```
 
-<div style="display: flex; align-items: center; gap: 15px;">
-<img src="https://media.tenor.com/tbQSXR4MGU0AAAAe/aoi-todo.png" width="300" alt="aoi-todo" />
-<div><i>"onboarding is easy bro"</i><br/>- Aoi Todo</div>
-</div>
+<img src="https://media.tenor.com/tbQSXR4MGU0AAAAe/aoi-todo.png" width="300" alt="aoi-todo" align="left" />
+
+<i>"onboarding is easy bro"</i><br/>
+- Aoi Todo
+
+<br clear="left" />
 
 If the above made you cringe, then you're not alone because many others have too. Existing solutions to this problem have come in various forms. 
 
