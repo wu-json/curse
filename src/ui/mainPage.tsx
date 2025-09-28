@@ -83,7 +83,17 @@ function ProcessTable() {
 						</Box>
 						<Box width={8} marginLeft={2}>
 							<Text
-								color={isSelected ? "white" : Colors.blue}
+								color={
+									isSelected
+										? "white"
+										: process.status === "error" && process.readinessProbe
+											? "red"
+											: process.isReady === true
+												? Colors.teal
+												: process.isReady === false
+													? "red"
+													: Colors.blue
+								}
 								bold={isSelected}
 							>
 								{process.readinessProbe === undefined ||
