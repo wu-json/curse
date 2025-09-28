@@ -6,6 +6,10 @@ export GORELEASER_CURRENT_TAG := current_version
 fmt *args:
   bun run biome format --write {{args}}
 
+tag:
+  git tag v{{current_version}}
+  git push origin v{{current_version}}
+
 typecheck:
   tsc --noEmit
 
