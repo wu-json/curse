@@ -12,7 +12,7 @@ bump-and-commit-version bump_type:
   just version $new_version
   git add -A
   git commit -m "chore(release): v$new_version"
-  git tag v$new_version
+  git tag -a v$new_version -m "Release v$new_version"
   git push --follow-tags
 
 fmt *args:
