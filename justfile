@@ -14,6 +14,10 @@ version semver:
   echo "export const version = \"{{semver}}\";" > src/version.ts
   just fmt package.json src/version.ts
 
+build:
+  goreleaser build
+  rm -f .*.bun-build
+
 release:
   goreleaser release --clean {{ if dry_run == "true" { "--snapshot" } else { "" } }}
   rm -f .*.bun-build
