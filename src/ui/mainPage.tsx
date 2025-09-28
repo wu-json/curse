@@ -152,7 +152,13 @@ function ProcessTable() {
 						</Box>
 						<Box width={8} marginLeft={2}>
 							<Text
-								color={isSelected ? "white" : Colors.blue}
+								color={
+									isSelected
+										? "white"
+										: process.profile?.memoryUsageMB !== undefined
+											? Colors.blue
+											: Colors.darkGray
+								}
 								bold={isSelected}
 							>
 								{process.profile?.memoryUsageMB !== undefined
@@ -162,7 +168,13 @@ function ProcessTable() {
 						</Box>
 						<Box width={8} marginLeft={2}>
 							<Text
-								color={isSelected ? "white" : Colors.blue}
+								color={
+									isSelected
+										? "white"
+										: process.profile?.cpuUsagePercent !== undefined
+											? Colors.blue
+											: Colors.darkGray
+								}
 								bold={isSelected}
 							>
 								{process.profile?.cpuUsagePercent !== undefined
