@@ -9,7 +9,8 @@ import { LogTailPreview } from "../components/LogTailPreview";
 
 function getReadinessDisplay(process: Process): { char: string; color: string } {
 	const char = process.readinessProbe === undefined ||
-		process.status === "killed"
+		process.status === "killed" ||
+		process.status === "pending"
 			? "-"
 			: process.status === "starting" && process.readinessProbe
 				? "-"
