@@ -30,6 +30,8 @@ cd app/client yarn start
 
 ![please halp](https://media.tenor.com/tbQSXR4MGU0AAAAe/aoi-todo.png)
 
+If the above instructions made you cringe, then this project might be useful for you.
+
 # Features Planned
 
 - [ ] Support user input in the log view
