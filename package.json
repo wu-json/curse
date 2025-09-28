@@ -11,7 +11,6 @@
 	"devDependencies": {
 		"@biomejs/biome": "^2.2.3",
 		"@types/bun": "latest",
-		"@types/shell-quote": "^1.7.5",
 		"react-devtools-core": "^6.1.5"
 	},
 	"peerDependencies": {
