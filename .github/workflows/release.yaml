@@ -24,6 +24,9 @@ jobs:
       - name: Tag
         run: just tag
 
+      - name: Fetch tags
+        run: git fetch --tags
+
       - name: Release
         run: just dry_run=false release
         env:
