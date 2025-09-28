@@ -184,7 +184,7 @@ function areDependenciesSatisfied(
 		if (depProcess.readinessProbe) {
 			return depProcess.isReady === true;
 		} else {
-			return depProcess.status !== ProcessStatus.Pending;
+			return depProcess.status === ProcessStatus.Success;
 		}
 	});
 }
@@ -334,13 +334,18 @@ export function ProcessManagerProvider(props: {
 		});
 	}, [processes]);
 
-	// Watch for processes becoming ready and trigger pending process checks
+	// Watch for processes becoming ready or completing successfully and trigger pending process checks
 	useEffect(() => {
 		const readyProcesses = processes.filter((p) => p.isReady === true);
-		if (readyProcesses.length > 0) {
+		const successProcesses = processes.filter((p) => p.status === ProcessStatus.Success);
+		if (readyProcesses.length > 0 || successProcesses.length > 0) {
 			runPendingProcesses();
 		}
-	}, [processes.map((p) => p.isReady).join(","), runPendingProcesses]);
+	}, [
+		processes.map((p) => p.isReady).join(","),
+		processes.map((p) => p.status).join(","),
+		runPendingProcesses
+	]);
 
 	const restartSelectedProcess = async () => {
 		const process = processes[selectedProcessIdx];

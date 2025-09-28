@@ -1,0 +1,18 @@
+# Simple Command
+[[process]]
+name = "my-server"
+command = "bun run examples/basic/server.ts"
+
+# Readiness Probe Command
+[[process]]
+name = "my-server-1"
+command = "bun run examples/basic/server.ts"
+env = { PORT = 9071 }
+readiness_probe = { type = "http", host = "127.0.0.1", path = "/health", port = 9071 }
+
+# Dependency on Command with Readiness Probe
+[[process]]
+name = "my-script"
+command = "echo 'my dependencies are done!'"
+deps = ["my-server-1"]
+
