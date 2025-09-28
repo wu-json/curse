@@ -231,11 +231,12 @@ async function execProcess({
 	});
 
 	const readinessTimer = startReadinessTimer(p, updateProcess);
+	let profileTimer: NodeJS.Timeout | undefined;
 
 	if (p.readinessProbe) {
 		updateProcess({ proc, readinessTimer });
 	} else {
-		const profileTimer = startProfileTimer(proc, updateProcess);
+		profileTimer = startProfileTimer(proc, updateProcess);
 		updateProcess({ status: ProcessStatus.Running, proc, readinessTimer, profileTimer });
 	}
 
@@ -244,7 +245,9 @@ async function execProcess({
 
 	const result = await proc.exited;
 	clearReadinessTimer(readinessTimer);
-	clearProfileTimer(profileTimer);
+	if (profileTimer) {
+		clearProfileTimer(profileTimer);
+	}
 	updateProcess({
 		status: result === 0 ? ProcessStatus.Success : ProcessStatus.Error,
 		readinessTimer: undefined,
