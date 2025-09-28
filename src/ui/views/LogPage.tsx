@@ -663,6 +663,28 @@ function LogTable(props: {
 		}
 	});
 
+	// Helper functions for text colors
+	const getTextColor = (
+		isCursor: boolean,
+		isSelected: boolean,
+		log: string,
+	) => {
+		if (isCursor) return "white";
+		if (isSelected) return Colors.purple;
+		if (log.includes("stderr")) return "red";
+		return Colors.purple;
+	};
+
+	const getPartTextColor = (
+		isHighlight: boolean,
+		isCursor: boolean,
+		isSelected: boolean,
+		log: string,
+	) => {
+		if (isHighlight) return Colors.brightOrange;
+		return getTextColor(isCursor, isSelected, log);
+	};
+
 	return (
 		<Box
 			flexDirection="column"
@@ -722,32 +744,19 @@ function LogTable(props: {
 				return (
 					<Box key={index} backgroundColor={backgroundColor}>
 						<Text
-							color={
-								isCursor
-									? "white"
-									: isSelected
-										? Colors.purple
-										: log.includes("stderr")
-											? "red"
-											: Colors.purple
-							}
+							color={getTextColor(isCursor, isSelected, log)}
 							bold={isCursor}
 							wrap="truncate"
 						>
 							{textParts.map((part, partIndex) => (
 								<Text
 									key={partIndex}
-									color={
-										part.isHighlight
-											? Colors.brightOrange
-											: isCursor
-												? "white"
-												: isSelected
-													? Colors.purple
-													: log.includes("stderr")
-														? "red"
-														: Colors.purple
-									}
+									color={getPartTextColor(
+										part.isHighlight,
+										isCursor,
+										isSelected,
+										log,
+									)}
 									bold={part.isHighlight || isCursor}
 								>
 									{part.text}
