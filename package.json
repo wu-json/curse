@@ -5,7 +5,7 @@
 	"type": "module",
 	"private": false,
 	"scripts": {
-		"build": "bun build --minify src/index.ts --compile --outfile dist/curse && rm -f .*.bun-build",
+		"build": "sh ./build.sh",
 		"typecheck": "tsc --noEmit",
 		"gen:version": "echo \"export const version = \\\"$(jq -r .version package.json)\\\";\" > src/version.ts"
 	},
