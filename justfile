@@ -18,5 +18,6 @@ build:
   just dry_run=true release
 
 release:
+  bun install
   goreleaser release --clean {{ if dry_run == "true" { "--snapshot" } else { "" } }}
   rm -f .*.bun-build
