@@ -23,8 +23,8 @@ export enum ProcessStatus {
 }
 
 export type ProcessProfile = {
-	memoryUsage: number; // MB
-	cpuUsage: number; // percentage
+	memoryUsageMB: number;
+	cpuUsagePercent: number;
 	lastUpdated: Date;
 };
 
@@ -150,8 +150,8 @@ async function getProcessProfile(
 		const cpuPercent = parseFloat(cpuStr) || 0;
 
 		return {
-			memoryUsage: Math.round(memoryKB / 1024), // Convert KB to MB
-			cpuUsage: cpuPercent,
+			memoryUsageMB: Math.round(memoryKB / 1024),
+			cpuUsagePercent: cpuPercent,
 			lastUpdated: new Date(),
 		};
 	} catch {

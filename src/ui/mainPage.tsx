@@ -146,8 +146,8 @@ function ProcessTable() {
 								color={isSelected ? "white" : Colors.blue}
 								bold={isSelected}
 							>
-								{process.profile?.memoryUsage !== undefined
-									? `${process.profile.memoryUsage}MB`
+								{process.profile?.memoryUsageMB !== undefined
+									? `${process.profile.memoryUsageMB}MB`
 									: "-"}
 							</Text>
 						</Box>
@@ -156,8 +156,8 @@ function ProcessTable() {
 								color={isSelected ? "white" : Colors.blue}
 								bold={isSelected}
 							>
-								{process.profile?.cpuUsage !== undefined
-									? `${process.profile.cpuUsage.toFixed(1)}%`
+								{process.profile?.cpuUsagePercent !== undefined
+									? `${process.profile.cpuUsagePercent.toFixed(1)}%`
 									: "-"}
 							</Text>
 						</Box>
