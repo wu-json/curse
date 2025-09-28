@@ -5,10 +5,10 @@ import type { CurseConfig } from "../parser";
 import { Colors } from "./colors";
 import { LogPage } from "./logPage";
 import { MainPage } from "./mainPage";
-import { ProcessManagerProvider } from "./useProcessManager";
-import { useAltScreen } from "./useAltScreen";
-import { usePage, PageProvider, ViewPage } from "./usePage";
-import { useProcessManager } from "./useProcessManager";
+import { ProcessManagerProvider } from "../hooks/useProcessManager";
+import { useAltScreen } from "../hooks/useAltScreen";
+import { usePage, PageProvider, ViewPage } from "../hooks/usePage";
+import { useProcessManager } from "../hooks/useProcessManager";
 import { version } from "../version";
 
 function View(props: { config: CurseConfig }) {

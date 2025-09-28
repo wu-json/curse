@@ -1,8 +1,8 @@
 import { Box, Text, useInput, useStdout } from "ink";
 import { useEffect, useState } from "react";
 
-import { usePage, ViewPage } from "./usePage";
-import { useProcessManager, type Process } from "./useProcessManager";
+import { usePage, ViewPage } from "../hooks/usePage";
+import { useProcessManager, type Process } from "../hooks/useProcessManager";
 import { Colors } from "./colors";
 import { ShortcutFooter, getShortcutFooterHeight } from "./shortcutFooter";
 import { LogTailPreview } from "./logTailPreview";
@@ -85,7 +85,7 @@ function ProcessTable() {
 					<Text bold>CPU</Text>
 				</Box>
 			</Box>
-			{processes.map((process, index) => {
+			{processes.map((process: Process, index: number) => {
 				const isSelected = index === selectedProcessIdx;
 				return (
 					<Box
@@ -212,9 +212,9 @@ export function MainPage() {
 
 	useInput(async (input, key) => {
 		if (key.downArrow || input === "j") {
-			setSelectedProcessIdx((prev) => Math.min(prev + 1, processes.length - 1));
+			setSelectedProcessIdx((prev: number) => Math.min(prev + 1, processes.length - 1));
 		} else if (key.upArrow || input === "k") {
-			setSelectedProcessIdx((prev) => Math.max(prev - 1, 0));
+			setSelectedProcessIdx((prev: number) => Math.max(prev - 1, 0));
 		} else if (key.shift && input === "R") {
 			await restartSelectedProcess();
 		} else if (key.shift && input === "K") {

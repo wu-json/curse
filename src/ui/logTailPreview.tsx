@@ -1,7 +1,7 @@
 import { Box, Text } from "ink";
 import { useEffect, useState } from "react";
 
-import { useProcessManager } from "./useProcessManager";
+import { useProcessManager } from "../hooks/useProcessManager";
 import { Colors } from "./colors";
 
 export function LogTailPreview(props: { height: number }) {
@@ -48,7 +48,7 @@ export function LogTailPreview(props: { height: number }) {
 						<Text color={Colors.darkGray}>No logs available</Text>
 					</Box>
 				) : (
-					logs.map((log, index) => (
+					logs.map((log: string, index: number) => (
 						<Box key={index}>
 							<Text
 								color={log.includes("stderr") ? "red" : Colors.lightBlue}
