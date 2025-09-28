@@ -20,3 +20,18 @@ checksum:
   name_template: "{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}.sha256"
 snapshot:
   version_template: "{{ .Version }}"
+homebrew_casks:
+  - repository:
+      owner: wu-json
+      name: homebrew-curse
+    homepage: "https://github.com/wu-json/curse"
+    description: "Incantations in your terminal. "
+
+    # Handle macOS quarantine for unsigned binaries:
+    # https://goreleaser.com/customization/homebrew_casks/#signing-and-notarizing
+    hooks:
+      post:
+        install: |
+          if OS.mac?
+            system_command "/usr/bin/xattr", args: ["-dr", "com.apple.quarantine", "#{staged_path}/curse"]
+          end
