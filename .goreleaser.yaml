@@ -23,9 +23,10 @@ snapshot:
 homebrew_casks:
   - repository:
       owner: wu-json
-      name: homebrew-curse
+      name: homebrew-tap
     homepage: "https://github.com/wu-json/curse"
-    description: "Incantations in your terminal. "
+    description: "Incantations in your terminal."
+    license: MIT
 
     # Handle macOS quarantine for unsigned binaries:
     # https://goreleaser.com/customization/homebrew_casks/#signing-and-notarizing
