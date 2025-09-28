@@ -23,7 +23,7 @@ current-version:
   echo {{current_version}}
 
 typecheck:
-  tsc --noEmit
+  bun run tsc --noEmit
 
 version semver:
   jq '.version = "{{semver}}"' package.json > package.json.tmp && mv package.json.tmp package.json

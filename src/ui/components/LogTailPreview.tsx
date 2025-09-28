@@ -40,7 +40,7 @@ export function LogTailPreview(props: { height: number }) {
 					logs.map((log: string, index: number) => (
 						<Box key={index}>
 							<Text
-								color={log.includes("stderr") ? "red" : Colors.lightBlue}
+								color={log.includes("stderr") ? "red" : Colors.purple}
 								wrap="truncate"
 							>
 								{log}
