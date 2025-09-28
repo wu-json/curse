@@ -40,9 +40,10 @@ cd app/client yarn start
 <img src="https://media.tenor.com/tbQSXR4MGU0AAAAe/aoi-todo.png" width="300" alt="aoi-todo" align="left" />
 
 <i>"onboarding is easy bro"</i><br/>
-- Aoi Todo
+  &nbsp;&nbsp;&nbsp;&nbsp;— Aoi Todo
 
 <br clear="left" />
+<br />
 
 If the above made you cringe, then you're not alone because many others have too. Existing solutions to this problem have come in various forms. 
 
