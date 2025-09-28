@@ -9,6 +9,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
+          fetch-tags: true
           token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Configure git
@@ -23,9 +24,6 @@ jobs:
 
       - name: Tag
         run: just tag
-
-      - name: Fetch tags
-        run: git fetch --tags
 
       - name: Checkout tag commit
         run: |
