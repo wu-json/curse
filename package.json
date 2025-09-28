@@ -1,23 +1,23 @@
 {
-	"name": "curse",
-	"version": "0.0.3",
-	"module": "src/index.ts",
-	"type": "module",
-	"private": false,
-	"devDependencies": {
-		"@biomejs/biome": "^2.2.3",
-		"@types/bun": "latest",
-		"react-devtools-core": "^6.1.5"
-	},
-	"peerDependencies": {
-		"typescript": "^5"
-	},
-	"dependencies": {
-		"arktype": "^2.1.22",
-		"gunshi": "^0.26.3",
-		"ink": "^6.2.3",
-		"minisearch": "^7.1.2",
-		"react": "^19.1.1",
-		"toml": "^3.0.0"
-	}
+  "name": "curse",
+  "version": "0.0.4",
+  "module": "src/index.ts",
+  "type": "module",
+  "private": false,
+  "devDependencies": {
+    "@biomejs/biome": "^2.2.3",
+    "@types/bun": "latest",
+    "react-devtools-core": "^6.1.5"
+  },
+  "peerDependencies": {
+    "typescript": "^5"
+  },
+  "dependencies": {
+    "arktype": "^2.1.22",
+    "gunshi": "^0.26.3",
+    "ink": "^6.2.3",
+    "minisearch": "^7.1.2",
+    "react": "^19.1.1",
+    "toml": "^3.0.0"
+  }
 }
