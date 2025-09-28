@@ -10,6 +10,8 @@ Curse is a dead simple Terminal UI for running processes, configurable through i
 
 ## Installation & Setup
 
+Curse is a single binary and it's definitely lightweight. Not like bun is in there or anything.
+
 1. `brew install curse`
 
 2. Create your `curse.toml` and put it in your project root.
