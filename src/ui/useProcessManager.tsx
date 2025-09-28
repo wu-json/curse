@@ -26,6 +26,7 @@ export type ProcessProfile = {
 	memoryUsage: number; // MB
 	cpuUsage: number; // percentage
 	lastUpdated: Date;
+	lastCpuTime?: number; // microseconds for delta calculation
 };
 
 export type Process = {
@@ -92,11 +93,21 @@ function startReadinessTimer(
 		updateProcess({ readinessProbeInProgress: true });
 		const isReady = await performReadinessProbe(process.readinessProbe!);
 
-		updateProcess({
-			isReady,
-			readinessProbeInProgress: false,
-			...(isReady ? { status: ProcessStatus.Running } : {}),
-		});
+		if (isReady && !process.profileTimer && process.proc) {
+			const profileTimer = startProfileTimer(process.proc, updateProcess);
+			updateProcess({
+				isReady,
+				readinessProbeInProgress: false,
+				status: ProcessStatus.Running,
+				profileTimer,
+			});
+		} else {
+			updateProcess({
+				isReady,
+				readinessProbeInProgress: false,
+				...(isReady ? { status: ProcessStatus.Running } : {}),
+			});
+		}
 	}, 500);
 
 	return timer;
@@ -108,15 +119,29 @@ function clearReadinessTimer(timer?: NodeJS.Timeout) {
 	}
 }
 
-function getProcessProfile(proc: Subprocess): ProcessProfile | null {
+function getProcessProfile(proc: Subprocess, previousProfile?: ProcessProfile | null): ProcessProfile | null {
 	try {
 		const usage = proc.resourceUsage();
 		if (!usage) return null;
 
+		const now = new Date();
+		let cpuUsage = 0;
+
+		if (previousProfile?.lastCpuTime !== undefined) {
+			const cpuTimeDelta = usage.cpuTime.total - previousProfile.lastCpuTime;
+			const timeDelta = now.getTime() - previousProfile.lastUpdated.getTime();
+
+			// Calculate CPU percentage: (cpu_delta_microseconds / time_delta_milliseconds) / 10
+			if (timeDelta > 0) {
+				cpuUsage = (cpuTimeDelta / (timeDelta * 1000)) * 100; // Convert to percentage
+			}
+		}
+
 		return {
 			memoryUsage: Math.round(usage.maxRSS / 1024 / 1024), // Convert to MB
-			cpuUsage: Math.round(usage.cpuTime.total / 1000) / 100, // Convert microseconds to ms, then to percentage-like value
-			lastUpdated: new Date(),
+			cpuUsage: Math.max(0, Math.min(100, cpuUsage)), // Clamp between 0-100%
+			lastUpdated: now,
+			lastCpuTime: usage.cpuTime.total,
 		};
 	} catch {
 		return null;
@@ -127,9 +152,12 @@ function startProfileTimer(
 	proc: Subprocess,
 	updateProcess: (updates: UpdateProcessFields) => void,
 ): NodeJS.Timeout {
+	let previousProfile: ProcessProfile | null = null;
+
 	const timer = setInterval(() => {
-		const profile = getProcessProfile(proc);
+		const profile = getProcessProfile(proc, previousProfile);
 		if (profile) {
+			previousProfile = profile;
 			updateProcess({ profile });
 		}
 	}, 2000); // Update every 2 seconds for performance
@@ -203,11 +231,11 @@ async function execProcess({
 	});
 
 	const readinessTimer = startReadinessTimer(p, updateProcess);
-	const profileTimer = startProfileTimer(proc, updateProcess);
 
 	if (p.readinessProbe) {
-		updateProcess({ proc, readinessTimer, profileTimer });
+		updateProcess({ proc, readinessTimer });
 	} else {
+		const profileTimer = startProfileTimer(proc, updateProcess);
 		updateProcess({ status: ProcessStatus.Running, proc, readinessTimer, profileTimer });
 	}
 

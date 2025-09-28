@@ -157,7 +157,7 @@ function ProcessTable() {
 								bold={isSelected}
 							>
 								{process.profile?.cpuUsage !== undefined
-									? `${process.profile.cpuUsage.toFixed(1)}ms`
+									? `${process.profile.cpuUsage.toFixed(1)}%`
 									: "-"}
 							</Text>
 						</Box>
