@@ -45,7 +45,7 @@ deps = ["seed-data"]
 > [!NOTE]
 > Curse will select a configuration file with the following priority from highest to lowest:
 >
-> [override with `-p` flag] > `curse.local.toml` > `curse.toml`.
+> `[override with -p flag]` > `curse.local.toml` > `curse.toml`.
 
 ## The Origin Story
 
