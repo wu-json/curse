@@ -14,7 +14,7 @@ version semver:
 
 release:
     #!/usr/bin/env bash
-    GORELEASER_CURRENT_TAG={{current_version}}
+    export GORELEASER_CURRENT_TAG={{current_version}}
     if [ "{{dry_run}}" = "true" ]; then
         goreleaser release --snapshot --clean
     else
