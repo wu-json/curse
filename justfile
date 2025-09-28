@@ -24,7 +24,7 @@ version semver:
   just fmt package.json src/version.ts
 
 build:
-  just release
+  goreleaser build --clean --snapshot
 
 release:
   bun install
