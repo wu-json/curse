@@ -11,6 +11,7 @@ env = { PORT = 9071 }
 readiness_probe = { type = "http", host = "127.0.0.1", path = "/health", port = 9071 }
 
 # Dependency Command
+[[process]]
 name = "my-script"
 command = "echo 'my dependencies are done!'"
 deps = ["my-server", "my-server-1"]
