@@ -75,7 +75,7 @@ cd app/client yarn start
 <tr>
 <td><img src="https://media.tenor.com/tbQSXR4MGU0AAAAe/aoi-todo.png" width="300" alt="aoi-todo" /></td>
 <td style="vertical-align: middle; padding-left: 20px;">
-<i>"onboarding is easy bro"</i><br/>
+<i>"just run it locally bro"</i><br/>
 <div>- Aoi Todo</div>
 </td>
 </tr>
