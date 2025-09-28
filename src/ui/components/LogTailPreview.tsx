@@ -1,21 +1,10 @@
 import { Box, Text } from "ink";
-import { useEffect, useState } from "react";
 
 import { useProcessManager } from "../../hooks/useProcessManager";
 import { Colors } from "../../lib/Colors";
 
 export function LogTailPreview(props: { height: number }) {
 	const { selectedProcess } = useProcessManager();
-	const [, forceUpdate] = useState(0);
-
-	// Force re-render every second to update logs
-	useEffect(() => {
-		const interval = setInterval(() => {
-			forceUpdate((prev) => prev + 1);
-		}, 1000);
-
-		return () => clearInterval(interval);
-	}, []);
 
 	if (!selectedProcess) {
 		return (
@@ -63,3 +52,4 @@ export function LogTailPreview(props: { height: number }) {
 		</Box>
 	);
 }
+
