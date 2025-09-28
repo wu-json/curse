@@ -10,11 +10,11 @@ current-version:
 
 tag:
   #!/usr/bin/env bash
-  if git ls-remote --exit-code --tags origin "refs/tags/v{{current_version}}" >/dev/null 2>&1; then
-    echo "Tag v{{current_version}} already exists on remote, skipping..."
+  if git ls-remote --exit-code --tags origin "refs/tags/{{current_version}}" >/dev/null 2>&1; then
+    echo "Tag {{current_version}} already exists on remote, skipping..."
   else
-    git tag v{{current_version}}
-    git push origin v{{current_version}}
+    git tag {{current_version}}
+    git push origin {{current_version}}
   fi
 
 typecheck:
@@ -30,5 +30,5 @@ build:
 
 release:
   bun install
-  GORELEASER_CURRENT_TAG=v{{current_version}} goreleaser release --clean {{ if dry_run == "true" { "--snapshot" } else { "" } }}
+  GORELEASER_CURRENT_TAG={{current_version}} goreleaser release --clean {{ if dry_run == "true" { "--snapshot" } else { "" } }}
   rm -f .*.bun-build
