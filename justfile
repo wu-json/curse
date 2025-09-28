@@ -1,7 +1,7 @@
 current_version := `jq -r '.version' package.json`
 dry_run := "true"
 
-export GORELEASER_CURRENT_TAG := current_version
+export GORELEASER_CURRENT_TAG := 'v' + current_version
 
 fmt *args:
   bun run biome format --write {{args}}
