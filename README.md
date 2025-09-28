@@ -1,12 +1,12 @@
 # Curse 🕯️
 
 ![Made with TypeScript](https://img.shields.io/badge/Made%20with-TypeScript-3178C6?style=flat-square&logo=typescript&logoColor=white)
-![Runs on Bun](https://img.shields.io/badge/Made%20with-Bun-f9f1e1?style=flat-square&logo=bun&logoColor=black)
+![Made with Bun](https://img.shields.io/badge/Made%20with-Bun-f9f1e1?style=flat-square&logo=bun&logoColor=black)
 ![Maintenance](https://img.shields.io/badge/Maintained%3F-yes-green.svg?style=flat-square)
 
 Curse is a dead simple Terminal UI for running processes, configurable through incantations in a single `curse.toml` file.
 
-<img src="https://ih1.redbubble.net/image.5538369487.3481/raf,360x360,075,t,fafafa:ca443f4786.jpg" width="200" />
+<img src="https://ih1.redbubble.net/image.5538369487.3481/raf,360x360,075,t,fafafa:ca443f4786.jpg" width="250" alt="hello" title="hello" />
 
 Local development often feels like a very special curse. If you've been writing code for a while, you're probably no stranger to instructions like this:
 
