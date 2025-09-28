@@ -10,12 +10,10 @@ const targets: Bun.Build.Target[] = [
 
 console.log("Building curse for multiple targets...");
 
-// Create dist directory if it doesn't exist
 if (!existsSync("dist")) {
 	await mkdir("dist", { recursive: true });
 }
 
-// Build for each target
 for (const target of targets) {
 	console.log(`Building for ${target}...`);
 
