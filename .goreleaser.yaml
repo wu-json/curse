@@ -18,5 +18,3 @@ checksum:
   algorithm: sha256
   split: true
   name_template: "{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}.sha256"
-snapshot:
-  version_template: "{{ .Version }}"
