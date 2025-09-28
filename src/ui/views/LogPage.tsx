@@ -2,10 +2,10 @@ import { Box, Text, useInput, useStdout } from "ink";
 import { useEffect, useState, useMemo, useCallback } from "react";
 import { $ } from "bun";
 
-import { usePage, ViewPage } from "../hooks/usePage";
-import { useProcessManager } from "../hooks/useProcessManager";
-import { Colors } from "../lib/Colors";
-import { ShortcutFooter, getShortcutFooterHeight } from "./shortcutFooter";
+import { usePage, ViewPage } from "../../hooks/usePage";
+import { useProcessManager } from "../../hooks/useProcessManager";
+import { Colors } from "../../lib/Colors";
+import { ShortcutFooter, getShortcutFooterHeight } from "../components/ShortcutFooter";
 
 function LogTable(props: {
 	height: number;

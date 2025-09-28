@@ -3,8 +3,8 @@ import { useEffect } from "react";
 
 import type { CurseConfig } from "../parser";
 import { Colors } from "../lib/Colors";
-import { LogPage } from "./logPage";
-import { MainPage } from "./mainPage";
+import { LogPage } from "./views/LogPage";
+import { MainPage } from "./views/MainPage";
 import { ProcessManagerProvider } from "../hooks/useProcessManager";
 import { useAltScreen } from "../hooks/useAltScreen";
 import { usePage, PageProvider, ViewPage } from "../hooks/usePage";

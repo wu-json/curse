@@ -1,11 +1,11 @@
 import { Box, Text, useInput, useStdout } from "ink";
 import { useEffect, useState } from "react";
 
-import { usePage, ViewPage } from "../hooks/usePage";
-import { useProcessManager, type Process } from "../hooks/useProcessManager";
-import { Colors } from "../lib/Colors";
-import { ShortcutFooter, getShortcutFooterHeight } from "./shortcutFooter";
-import { LogTailPreview } from "./logTailPreview";
+import { usePage, ViewPage } from "../../hooks/usePage";
+import { useProcessManager, type Process } from "../../hooks/useProcessManager";
+import { Colors } from "../../lib/Colors";
+import { ShortcutFooter, getShortcutFooterHeight } from "../components/ShortcutFooter";
+import { LogTailPreview } from "../components/LogTailPreview";
 
 function getReadinessDisplay(process: Process): { char: string; color: string } {
 	const char = process.readinessProbe === undefined ||
