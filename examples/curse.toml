@@ -1,5 +1,3 @@
-name = "example configuration"
-
 [[process]]
 name = "web-server"
 command = "fish -c 'while true\necho \"[$(date \"+%Y-%m-%d %H:%M:%S\")] INFO: Server listening on port 3000\"\nsleep 0.5\necho \"[$(date \"+%Y-%m-%d %H:%M:%S\")] INFO: GET /api/users - 200 OK $(math (random) % 50 + 10)ms\"\nsleep 0.8\necho \"[$(date \"+%Y-%m-%d %H:%M:%S\")] INFO: POST /api/auth/login - 201 Created $(math (random) % 100 + 50)ms\"\nsleep 0.3\nend'"
