@@ -51,6 +51,31 @@
       "algorithm": "sha256"
     },
     {
+      "id": "github_release/github.com/oven-sh/bun/bun-v1.2.22/bun-darwin-aarch64.zip",
+      "checksum": "EB8C7E09CBEA572414A0A367848E1ACBF05294A946A594405A014B1FB3B3FC76",
+      "algorithm": "sha256"
+    },
+    {
+      "id": "github_release/github.com/oven-sh/bun/bun-v1.2.22/bun-darwin-x64.zip",
+      "checksum": "A7484721A7EAD45887C812E760B124047E663173CF2A3BA7C5AA1992CB22CD3E",
+      "algorithm": "sha256"
+    },
+    {
+      "id": "github_release/github.com/oven-sh/bun/bun-v1.2.22/bun-linux-aarch64.zip",
+      "checksum": "A97C687FB5E54DE4E2FB0869A7AC9A2D9C3AF75AC182E2B68138C1DD8F98131B",
+      "algorithm": "sha256"
+    },
+    {
+      "id": "github_release/github.com/oven-sh/bun/bun-v1.2.22/bun-linux-x64.zip",
+      "checksum": "4C446AF1A01D7B40E1E11BAEBC352F9B2BFD12887E51B97DD3B59879CEE2743A",
+      "algorithm": "sha256"
+    },
+    {
+      "id": "github_release/github.com/oven-sh/bun/bun-v1.2.22/bun-windows-x64.zip",
+      "checksum": "3A28C685B47A159C5707D150ACCB5B4903C30F1E7B4DD01BB311D4112BDEB452",
+      "algorithm": "sha256"
+    },
+    {
       "id": "registries/github_content/github.com/aquaproj/aqua-registry/v4.418.0/registry.yaml",
       "checksum": "A388A9445DBB89721022D840C42A73106650FB0536C4ED6F0C38537C7AC32701",
       "algorithm": "sha256"
