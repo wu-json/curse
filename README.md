@@ -8,7 +8,9 @@ Curse is a dead simple Terminal UI for running processes, configurable through i
 
 <img width="1146" height="885" alt="スクリーンショット 2025-09-27 午後7 49 04" src="https://github.com/user-attachments/assets/580b87e6-8823-4c18-b05e-6de15b810d2c" />
 
-<img src="https://ih1.redbubble.net/image.5538369487.3481/raf,360x360,075,t,fafafa:ca443f4786.jpg" width="250" alt="jjk-cute-demons" align="right" />
+## The Origin Story
+
+<img src="https://ih1.redbubble.net/image.5538369487.3481/raf,360x360,075,t,fafafa:ca443f4786.jpg" width="200" alt="jjk-cute-demons" align="right" />
 
 Local development feels like a very special curse
 
