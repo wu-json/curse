@@ -1,0 +1,15 @@
+builds:
+  - id: "curse"
+    builder: bun
+    binary: curse
+    targets:
+      - linux-x64-modern
+      - linux-arm64
+      - darwin-arm64
+      - darwin-x64
+    main: "src/index.ts"
+    tool: bun
+    command: build
+    flags:
+      - --compile
+      - --minify
