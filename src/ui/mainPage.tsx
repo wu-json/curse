@@ -146,7 +146,7 @@ function ProcessTable() {
 								color={isSelected ? "white" : Colors.blue}
 								bold={isSelected}
 							>
-								{process.profile?.memoryUsage
+								{process.profile?.memoryUsage !== undefined
 									? `${process.profile.memoryUsage}MB`
 									: "-"}
 							</Text>
