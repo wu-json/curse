@@ -21,8 +21,6 @@ jobs:
 
       - name: Tag
         run: just tag
-        env:
-          GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
 
       - name: Release
         run: just dry_run=false release
