@@ -8,13 +8,13 @@ Curse is a dead simple Terminal UI for running processes.
 
 ![](https://ih1.redbubble.net/image.5538369487.3481/raf,360x360,075,t,fafafa:ca443f4786.jpg)
 
-Local development often feels like a very special curse. If you've been writing code for a while, you are probably no stranger to instructions like this:
+Local development often feels like a very special curse. If you've been writing code for a while, you're probably no stranger to instructions like this:
 
 ```
 ## Starting Application Locally
 
 # start local pg and redis
-docker compose-up
+docker compose up
 
 # build everything in monorepo
 pnpm build:all
@@ -30,7 +30,14 @@ cd app/client yarn start
 
 ![please halp](https://media.tenor.com/tbQSXR4MGU0AAAAe/aoi-todo.png)
 
-If the above instructions made you cringe, then this project might be useful for you.
+If the above made you cringe, then you're not alone because I'm cringing too. Solutions to this problem have come in various forms. 
+
+- *Single Command Shell Scripts*: Works but makes viewing output for each process difficult. You could hook into TMux or Wezterm panes but that isn't ideal for everyone.
+
+- [docker-compose](https://github.com/docker/compose): Requires containerizing all parts of your application. Not ideal unless you have a neckbeard.
+
+- [process-compose](https://github.com/F1bonacc1/process-compose): Works and was my daily driver for a bit, but has a lot of features that I don't use and doesn't have the most intuitive developer experience for interacting with logs.
+
 
 # Features Planned
 
