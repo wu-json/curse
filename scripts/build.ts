@@ -1,4 +1,4 @@
-import { mkdir } from "fs/promises";
+import { mkdir, unlink, readdir } from "fs/promises";
 import { existsSync } from "fs";
 
 const targets: Bun.Build.Target[] = [
@@ -39,4 +39,22 @@ console.log("All builds completed successfully!");
 console.log("Built targets:");
 for (const target of targets) {
 	console.log(`  - dist/curse-${target}`);
+}
+
+// Cleanup .bun-build files
+console.log("Cleaning up temporary .bun-build files...");
+try {
+	const files = await readdir(".");
+	const bunBuildFiles = files.filter((file) => file.endsWith(".bun-build"));
+
+	for (const file of bunBuildFiles) {
+		await unlink(file);
+		console.log(`✓ Removed ${file}`);
+	}
+
+	if (bunBuildFiles.length === 0) {
+		console.log("No .bun-build files to clean up");
+	}
+} catch (error) {
+	console.warn("Warning: Failed to clean up .bun-build files:", error);
 }
