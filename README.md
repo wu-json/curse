@@ -48,7 +48,7 @@ deps = ["seed-data"]
 
 _Local development feels like a very special curse at times._ Just like these kind caring friends on the right.
 
-If you've been writing code for a while, you're likely no stranger to the sacred art that is reading instructions in the company `README.md`.
+If you've been writing code for a while, you're likely no stranger to the sacred art that is reading unmaintained instructions in the company `README.md`.
 
 <br clear="right" />
 <br />
