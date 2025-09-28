@@ -26,9 +26,9 @@ version semver:
   just fmt package.json src/version.ts
 
 build:
-  goreleaser build --clean --snapshot
+  GORELEASER_CURRENT_TAG=v{{current_version}} goreleaser build --clean --snapshot
 
 release:
   bun install
-  GORELEASER_CURRENT_TAG={{current_version}} goreleaser release --clean {{ if dry_run == "true" { "--snapshot" } else { "" } }}
+  goreleaser release --clean {{ if dry_run == "true" { "--snapshot" } else { "" } }}
   rm -f .*.bun-build
