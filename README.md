@@ -11,9 +11,14 @@ Curse is a dead simple Terminal UI for running processes, configured through a s
 
 ## Installation & Setup
 
-Curse is a single binary and it's _definitely lightweight._ Not like I shoved bun in there or anything.
+Curse is a single binary and it's _definitely lightweight._ Not like I shoved bun in there or anything. 
 
-1. Create your `curse.toml` and put it in your project root.
+1. Install the [wu-json/cursed-tools](https://github.com/wu-json/cursed-tools) Aqua registry. After installing the `cursed-tools` Aqua registry, curse should be available via `aqua g -i`.
+
+> [!NOTE]
+> If you haven't used [aqua](https://github.com/aquaproj/aqua) before, now is a good time to start.
+
+2. Create your `curse.toml` and put it in your project root.
 
 ```toml
 # curse.toml example
@@ -39,7 +44,7 @@ readiness_probe = { type = "http", host = "127.0.0.1", path = "/health", port = 
 deps = ["seed-data"]
 ```
 
-2. Run `curse`.
+3. Run `curse`.
 
 > [!NOTE]
 > Curse will select a configuration file with the following priority from highest to lowest:
