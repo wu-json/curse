@@ -92,13 +92,12 @@ function ProcessTable() {
 								color={
 									isSelected
 										? "white"
-										: process.status === "error" && process.readinessProbe
+										: (process.status === "error" && process.readinessProbe) ||
+											process.isReady === false
 											? "red"
 											: process.isReady === true
 												? Colors.teal
-												: process.isReady === false
-													? "red"
-													: Colors.blue
+												: Colors.blue
 								}
 								bold={isSelected}
 							>
