@@ -11,7 +11,7 @@ Curse is a dead simple Terminal UI for running processes, configurable through i
 
 ## Installation & Setup
 
-Curse is a single binary and it's _definitely lightweight._ Not like bun is bundled in there or anything.
+Curse is a single binary and it's _definitely lightweight._ Not like I shoved bun in there or anything.
 
 1. `brew install curse`
 
