@@ -1,8 +1,9 @@
 # Curse 🕯️
 
 ![Made with TypeScript](https://img.shields.io/badge/Made%20with-TypeScript-3178C6?style=flat-square&logo=typescript&logoColor=white)
-![Made with Bun](https://img.shields.io/badge/Made%20with-Bun-f9f1e1?style=flat-square&logo=bun&logoColor=black)
+![Runs on Bun](https://img.shields.io/badge/Runs%20on-Bun-f9f1e1?style=flat-square&logo=bun&logoColor=black)
 ![Maintenance](https://img.shields.io/badge/Maintained%3F-yes-green.svg?style=flat-square)
+![Females Attracted](https://img.shields.io/badge/Females%20Attracted-0-red?style=flat-square)
 
 Curse is a dead simple Terminal UI for running processes, configurable through incantations in a single `curse.toml` file.
 
