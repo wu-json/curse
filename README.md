@@ -42,6 +42,9 @@ deps = ["seed-data"]
 
 3. Run `curse`.
 
+[!NOTE]
+> Curse will select a configuration file with the following priority from highest to lowest: [override with `-p` flag] > `curse.local.toml` > `curse.toml`.
+
 ## The Origin Story
 
 <img src="https://ih1.redbubble.net/image.5538369487.3481/raf,360x360,075,t,fafafa:ca443f4786.jpg" width="180" alt="jjk-cute-demons" align="right" />
@@ -89,7 +92,10 @@ If the above made you cringe, then you're not alone because many others have too
 
 - [process-compose](https://github.com/F1bonacc1/process-compose): Has a lot of features I don't use and feels sluggish.
 
-Out of all of the solutions above, `process-compose` got the closest to the experience I wanted but was still far from it.
+Out of all of the options above, `process-compose` got the closest to the experience I wanted but was still far from it. It was slow, had limited tooling around logging, and resulted in complicated composed configuration files that no one wanted to read.
+
+ > [!NOTE]
+> This is a note callout. Use this to highlight important information.
 
 # Features Planned
 
