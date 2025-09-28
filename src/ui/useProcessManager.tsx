@@ -22,6 +22,12 @@ export enum ProcessStatus {
 	Killed = "killed",
 }
 
+export type ProcessProfile = {
+	memoryUsage: number; // MB
+	cpuUsage: number; // percentage
+	lastUpdated: Date;
+};
+
 export type Process = {
 	name: string;
 	command: string;
@@ -35,6 +41,8 @@ export type Process = {
 	proc?: Subprocess;
 	startedAt?: Date;
 	logBuffer: LogBuffer;
+	profile?: ProcessProfile;
+	profileTimer?: NodeJS.Timeout;
 };
 
 type UpdateProcessFields = {
@@ -44,6 +52,8 @@ type UpdateProcessFields = {
 	isReady?: boolean;
 	readinessTimer?: NodeJS.Timeout;
 	readinessProbeInProgress?: boolean;
+	profile?: ProcessProfile;
+	profileTimer?: NodeJS.Timeout;
 };
 
 async function performReadinessProbe(
@@ -93,6 +103,41 @@ function startReadinessTimer(
 }
 
 function clearReadinessTimer(timer?: NodeJS.Timeout) {
+	if (timer) {
+		clearInterval(timer);
+	}
+}
+
+function getProcessProfile(proc: Subprocess): ProcessProfile | null {
+	try {
+		const usage = proc.resourceUsage();
+		if (!usage) return null;
+
+		return {
+			memoryUsage: Math.round(usage.maxRSS / 1024 / 1024), // Convert to MB
+			cpuUsage: Math.round(usage.cpuTime.total / 1000) / 100, // Convert microseconds to ms, then to percentage-like value
+			lastUpdated: new Date(),
+		};
+	} catch {
+		return null;
+	}
+}
+
+function startProfileTimer(
+	proc: Subprocess,
+	updateProcess: (updates: UpdateProcessFields) => void,
+): NodeJS.Timeout {
+	const timer = setInterval(() => {
+		const profile = getProcessProfile(proc);
+		if (profile) {
+			updateProcess({ profile });
+		}
+	}, 2000); // Update every 2 seconds for performance
+
+	return timer;
+}
+
+function clearProfileTimer(timer?: NodeJS.Timeout) {
 	if (timer) {
 		clearInterval(timer);
 	}
@@ -158,11 +203,12 @@ async function execProcess({
 	});
 
 	const readinessTimer = startReadinessTimer(p, updateProcess);
+	const profileTimer = startProfileTimer(proc, updateProcess);
 
 	if (p.readinessProbe) {
-		updateProcess({ proc, readinessTimer });
+		updateProcess({ proc, readinessTimer, profileTimer });
 	} else {
-		updateProcess({ status: ProcessStatus.Running, proc, readinessTimer });
+		updateProcess({ status: ProcessStatus.Running, proc, readinessTimer, profileTimer });
 	}
 
 	readStreamToBuffer(proc.stdout, p.logBuffer);
@@ -170,11 +216,14 @@ async function execProcess({
 
 	const result = await proc.exited;
 	clearReadinessTimer(readinessTimer);
+	clearProfileTimer(profileTimer);
 	updateProcess({
 		status: result === 0 ? ProcessStatus.Success : ProcessStatus.Error,
 		readinessTimer: undefined,
+		profileTimer: undefined,
 		isReady: undefined,
 		readinessProbeInProgress: false,
+		profile: undefined,
 	});
 }
 
@@ -277,13 +326,14 @@ export function ProcessManagerProvider(props: {
 		if (!processes[processIdx]) {
 			return;
 		}
-		const { proc, status, readinessTimer } = processes[processIdx];
+		const { proc, status, readinessTimer, profileTimer } = processes[processIdx];
 		if (!proc || status !== ProcessStatus.Running) {
 			return;
 		}
 		updateProcess(processIdx, { status: ProcessStatus.Killing });
 
 		clearReadinessTimer(readinessTimer);
+		clearProfileTimer(profileTimer);
 
 		proc.kill("SIGTERM");
 		const timeout = setTimeout(() => {
@@ -297,8 +347,10 @@ export function ProcessManagerProvider(props: {
 		updateProcess(processIdx, {
 			status: ProcessStatus.Killed,
 			readinessTimer: undefined,
+			profileTimer: undefined,
 			isReady: undefined,
 			readinessProbeInProgress: false,
+			profile: undefined,
 		});
 	};
 
