@@ -5,7 +5,7 @@
 	"type": "module",
 	"private": false,
 	"scripts": {
-		"build": "sh ./build.sh",
+		"build": "bun ./build.ts",
 		"typecheck": "tsc --noEmit",
 		"gen:version": "echo \"export const version = \\\"$(jq -r .version package.json)\\\";\" > src/version.ts"
 	},
