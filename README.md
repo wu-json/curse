@@ -56,6 +56,7 @@ _Local development feels like a very special curse at times._ Just like these ki
 If you've been writing code for a while, you're likely no stranger to the sacred art that is reading unmaintained instructions in the company `README.md`.
 
 <br clear="right" />
+<br />
 
 ```
 ## Starting Application Locally
@@ -107,10 +108,10 @@ Local logs are really useful, and are often the reason we want to run things loc
 
 ### Familiarity
 
-Coming from `k9s`, constantly having to context switch shortcuts between `k9s` and `process-compose` was extremely painful; especially given that they look so similar. The key-binds in curse are meant to feel warm and familiar such that anyone using vim motions should feel right at home.
+Coming from `k9s`, constantly having to context switch shortcuts between `k9s` and `process-compose` was unpleasant, especially given that they look so similar. The key-binds in curse are meant to feel warm and familiar such that anyone using vim motions should feel right at home.
 
 # Features Planned
 
-- [ ] Support user input in the log view
-- [ ] Dump logs to files
+- [ ] *Support user input in the log view*: This could be useful for managing processes that could require user input or confirmation (e.g. coding agents).
+- [ ] *Dump logs to files*: For debugging processes with copious logs, have a log dump would be useful for retaining logs that exceed the `LogBuffer` size.
 
