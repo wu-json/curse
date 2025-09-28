@@ -40,7 +40,7 @@ cd app/client yarn start
 <table>
 <tr>
 <td><img src="https://media.tenor.com/tbQSXR4MGU0AAAAe/aoi-todo.png" width="300" alt="aoi-todo" /></td>
-<td style="vertical-align: middle; padding-left: 20px; text-align: right;">
+<td style="vertical-align: middle; padding-left: 20px;">
 <i>"onboarding is easy bro"</i><br/>
 <div>- Aoi Todo</div>
 </td>
@@ -49,7 +49,7 @@ cd app/client yarn start
 
 If the above made you cringe, then you're not alone because many others have too. Existing solutions to this problem have come in various forms. 
 
-- *Single Command Shell Scripts*: Works but makes viewing output for each process difficult. You could hook into TMux or Wezterm panes but that isn't ideal for everyone.
+- *S(hell) Scripts*: Works but makes viewing output for each process difficult. You could hook into TMux or Wezterm panes but that isn't ideal for everyone.
 
 - [docker-compose](https://github.com/docker/compose): Requires containerizing all parts of your application. Not ideal unless you have a neckbeard.
 
