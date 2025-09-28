@@ -4,7 +4,7 @@ import { $ } from "bun";
 
 import { usePage, ViewPage } from "../hooks/usePage";
 import { useProcessManager } from "../hooks/useProcessManager";
-import { Colors } from "./colors";
+import { Colors } from "../lib/Colors";
 import { ShortcutFooter, getShortcutFooterHeight } from "./shortcutFooter";
 
 function LogTable(props: {

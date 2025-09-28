@@ -1,5 +1,5 @@
 import { Box, Text, useStdout } from "ink";
-import { Colors } from "./colors";
+import { Colors } from "../lib/Colors";
 
 interface ShortcutFooterProps {
 	shortcuts: string[];

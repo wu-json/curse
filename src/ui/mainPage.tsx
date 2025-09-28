@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 
 import { usePage, ViewPage } from "../hooks/usePage";
 import { useProcessManager, type Process } from "../hooks/useProcessManager";
-import { Colors } from "./colors";
+import { Colors } from "../lib/Colors";
 import { ShortcutFooter, getShortcutFooterHeight } from "./shortcutFooter";
 import { LogTailPreview } from "./logTailPreview";
 

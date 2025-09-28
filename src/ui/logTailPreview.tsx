@@ -2,7 +2,7 @@ import { Box, Text } from "ink";
 import { useEffect, useState } from "react";
 
 import { useProcessManager } from "../hooks/useProcessManager";
-import { Colors } from "./colors";
+import { Colors } from "../lib/Colors";
 
 export function LogTailPreview(props: { height: number }) {
 	const { selectedProcess } = useProcessManager();

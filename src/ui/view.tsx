@@ -2,7 +2,7 @@ import { Box, render, Text, useInput } from "ink";
 import { useEffect } from "react";
 
 import type { CurseConfig } from "../parser";
-import { Colors } from "./colors";
+import { Colors } from "../lib/Colors";
 import { LogPage } from "./logPage";
 import { MainPage } from "./mainPage";
 import { ProcessManagerProvider } from "../hooks/useProcessManager";
