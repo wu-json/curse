@@ -112,6 +112,6 @@ Coming from `k9s`, constantly having to context switch shortcuts between `k9s` a
 
 # Features Planned
 
-- [ ] *Support user input in the log view*: This could be useful for managing processes that could require user input or confirmation (e.g. coding agents).
-- [ ] *Dump logs to files*: For debugging processes with copious logs, have a log dump would be useful for retaining logs that exceed the `LogBuffer` size.
+- [ ] **Support user input in the log view**: This could be useful for managing processes that could require user input or confirmation (e.g. coding agents).
+- [ ] **Dump logs to files**: For debugging processes with copious logs, have a log dump would be useful for retaining logs that exceed the `LogBuffer` size.
 
