@@ -227,12 +227,13 @@ async function execProcess({
 	});
 
 	let profileTimer: NodeJS.Timeout | undefined;
+	let readinessTimer: NodeJS.Timeout | undefined;
 
 	if (p.readinessProbe) {
 		// Update process with proc first
 		p.proc = proc;
 		updateProcess({ proc });
-		const readinessTimer = startReadinessTimer(p, updateProcess);
+		readinessTimer = startReadinessTimer(p, updateProcess);
 		updateProcess({ readinessTimer });
 	} else {
 		profileTimer = startProfileTimer(proc, updateProcess);
