@@ -8,8 +8,8 @@ fmt *args:
 
 tag:
   #!/usr/bin/env bash
-  if git rev-parse "v{{current_version}}" >/dev/null 2>&1; then
-    echo "Tag v{{current_version}} already exists, skipping..."
+  if git ls-remote --exit-code --tags origin "refs/tags/v{{current_version}}" >/dev/null 2>&1; then
+    echo "Tag v{{current_version}} already exists on remote, skipping..."
   else
     git tag v{{current_version}}
     git push origin v{{current_version}}
