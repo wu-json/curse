@@ -24,7 +24,7 @@ version semver:
   just fmt package.json src/version.ts
 
 build:
-  just dry_run=true release
+  just release
 
 release:
   bun install
