@@ -52,4 +52,3 @@ export function LogTailPreview(props: { height: number }) {
 		</Box>
 	);
 }
-

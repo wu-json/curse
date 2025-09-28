@@ -1,5 +1,8 @@
 dryrun := "true"
 
+fmt:
+  bun run biome format --write .
+
 typecheck:
   tsc --noEmit
 

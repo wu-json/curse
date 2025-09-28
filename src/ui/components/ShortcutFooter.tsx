@@ -6,7 +6,10 @@ interface ShortcutFooterProps {
 	showShortcuts: boolean;
 }
 
-export function ShortcutFooter({ shortcuts, showShortcuts }: ShortcutFooterProps) {
+export function ShortcutFooter({
+	shortcuts,
+	showShortcuts,
+}: ShortcutFooterProps) {
 	const { stdout } = useStdout();
 	const terminalWidth = stdout.columns;
 
