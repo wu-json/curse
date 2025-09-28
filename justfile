@@ -1,5 +1,5 @@
 current_version := `jq -r '.version' package.json`
-publish := "false"
+dry_run := "true"
 
 export GORELEASER_CURRENT_TAG := current_version
 
@@ -24,6 +24,9 @@ version semver:
   just fmt package.json src/version.ts
 
 build:
+  just dry_run=true release
+
+release:
   bun install
-  goreleaser release --clean {{ if publish == "true" { "" } else { "--snapshot" } }}
+  goreleaser release --clean {{ if dry_run == "true" { "--snapshot" } else { "" } }}
   rm -f .*.bun-build
