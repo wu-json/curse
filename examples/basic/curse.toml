@@ -16,11 +16,3 @@ name = "my-script"
 command = "echo 'my dependencies are done!'"
 deps = ["my-server-1"]
 
-[[process]]
-name = "buy-groceries"
-command = "echo 'buying groceries' && sleep 3"
-
-[[process]]
-name = "cook-dinner"
-command = "echo 'buying groceries' && sleep 3"
-
