@@ -35,7 +35,7 @@ function View(props: { config: CurseConfig }) {
 		<Box flexDirection="column">
 			<Box flexDirection="row">
 				<Text bold color={Colors.primary}>
-					Curse 🎭
+					Curse 🕯
 				</Text>
 				<Text color={Colors.darkGray}> v{version}</Text>
 			</Box>
