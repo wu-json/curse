@@ -5,7 +5,7 @@
 ![Maintenance](https://img.shields.io/badge/Maintained%3F-yes-green.svg?style=flat-square)
 ![Females Attracted](https://img.shields.io/badge/Females%20Attracted-0-red?style=flat-square)
 
-Curse is a dead simple Terminal UI for running processes, configurable through incantations in a single `curse.toml` file.
+Curse is a dead simple Terminal UI for running processes, configured through a single `curse.toml` file.
 
 <img width="1146" height="885" alt="スクリーンショット 2025-09-27 午後7 49 04" src="https://github.com/user-attachments/assets/580b87e6-8823-4c18-b05e-6de15b810d2c" />
 
