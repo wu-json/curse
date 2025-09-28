@@ -9,7 +9,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          fetch-tags: true
+          fetch-depth: 0
           token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Configure git
@@ -26,9 +26,7 @@ jobs:
         run: just tag
 
       - name: Checkout tag commit
-        run: |
-          git fetch --tags
-          git checkout "v$(just current-version)"
+        run: git checkout "v$(just current-version)"
 
       - name: Release
         run: just dry_run=false release
