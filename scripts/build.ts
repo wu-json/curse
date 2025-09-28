@@ -19,9 +19,9 @@ for (const target of targets) {
 
 	const result = await Bun.build({
 		entrypoints: ["src/index.ts"],
-		outdir: "dist",
+		outdir: `dist/curse-${target}`,
 		minify: true,
-		compile: { target, outfile: `curse-${target}` },
+		compile: { target, outfile: `curse` },
 	});
 
 	if (!result.success) {
