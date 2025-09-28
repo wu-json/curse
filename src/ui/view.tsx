@@ -41,7 +41,7 @@ function View(props: { config: CurseConfig }) {
 			</Box>
 			<Box flexDirection="row">
 				<Text color={Colors.primary}>Config: </Text>
-				<Text>{props.config.configFileName}</Text>
+				<Text>{props.config.filename}</Text>
 			</Box>
 			{(() => {
 				switch (page) {
