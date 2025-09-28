@@ -40,4 +40,3 @@ console.log("Built targets:");
 for (const target of targets) {
 	console.log(`  - dist/curse-${target}`);
 }
-
