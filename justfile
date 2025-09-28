@@ -1,6 +1,8 @@
 current_version := `jq -r '.version' package.json`
 dry_run := "true"
 
+export GORELEASER_CURRENT_TAG := current_version
+
 fmt *args:
   bun run biome format --write {{args}}
 
@@ -13,6 +15,5 @@ version semver:
   just fmt package.json src/version.ts
 
 release:
-    export GORELEASER_CURRENT_TAG={{current_version}}
-    goreleaser release --clean {{ if dry_run == "true" { "--snapshot" } else { "" } }}
-    rm -f .*.bun-build
+  goreleaser release --clean {{ if dry_run == "true" { "--snapshot" } else { "" } }}
+  rm -f .*.bun-build
