@@ -37,7 +37,11 @@ cd app/client yarn start
 # start
 ```
 
-![please halp](https://media.tenor.com/tbQSXR4MGU0AAAAe/aoi-todo.png)
+<img src="https://media.tenor.com/tbQSXR4MGU0AAAAe/aoi-todo.png" width="300" alt="aoi-todo" align="left" />
+
+onboarding is easy bro
+
+<br clear="left" />
 
 If the above made you cringe, then you're not alone because many others have too. Existing solutions to this problem have come in various forms. 
 
