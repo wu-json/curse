@@ -13,7 +13,7 @@ function ProcessTable() {
 	const { stdout } = useStdout();
 
 	const terminalWidth = stdout?.columns ?? 80;
-	const fixedColumnsWidth = 10 + 2 + 8 + 2 + 8; // STATUS + margin + READY + margin + AGE
+	const fixedColumnsWidth = 10 + 2 + 8 + 2 + 8 + 2 + 8 + 2 + 8; // STATUS + margin + READY + margin + AGE + margin + MEM + margin + CPU
 	const borderAndPadding = 4; // border + padding
 	const nameColumnWidth = Math.max(
 		20,
@@ -50,8 +50,14 @@ function ProcessTable() {
 				<Box width={8} marginLeft={2}>
 					<Text bold>READY</Text>
 				</Box>
-				<Box width={8}>
+				<Box width={8} marginLeft={2}>
 					<Text bold>AGE</Text>
+				</Box>
+				<Box width={8} marginLeft={2}>
+					<Text bold>MEM</Text>
+				</Box>
+				<Box width={8} marginLeft={2}>
+					<Text bold>CPU</Text>
 				</Box>
 			</Box>
 			{processes.map((process, index) => {
@@ -110,7 +116,7 @@ function ProcessTable() {
 													: "✗"}
 							</Text>
 						</Box>
-						<Box width={8}>
+						<Box width={8} marginLeft={2}>
 							<Text
 								color={isSelected ? "white" : Colors.blue}
 								bold={isSelected}
@@ -132,6 +138,26 @@ function ProcessTable() {
 												return `${ageInSeconds}s`;
 											}
 										})()
+									: "-"}
+							</Text>
+						</Box>
+						<Box width={8} marginLeft={2}>
+							<Text
+								color={isSelected ? "white" : Colors.blue}
+								bold={isSelected}
+							>
+								{process.profile?.memoryUsage
+									? `${process.profile.memoryUsage}MB`
+									: "-"}
+							</Text>
+						</Box>
+						<Box width={8} marginLeft={2}>
+							<Text
+								color={isSelected ? "white" : Colors.blue}
+								bold={isSelected}
+							>
+								{process.profile?.cpuUsage !== undefined
+									? `${process.profile.cpuUsage.toFixed(1)}ms`
 									: "-"}
 							</Text>
 						</Box>
