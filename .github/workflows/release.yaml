@@ -27,7 +27,7 @@ jobs:
 
       - name: Checkout tag commit
         run: |
-          TAG="$(just current-version)"
+          TAG="v$(just current-version)"
           git checkout -b "release-${TAG}" "${TAG}"
 
       - name: Release
