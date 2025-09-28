@@ -25,7 +25,9 @@ function getReadinessDisplay(process: Process): { char: string; color: string } 
 		? "red"
 		: char === "✓"
 			? Colors.teal
-			: Colors.blue;
+			: char === "-"
+				? Colors.darkGray
+				: Colors.blue;
 
 	return { char, color };
 }
