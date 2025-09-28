@@ -40,9 +40,9 @@ cd app/client yarn start
 <table>
 <tr>
 <td><img src="https://media.tenor.com/tbQSXR4MGU0AAAAe/aoi-todo.png" width="300" alt="aoi-todo" /></td>
-<td style="vertical-align: middle; padding-left: 20px;">
+<td style="vertical-align: middle; padding-left: 20px; text-align: right;">
 <i>"onboarding is easy bro"</i><br/>
-<div style="text-align: right;">— Aoi Todo</div>
+<div>- Aoi Todo</div>
 </td>
 </tr>
 </table>
