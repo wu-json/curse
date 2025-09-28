@@ -1,6 +1,7 @@
 import { Box, Text, useInput, useStdout } from "ink";
 import { useEffect, useState, useMemo, useCallback } from "react";
 import { $ } from "bun";
+import stripAnsi from "strip-ansi";
 
 import { usePage, ViewPage } from "../../hooks/usePage";
 import { useProcessManager } from "../../hooks/useProcessManager";
@@ -759,7 +760,7 @@ function LogTable(props: {
 									)}
 									bold={part.isHighlight || isCursor}
 								>
-									{part.text}
+									{isCursor || isSelected ? stripAnsi(part.text) : part.text}
 								</Text>
 							))}
 						</Text>
