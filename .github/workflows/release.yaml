@@ -27,6 +27,11 @@ jobs:
       - name: Fetch tags
         run: git fetch --tags
 
+      - name: Checkout tag commit
+        run: |
+          TAG_VERSION=$(just current-version)
+          git checkout "v${TAG_VERSION}"
+
       - name: Release
         run: just dry_run=false release
         env:

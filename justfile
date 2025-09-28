@@ -6,6 +6,10 @@ export GORELEASER_CURRENT_TAG := current_version
 fmt *args:
   bun run biome format --write {{args}}
 
+current-version:
+  #!/usr/bin/env bash
+  echo {{current_version}}
+
 tag:
   #!/usr/bin/env bash
   if git ls-remote --exit-code --tags origin "refs/tags/v{{current_version}}" >/dev/null 2>&1; then
