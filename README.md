@@ -6,7 +6,12 @@
 
 Curse is a dead simple Terminal UI for running processes, configurable through incantations in a single `curse.toml` file.
 
-<img src="https://ih1.redbubble.net/image.5538369487.3481/raf,360x360,075,t,fafafa:ca443f4786.jpg" width="250" alt="hello" title="hello" />
+<table>
+<tr>
+<td><img src="https://ih1.redbubble.net/image.5538369487.3481/raf,360x360,075,t,fafafa:ca443f4786.jpg" width="250" alt="hello" title="hello" /></td>
+<td>Your text content here</td>
+</tr>
+</table>
 
 Local development often feels like a very special curse. If you've been writing code for a while, you're probably no stranger to instructions like this:
 
