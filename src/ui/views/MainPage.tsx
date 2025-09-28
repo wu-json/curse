@@ -33,10 +33,10 @@ function getReadinessDisplay(process: Process): {
 		char === "x" || char === "✗"
 			? "red"
 			: char === "✓"
-				? Colors.teal
+				? Colors.green
 				: char === "-"
 					? Colors.darkGray
-					: Colors.blue;
+					: Colors.indigo;
 
 	return { char, color };
 }
@@ -101,13 +101,13 @@ function ProcessTable() {
 					? "white"
 					: isSuccess
 						? Colors.darkGray
-						: Colors.blue;
+						: Colors.indigo;
 				return (
 					<Box
 						key={process.name}
 						flexDirection="row"
 						paddingX={1}
-						backgroundColor={isSelected ? Colors.blue : undefined}
+						backgroundColor={isSelected ? Colors.indigo : undefined}
 					>
 						<Box width={nameColumnWidth}>
 							<Text color={textColor} bold={isSelected}>
@@ -166,7 +166,7 @@ function ProcessTable() {
 										: isSuccess
 											? Colors.darkGray
 											: process.profile?.memoryUsageMB !== undefined
-												? Colors.blue
+												? Colors.indigo
 												: Colors.darkGray
 								}
 								bold={isSelected}
@@ -184,7 +184,7 @@ function ProcessTable() {
 										: isSuccess
 											? Colors.darkGray
 											: process.profile?.cpuUsagePercent !== undefined
-												? Colors.blue
+												? Colors.indigo
 												: Colors.darkGray
 								}
 								bold={isSelected}
