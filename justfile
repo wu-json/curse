@@ -32,11 +32,10 @@ bump-version-and-commit bump_type:
   new_version=$(svu {{bump_type}})
   echo $new_version 
   just version $new_version
-  # just version {{semver}}
-  # just tag
-  # git add -A
-  # git commit -m "version: v{{semver}}"
-  # git push --follow-tags
+  just tag
+  git add -A
+  git commit -m "chore(release): v$new_version"
+  git push --follow-tags
 
 build:
   GORELEASER_CURRENT_TAG=v{{current_version}} goreleaser build --clean --snapshot
