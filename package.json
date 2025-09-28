@@ -3,7 +3,7 @@
 	"version": "0.0.0",
 	"module": "src/index.ts",
 	"type": "module",
-	"private": true,
+	"private": false,
 	"scripts": {
 		"build": "bun build --minify src/index.ts --compile --outfile dist/curse && rm -f .*.bun-build",
 		"typecheck": "tsc --noEmit",
