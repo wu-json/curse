@@ -37,10 +37,10 @@ cd app/client yarn start
 # start
 ```
 
-<table style="border: none;">
-<tr>
-<td style="border: none;"><img src="https://media.tenor.com/tbQSXR4MGU0AAAAe/aoi-todo.png" width="300" alt="aoi-todo" /></td>
-<td style="border: none; vertical-align: middle;"><i>"onboarding is easy bro"</i><br/>- Aoi Todo</td>
+<table style="border-collapse: collapse; border: 0;">
+<tr style="border: 0;">
+<td style="border: 0; padding: 0;"><img src="https://media.tenor.com/tbQSXR4MGU0AAAAe/aoi-todo.png" width="300" alt="aoi-todo" /></td>
+<td style="border: 0; vertical-align: middle; padding-left: 15px;"><i>"onboarding is easy bro"</i><br/>- Aoi Todo</td>
 </tr>
 </table>
 
