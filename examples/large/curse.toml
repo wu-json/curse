@@ -28,7 +28,6 @@ name = "api-server"
 command = "bun run examples/large/api-server.ts"
 env = { PORT = 8001, SERVICE_NAME = "API Server" }
 readiness_probe = { type = "http", host = "127.0.0.1", path = "/health", port = 8001 }
-deps = ["database", "cache"]
 
 [[process]]
 name = "web-server"
@@ -41,7 +40,6 @@ deps = ["api-server"]
 [[process]]
 name = "queue-worker"
 command = "bun run examples/large/mock-queue.ts"
-deps = ["database"]
 
 [[process]]
 name = "email-service"
