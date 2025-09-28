@@ -7,7 +7,7 @@ import {
 	useEffect,
 } from "react";
 import { spawn, type Subprocess } from "bun";
-import { LogBuffer, readStreamToBuffer } from "./logBuffer";
+import { LogBuffer, readStreamToBuffer } from "../lib/LogBuffer";
 
 import type { CurseConfig } from "../parser";
 import { ENV } from "../env";

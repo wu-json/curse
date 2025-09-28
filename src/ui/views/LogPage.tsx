@@ -2,10 +2,10 @@ import { Box, Text, useInput, useStdout } from "ink";
 import { useEffect, useState, useMemo, useCallback } from "react";
 import { $ } from "bun";
 
-import { usePage, ViewPage } from "./usePage";
-import { useProcessManager } from "./useProcessManager";
-import { Colors } from "./colors";
-import { ShortcutFooter, getShortcutFooterHeight } from "./shortcutFooter";
+import { usePage, ViewPage } from "../../hooks/usePage";
+import { useProcessManager } from "../../hooks/useProcessManager";
+import { Colors } from "../../lib/Colors";
+import { ShortcutFooter, getShortcutFooterHeight } from "../components/ShortcutFooter";
 
 function LogTable(props: {
 	height: number;
@@ -127,7 +127,7 @@ function LogTable(props: {
 			const searchResults =
 				selectedProcess.logBuffer.search(appliedSearchQuery);
 			const sortedResults = searchResults.sort(
-				(a, b) => a.lineNumber - b.lineNumber,
+				(a: { lineNumber: number }, b: { lineNumber: number }) => a.lineNumber - b.lineNumber,
 			);
 
 			// Calculate the actual cursor position within search results
@@ -286,14 +286,14 @@ function LogTable(props: {
 	const sortedSearchResults = useMemo(() => {
 		if (!currentSearchQuery || !currentSearchQuery.trim()) return [];
 		const searchResults = selectedProcess.logBuffer.search(currentSearchQuery);
-		return searchResults.sort((a, b) => a.lineNumber - b.lineNumber);
+		return searchResults.sort((a: { lineNumber: number }, b: { lineNumber: number }) => a.lineNumber - b.lineNumber);
 	}, [currentSearchQuery, selectedProcess.logBuffer.getTotalLines()]);
 
 	if (currentSearchQuery && currentSearchQuery.trim()) {
 		if (autoScroll) {
 			// In autoscroll mode, show the most recent search results
 			const startIndex = Math.max(0, sortedSearchResults.length - linesPerPage);
-			logs = sortedSearchResults.slice(startIndex).map((result) => result.text);
+			logs = sortedSearchResults.slice(startIndex).map((result: { text: string }) => result.text);
 		} else {
 			// In manual scroll mode, show results from current view position
 			const startIndex = Math.min(
@@ -306,7 +306,7 @@ function LogTable(props: {
 			);
 			logs = sortedSearchResults
 				.slice(startIndex, endIndex)
-				.map((result) => result.text);
+				.map((result: { text: string }) => result.text);
 		}
 	} else {
 		// Reset search view position when not searching

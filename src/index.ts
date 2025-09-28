@@ -2,7 +2,7 @@ import { cli, define } from "gunshi";
 import { resolve } from "path";
 
 import { parseCurseConfig } from "./parser";
-import { renderView } from "./ui/view";
+import { renderView } from "./ui/View";
 
 function makeCursePath(rawPath: string): string {
 	if (rawPath.startsWith("/")) {
