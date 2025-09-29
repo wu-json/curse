@@ -6,12 +6,15 @@ const CurseConfig = type({
 	process: type({
 		name: "string",
 		command: "string",
-		"readiness_probe?": {
+		"readiness_probe?": type({
 			type: "'http'",
 			host: "string",
 			path: "string",
 			port: "number",
-		},
+		}).or({
+			type: "'exec'",
+			command: "string",
+		}),
 		"deps?": "string[]",
 		"env?": "Record<string, string | number>",
 	}).array(),
