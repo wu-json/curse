@@ -1,0 +1,25 @@
+# Example demonstrating exec readiness probes
+
+# Database service with exec readiness probe
+[[process]]
+name = "database"
+command = "bun run examples/exec-probe/mock-db.ts"
+readiness_probe = { type = "exec", command = "curl -f http://localhost:5432/health > /dev/null 2>&1" }
+
+# Web service that depends on database being ready
+[[process]]
+name = "web-server"
+command = "bun run examples/exec-probe/server.ts"
+deps = ["database"]
+
+# Background worker with file-based readiness check
+[[process]]
+name = "worker"
+command = "bun run examples/exec-probe/worker.ts"
+readiness_probe = { type = "exec", command = "test -f /tmp/worker-ready" }
+
+# API service that depends on both database and worker
+[[process]]
+name = "api"
+command = "bun run examples/exec-probe/api.ts"
+deps = ["database", "worker"]
