@@ -32,7 +32,7 @@ export type Process = {
 	name: string;
 	command: string;
 	status: ProcessStatus;
-	deps?: string[];
+	deps?: { name: string; condition: "started" | "succeeded" | "ready" }[];
 	env?: Record<string, string | number>;
 	isReady?: boolean;
 	readinessProbe?: CurseConfig["process"][0]["readiness_probe"];
@@ -188,16 +188,29 @@ function areDependenciesSatisfied(
 		return true;
 	}
 
-	return process.deps.every((depName) => {
-		const depProcess = allProcesses.find((p) => p.name === depName);
+	return process.deps.every((dep) => {
+		const depProcess = allProcesses.find((p) => p.name === dep.name);
 		if (!depProcess) {
 			return false;
 		}
 
-		if (depProcess.readinessProbe) {
-			return depProcess.isReady === true;
-		} else {
-			return depProcess.status === ProcessStatus.Success;
+		switch (dep.condition) {
+			case "started":
+				return depProcess.status === ProcessStatus.Running ||
+					   depProcess.status === ProcessStatus.Success ||
+					   (depProcess.isReady === true);
+			case "succeeded":
+				return depProcess.status === ProcessStatus.Success;
+			case "ready":
+				if (depProcess.readinessProbe) {
+					return depProcess.isReady === true;
+				} else {
+					// If no readiness probe, consider it ready when running or succeeded
+					return depProcess.status === ProcessStatus.Running ||
+						   depProcess.status === ProcessStatus.Success;
+				}
+			default:
+				return false;
 		}
 	});
 }

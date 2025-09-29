@@ -3,6 +3,7 @@ import toml from "toml";
 
 const CurseConfig = type({
 	"+": "delete",
+	version: type("0"),
 	process: type({
 		name: "string",
 		command: "string",
@@ -15,7 +16,10 @@ const CurseConfig = type({
 			type: "'exec'",
 			command: "string",
 		}),
-		"deps?": "string[]",
+		"deps?": type({
+			name: "string",
+			condition: "'started' | 'succeeded' | 'ready'",
+		}).array(),
 		"env?": "Record<string, string | number>",
 	}).array(),
 });

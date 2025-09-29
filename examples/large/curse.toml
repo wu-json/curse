@@ -1,3 +1,5 @@
+version = 0
+
 # Large example with dependencies and migrations for UI testing
 
 # Database migration (runs once)
@@ -9,18 +11,18 @@ command = "bun run examples/large/db-migrate.ts"
 [[process]]
 name = "seed-data"
 command = "bun run examples/large/seed-data.ts"
-deps = ["db-migrate"]
+deps = [{ name = "db-migrate", condition = "succeeded" }]
 
 # Core services that depend on database setup
 [[process]]
 name = "database"
 command = "bun run examples/large/mock-database.ts"
-deps = ["seed-data"]
+deps = [{ name = "seed-data", condition = "succeeded" }]
 
 [[process]]
 name = "cache"
 command = "bun run examples/large/mock-cache.ts"
-deps = ["database"]
+deps = [{ name = "database", condition = "ready" }]
 
 # Application services
 [[process]]
@@ -34,7 +36,7 @@ name = "web-server"
 command = "bun run examples/large/web-server.ts"
 env = { PORT = 8002, SERVICE_NAME = "Web Server" }
 readiness_probe = { type = "http", host = "127.0.0.1", path = "/health", port = 8002 }
-deps = ["api-server"]
+deps = [{ name = "api-server", condition = "ready" }]
 
 # Background services
 [[process]]
@@ -44,10 +46,10 @@ command = "bun run examples/large/mock-queue.ts"
 [[process]]
 name = "email-service"
 command = "bun run examples/large/mock-email.ts"
-deps = ["queue-worker"]
+deps = [{ name = "queue-worker", condition = "started" }]
 
 # Analytics service (depends on web traffic)
 [[process]]
 name = "analytics"
 command = "bun run examples/large/mock-analytics.ts"
-deps = ["web-server"]
+deps = [{ name = "web-server", condition = "ready" }]

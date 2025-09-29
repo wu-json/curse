@@ -1,3 +1,5 @@
+version = 0
+
 # Example demonstrating exec readiness probes
 
 # Database service with exec readiness probe
@@ -10,7 +12,7 @@ readiness_probe = { type = "exec", command = "curl -f http://localhost:5432/heal
 [[process]]
 name = "web-server"
 command = "bun run examples/exec-probe/server.ts"
-deps = ["database"]
+deps = [{ name = "database", condition = "ready" }]
 
 # Background worker with file-based readiness check
 [[process]]
@@ -22,4 +24,4 @@ readiness_probe = { type = "exec", command = "test -f /tmp/worker-ready" }
 [[process]]
 name = "api"
 command = "bun run examples/exec-probe/api.ts"
-deps = ["database", "worker"]
+deps = [{ name = "database", condition = "ready" }, { name = "worker", condition = "ready" }]

@@ -1,3 +1,5 @@
+version = 0
+
 # Simple Command
 [[process]]
 name = "my-server"
@@ -14,5 +16,5 @@ readiness_probe = { type = "http", host = "127.0.0.1", path = "/health", port = 
 [[process]]
 name = "my-script"
 command = "echo 'my dependencies are done!'"
-deps = ["my-server-1"]
+deps = [{ name = "my-server-1", condition = "ready" }]
 

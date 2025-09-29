@@ -22,6 +22,8 @@ Curse is a single binary and it's _definitely lightweight._ Not like I shoved bu
 
 ```toml
 # curse.toml example
+version = 0
+
 [[process]]
 name = "db-migrate"
 command = "bun run examples/large/db-migrate.ts"

@@ -1,3 +1,5 @@
+version = 0
+
 [[process]]
 name = "buy-groceries"
 command = "echo 'buying groceries' && sleep 3"
@@ -5,10 +7,10 @@ command = "echo 'buying groceries' && sleep 3"
 [[process]]
 name = "cook-dinner"
 command = "echo 'im cooking dinner' && sleep 5"
-deps = ["buy-groceries"]
+deps = [{ name = "buy-groceries", condition = "succeeded" }]
 
 [[process]]
 name = "eat-dinner"
 command = "echo 'eating dinner' && sleep 3"
-deps = ["cook-dinner"]
+deps = [{ name = "cook-dinner", condition = "succeeded" }]
 
