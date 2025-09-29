@@ -2,7 +2,7 @@ import { Box, Text, useInput, useStdout } from "ink";
 import { useEffect, useState } from "react";
 
 import { usePage, ViewPage } from "../../hooks/usePage";
-import { useProcessManager, type Process } from "../../hooks/useProcessManager";
+import { useProcessManager, type Process, type ProcessType } from "../../hooks/useProcessManager";
 import { Colors } from "../../lib/Colors";
 import {
 	ShortcutFooter,

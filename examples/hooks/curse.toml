@@ -1,0 +1,16 @@
+version = 0
+
+# Startup hook - runs before any processes start
+startup_hook = { name = "setup-environment", command = "echo 'Starting up...' && sleep 2 && echo 'Environment ready!'" }
+
+# Regular processes
+[[process]]
+name = "web-server"
+command = "echo 'Web server starting...' && sleep 5 && echo 'Web server running'"
+
+[[process]]
+name = "background-job"
+command = "echo 'Background job running...' && sleep 3"
+
+# Shutdown hook - runs after all processes are killed
+shutdown_hook = { name = "cleanup", command = "echo 'Cleaning up resources...' && sleep 1 && echo 'Cleanup complete!'" }
