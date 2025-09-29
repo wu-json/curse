@@ -28,10 +28,13 @@ export type ProcessProfile = {
 	lastUpdated: Date;
 };
 
+export type ProcessType = "process" | "startup_hook" | "shutdown_hook";
+
 export type Process = {
 	name: string;
 	command: string;
 	status: ProcessStatus;
+	type: ProcessType;
 	deps?: { name: string; condition: "started" | "succeeded" | "ready" }[];
 	env?: Record<string, string | number>;
 	isReady?: boolean;
@@ -298,6 +301,8 @@ type ProcessManagerCtx = {
 	restartSelectedProcess: () => Promise<void>;
 	killSelectedProcess: () => Promise<void>;
 	killAllProcesses: () => Promise<void>;
+	runStartupHook: () => Promise<void>;
+	runShutdownHook: () => Promise<void>;
 };
 
 const ProcessManagerCtx = createContext<ProcessManagerCtx>({
@@ -310,6 +315,8 @@ const ProcessManagerCtx = createContext<ProcessManagerCtx>({
 	restartSelectedProcess: async () => {},
 	killSelectedProcess: async () => {},
 	killAllProcesses: async () => {},
+	runStartupHook: async () => {},
+	runShutdownHook: async () => {},
 });
 
 export function ProcessManagerProvider(props: {
@@ -317,18 +324,46 @@ export function ProcessManagerProvider(props: {
 	children: React.ReactNode;
 }) {
 	const [selectedProcessIdx, setSelectedProcessIdx] = useState(0);
-	const [processes, setProcesses] = useState<Process[]>(
-		props.config.process.map((p) => ({
+	const [processes, setProcesses] = useState<Process[]>(() => {
+		const allProcesses: Process[] = [];
+
+		// Add startup hook if present
+		if (props.config.hooks?.startup) {
+			allProcesses.push({
+				name: props.config.hooks.startup.name,
+				command: props.config.hooks.startup.command,
+				status: ProcessStatus.Pending,
+				type: "startup_hook",
+				logBuffer: new LogBuffer(ENV.LOG_BUFFER_SIZE ?? 5_000),
+			});
+		}
+
+		// Add regular processes
+		allProcesses.push(...props.config.process.map((p) => ({
 			name: p.name,
 			command: p.command,
 			status: ProcessStatus.Pending,
+			type: "process" as ProcessType,
 			deps: p.deps,
 			env: p.env,
 			isReady: p.readiness_probe ? false : undefined,
 			readinessProbe: p.readiness_probe,
 			logBuffer: new LogBuffer(ENV.LOG_BUFFER_SIZE ?? 5_000),
-		})),
-	);
+		})));
+
+		// Add shutdown hook if present
+		if (props.config.hooks?.shutdown) {
+			allProcesses.push({
+				name: props.config.hooks.shutdown.name,
+				command: props.config.hooks.shutdown.command,
+				status: ProcessStatus.Pending,
+				type: "shutdown_hook",
+				logBuffer: new LogBuffer(ENV.LOG_BUFFER_SIZE ?? 5_000),
+			});
+		}
+
+		return allProcesses;
+	});
 
 	const selectedProcess = useMemo(() => {
 		if (processes.length === 0) {
@@ -346,9 +381,15 @@ export function ProcessManagerProvider(props: {
 	};
 
 	const runPendingProcesses = useCallback(() => {
+		// Check if startup hook exists and hasn't completed
+		const startupHook = processes.find(p => p.type === "startup_hook");
+		const isStartupComplete = !startupHook || startupHook.status === ProcessStatus.Success;
+
 		processes.map((p, i) => {
 			if (
 				p.status === ProcessStatus.Pending &&
+				p.type === "process" &&
+				isStartupComplete && // Only run processes after startup hook completes
 				areDependenciesSatisfied(p, processes)
 			) {
 				execProcess({
@@ -427,8 +468,48 @@ export function ProcessManagerProvider(props: {
 		await killProcess(selectedProcessIdx);
 	};
 
+	const runStartupHook = async () => {
+		const startupHookIndex = processes.findIndex(p => p.type === "startup_hook");
+		if (startupHookIndex !== -1) {
+			const startupHook = processes[startupHookIndex];
+			if (startupHook.status === ProcessStatus.Pending) {
+				await execProcess({
+					process: startupHook,
+					updateProcess: (fields: UpdateProcessFields) =>
+						updateProcess(startupHookIndex, fields),
+				});
+			}
+		}
+	};
+
+	const runShutdownHook = async () => {
+		const shutdownHookIndex = processes.findIndex(p => p.type === "shutdown_hook");
+		if (shutdownHookIndex !== -1) {
+			const shutdownHook = processes[shutdownHookIndex];
+			// Reset shutdown hook to pending and run it
+			updateProcess(shutdownHookIndex, { status: ProcessStatus.Pending });
+			// Give it a moment to update state
+			await new Promise(resolve => setTimeout(resolve, 50));
+			await execProcess({
+				process: { ...shutdownHook, status: ProcessStatus.Pending },
+				updateProcess: (fields: UpdateProcessFields) =>
+					updateProcess(shutdownHookIndex, fields),
+			});
+		}
+	};
+
 	const killAllProcesses = async () => {
-		await Promise.all(processes.map(async (_, i) => killProcess(i)));
+		// Kill all regular processes first
+		await Promise.all(
+			processes.map(async (p, i) => {
+				if (p.type === "process") {
+					await killProcess(i);
+				}
+			})
+		);
+
+		// Then run shutdown hook
+		await runShutdownHook();
 	};
 
 	return (
@@ -443,6 +524,8 @@ export function ProcessManagerProvider(props: {
 				restartSelectedProcess,
 				killSelectedProcess,
 				killAllProcesses,
+				runStartupHook,
+				runShutdownHook,
 			}}
 		>
 			{props.children}

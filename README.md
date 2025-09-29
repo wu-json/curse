@@ -31,19 +31,24 @@ command = "bun run examples/large/db-migrate.ts"
 [[process]]
 name = "seed-data"
 command = "bun run examples/large/seed-data.ts"
-deps = ["db-migrate"]
+deps = [{ name = "db-migrate", condition = "succeeded" }]
 
 [[process]]
 name = "database"
 command = "bun run examples/large/mock-database.ts"
-deps = ["seed-data"]
+deps = [{ name = "seed-data", condition = "succeeded" }]
 
 [[process]]
 name = "api-server"
 command = "bun run examples/large/api-server.ts"
 env = { PORT = 8001, SERVICE_NAME = "API Server" }
 readiness_probe = { type = "http", host = "127.0.0.1", path = "/health", port = 8001 }
-deps = ["seed-data"]
+deps = [{ name = "database", condition = "ready" }]
+
+# Optional lifecycle hooks (note that these are both blocking)
+[hooks]
+startup = { name = "setup", command = "echo 'Setting up environment...'" }
+shutdown = { name = "cleanup", command = "echo 'Cleaning up...'" }
 ```
 
 3. Run `curse`.
@@ -115,9 +120,4 @@ Local logs are really useful, and are often the reason we want to run things loc
 ### Familiarity
 
 Coming from `k9s`, constantly having to context switch shortcuts between `k9s` and `process-compose` was unpleasant, especially given that they look so similar. The key-binds in curse are meant to feel warm and familiar such that anyone using vim motions should feel right at home.
-
-# Features Planned
-
-- [ ] **Support user input in the log view**: This could be useful for managing processes that could require user input or confirmation (e.g. coding agents).
-- [ ] **Dump logs to files**: For debugging processes with copious logs, have a log dump would be useful for retaining logs that exceed the `LogBuffer` size.
 

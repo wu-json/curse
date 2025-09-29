@@ -1,0 +1,14 @@
+version = 0
+
+[hooks]
+startup = { name = "startup-hook", command = "echo 'Starting up...' && sleep 2 && echo 'Environment ready!'" }
+shutdown = { name = "shutdown-hook", command = "echo 'Shutting down...' && sleep 1 && echo 'Cleanup complete!'" }
+
+# Regular processes
+[[process]]
+name = "web-server"
+command = "echo 'Web server starting...' && sleep 5 && echo 'Web server running'"
+
+[[process]]
+name = "background-job"
+command = "echo 'Background job running...' && sleep 3"
