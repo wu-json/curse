@@ -121,7 +121,7 @@ function startReadinessTimer(
 				...(isReady ? { status: ProcessStatus.Running } : {}),
 			});
 		}
-	}, 500);
+	}, 1_000);
 
 	return timer;
 }
