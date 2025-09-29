@@ -1,10 +1,19 @@
 import { Box, Text } from "ink";
+import { useMemo } from "react";
 
 import { useProcessManager } from "../../hooks/useProcessManager";
 import { Colors } from "../../lib/Colors";
 
 export function LogTailPreview(props: { height: number }) {
 	const { selectedProcess } = useProcessManager();
+
+	// Memoize the logs to prevent flickering when other processes update
+	const logs = useMemo(() => {
+		if (!selectedProcess) return [];
+
+		const linesPerPage = props.height - 2; // Account for borders only
+		return selectedProcess.logBuffer.getRecentLines(linesPerPage);
+	}, [selectedProcess, selectedProcess?.logBuffer.getTotalLines(), props.height]);
 
 	if (!selectedProcess) {
 		return (
@@ -20,9 +29,6 @@ export function LogTailPreview(props: { height: number }) {
 			</Box>
 		);
 	}
-
-	const linesPerPage = props.height - 2; // Account for borders only
-	const logs = selectedProcess.logBuffer.getRecentLines(linesPerPage);
 
 	return (
 		<Box

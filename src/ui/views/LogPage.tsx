@@ -369,7 +369,7 @@ function LogTable(props: {
 			return;
 		}
 
-		if (input === "q") {
+		if (key.shift && input === "Q") {
 			await killAllProcesses();
 			process.exit(0);
 		}
