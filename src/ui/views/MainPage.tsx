@@ -219,7 +219,7 @@ export function MainPage() {
 		"enter/l to show logs",
 		"shift+r to restart process",
 		"shift+k to kill process",
-		"q to quit",
+		"shift+q to quit",
 	];
 
 	useInput(async (input, key) => {
@@ -233,7 +233,7 @@ export function MainPage() {
 			await restartSelectedProcess();
 		} else if (key.shift && input === "K") {
 			await killSelectedProcess();
-		} else if (input === "q") {
+		} else if (key.shift && input === "Q") {
 			await killAllProcesses();
 			process.exit(0);
 		} else if (input === "?") {
