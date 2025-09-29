@@ -13,7 +13,8 @@ import { version } from "../version";
 
 function View(props: { config: CurseConfig }) {
 	const { isReady } = useAltScreen();
-	const { runPendingProcesses, killAllProcesses, runStartupHook } = useProcessManager();
+	const { runPendingProcesses, killAllProcesses, runStartupHook } =
+		useProcessManager();
 	const { page } = usePage();
 
 	useInput(async (input, key) => {
@@ -25,9 +26,7 @@ function View(props: { config: CurseConfig }) {
 
 	useEffect(() => {
 		const initializeApp = async () => {
-			// First run startup hook if present
 			await runStartupHook();
-			// Then run regular pending processes
 			runPendingProcesses();
 		};
 
