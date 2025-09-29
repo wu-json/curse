@@ -348,7 +348,7 @@ export function ProcessManagerProvider(props: {
 				name: p.name,
 				command: p.command,
 				status: ProcessStatus.Pending,
-				type: "process" as ProcessType,
+				type: "process" as const,
 				deps: p.deps,
 				env: p.env,
 				isReady: p.readiness_probe ? false : undefined,
