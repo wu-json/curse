@@ -1,10 +1,8 @@
 version = 0
 
-# Startup hook - runs before any processes start
-startup_hook = { name = "setup-environment", command = "echo 'Starting up...' && sleep 2 && echo 'Environment ready!'" }
-
-# Shutdown hook - runs after all processes are killed
-shutdown_hook = { name = "cleanup", command = "echo 'Cleaning up resources...' && sleep 1 && echo 'Cleanup complete!'" }
+[hooks]
+startup = { name = "startup-hook", command = "echo 'Starting up...' && sleep 2 && echo 'Environment ready!'" }
+shutdown = { name = "shutdown-hook", command = "echo 'Shutting down...' && sleep 1 && echo 'Cleanup complete!'" }
 
 # Regular processes
 [[process]]

@@ -328,10 +328,10 @@ export function ProcessManagerProvider(props: {
 		const allProcesses: Process[] = [];
 
 		// Add startup hook if present
-		if (props.config.startup_hook) {
+		if (props.config.hooks?.startup) {
 			allProcesses.push({
-				name: props.config.startup_hook.name,
-				command: props.config.startup_hook.command,
+				name: props.config.hooks.startup.name,
+				command: props.config.hooks.startup.command,
 				status: ProcessStatus.Pending,
 				type: "startup_hook",
 				logBuffer: new LogBuffer(ENV.LOG_BUFFER_SIZE ?? 5_000),
@@ -352,10 +352,10 @@ export function ProcessManagerProvider(props: {
 		})));
 
 		// Add shutdown hook if present
-		if (props.config.shutdown_hook) {
+		if (props.config.hooks?.shutdown) {
 			allProcesses.push({
-				name: props.config.shutdown_hook.name,
-				command: props.config.shutdown_hook.command,
+				name: props.config.hooks.shutdown.name,
+				command: props.config.hooks.shutdown.command,
 				status: ProcessStatus.Pending,
 				type: "shutdown_hook",
 				logBuffer: new LogBuffer(ENV.LOG_BUFFER_SIZE ?? 5_000),

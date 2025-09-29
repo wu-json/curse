@@ -6,13 +6,15 @@ const CurseConfig = type({
 	version: type("0"),
 
 	// Lifecycle hooks
-	"startup_hook?": type({
-		name: "string",
-		command: "string",
-	}),
-	"shutdown_hook?": type({
-		name: "string",
-		command: "string",
+	"hooks?": type({
+		"startup?": type({
+			name: "string",
+			command: "string",
+		}),
+		"shutdown?": type({
+			name: "string",
+			command: "string",
+		}),
 	}),
 
 	// Processes
@@ -48,14 +50,22 @@ export async function parseCurseConfig(path: string): Promise<CurseConfig> {
 		throw new Error("Failed to parse curse config");
 	}
 
-	const processNames = result.process.map((p) => p.name);
-	const uniqueNames = new Set(processNames);
-	if (processNames.length !== uniqueNames.size) {
-		const duplicates = processNames.filter(
-			(name, index) => processNames.indexOf(name) !== index,
+	// Check for duplicate names across processes and hooks
+	const allNames: string[] = result.process.map((p) => p.name);
+	if (result.hooks?.startup) {
+		allNames.push(result.hooks.startup.name);
+	}
+	if (result.hooks?.shutdown) {
+		allNames.push(result.hooks.shutdown.name);
+	}
+
+	const uniqueNames = new Set(allNames);
+	if (allNames.length !== uniqueNames.size) {
+		const duplicates = allNames.filter(
+			(name, index) => allNames.indexOf(name) !== index,
 		);
 		throw new Error(
-			`Duplicate process names found: ${[...new Set(duplicates)].join(", ")}`,
+			`Duplicate names found: ${[...new Set(duplicates)].join(", ")}`,
 		);
 	}
 
