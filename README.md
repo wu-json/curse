@@ -24,11 +24,6 @@ Curse is a single binary and it's _definitely lightweight._ Not like I shoved bu
 # curse.toml example
 version = 0
 
-# Optional lifecycle hooks
-[hooks]
-startup = { name = "setup", command = "echo 'Setting up environment...'" }
-shutdown = { name = "cleanup", command = "echo 'Cleaning up...'" }
-
 [[process]]
 name = "db-migrate"
 command = "bun run examples/large/db-migrate.ts"
@@ -49,6 +44,11 @@ command = "bun run examples/large/api-server.ts"
 env = { PORT = 8001, SERVICE_NAME = "API Server" }
 readiness_probe = { type = "http", host = "127.0.0.1", path = "/health", port = 8001 }
 deps = [{ name = "database", condition = "ready" }]
+
+# Optional lifecycle hooks (note that these are both blocking)
+[hooks]
+startup = { name = "setup", command = "echo 'Setting up environment...'" }
+shutdown = { name = "cleanup", command = "echo 'Cleaning up...'" }
 ```
 
 3. Run `curse`.
