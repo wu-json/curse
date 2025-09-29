@@ -1,22 +1,23 @@
 # Flickering Test Configuration
 # This configuration creates multiple processes that generate logs at different rates
 # to help reproduce and test the flickering issue in the LogPreview component
+version = 0
 
 [[process]]
 name = "fast-logger"
-command = "./fast-logger.sh"
+command = "examples/flickering-test/fast-logger.sh"
 
 [[process]]
 name = "medium-logger"
-command = "./medium-logger.sh"
+command = "examples/flickering-test./medium-logger.sh"
 
 [[process]]
 name = "slow-logger"
-command = "./slow-logger.sh"
+command = "examples/flickering-test./slow-logger.sh"
 
 [[process]]
 name = "burst-logger"
-command = "./burst-logger.sh"
+command = "examples/flickering-test./burst-logger.sh"
 
 # Add a simple static process for comparison
 [[process]]
