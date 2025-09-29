@@ -19,7 +19,3 @@ command = "examples/flickering-test/slow-logger.sh"
 name = "burst-logger"
 command = "examples/flickering-test/burst-logger.sh"
 
-# Add a simple static process for comparison
-[[process]]
-name = "static-process"
-command = "echo 'Static process started' && sleep infinity"
