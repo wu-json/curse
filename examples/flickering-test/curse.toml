@@ -9,15 +9,15 @@ command = "examples/flickering-test/fast-logger.sh"
 
 [[process]]
 name = "medium-logger"
-command = "examples/flickering-test./medium-logger.sh"
+command = "examples/flickering-test/medium-logger.sh"
 
 [[process]]
 name = "slow-logger"
-command = "examples/flickering-test./slow-logger.sh"
+command = "examples/flickering-test/slow-logger.sh"
 
 [[process]]
 name = "burst-logger"
-command = "examples/flickering-test./burst-logger.sh"
+command = "examples/flickering-test/burst-logger.sh"
 
 # Add a simple static process for comparison
 [[process]]
