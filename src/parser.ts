@@ -16,7 +16,10 @@ const CurseConfig = type({
 			type: "'exec'",
 			command: "string",
 		}),
-		"deps?": "string[]",
+		"deps?": type({
+			name: "string",
+			condition: "'started' | 'succeeded' | 'ready'",
+		}).array(),
 		"env?": "Record<string, string | number>",
 	}).array(),
 });
