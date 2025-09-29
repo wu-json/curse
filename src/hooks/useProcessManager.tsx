@@ -381,10 +381,15 @@ export function ProcessManagerProvider(props: {
 	};
 
 	const runPendingProcesses = useCallback(() => {
+		// Check if startup hook exists and hasn't completed
+		const startupHook = processes.find(p => p.type === "startup_hook");
+		const isStartupComplete = !startupHook || startupHook.status === ProcessStatus.Success;
+
 		processes.map((p, i) => {
 			if (
 				p.status === ProcessStatus.Pending &&
 				p.type === "process" &&
+				isStartupComplete && // Only run processes after startup hook completes
 				areDependenciesSatisfied(p, processes)
 			) {
 				execProcess({
