@@ -121,8 +121,3 @@ Local logs are really useful, and are often the reason we want to run things loc
 
 Coming from `k9s`, constantly having to context switch shortcuts between `k9s` and `process-compose` was unpleasant, especially given that they look so similar. The key-binds in curse are meant to feel warm and familiar such that anyone using vim motions should feel right at home.
 
-# Features Planned
-
-- [ ] **Support user input in the log view**: This could be useful for managing processes that could require user input or confirmation (e.g. coding agents).
-- [ ] **Dump logs to files**: For debugging processes with copious logs, have a log dump would be useful for retaining logs that exceed the `LogBuffer` size.
-
