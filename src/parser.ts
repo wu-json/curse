@@ -4,6 +4,18 @@ import toml from "toml";
 const CurseConfig = type({
 	"+": "delete",
 	version: type("0"),
+
+	// Lifecycle hooks
+	"startup_hook?": type({
+		name: "string",
+		command: "string",
+	}),
+	"shutdown_hook?": type({
+		name: "string",
+		command: "string",
+	}),
+
+	// Processes
 	process: type({
 		name: "string",
 		command: "string",
