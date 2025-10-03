@@ -6,6 +6,7 @@ import stripAnsi from "strip-ansi";
 import { usePage, ViewPage } from "../../hooks/usePage";
 import { useProcessManager } from "../../hooks/useProcessManager";
 import { useRenderTick } from "../../hooks/useRenderTick";
+import { useProgramState, ProgramStatus } from "../../hooks/useProgramState";
 import { Colors } from "../../lib/Colors";
 import { preprocessLog } from "../../lib/LogProcessing";
 import {
@@ -30,6 +31,7 @@ function LogTable(props: {
 	onSelectModeChange?: (isSelectMode: boolean) => void;
 }) {
 	const { selectedProcess, killAllProcesses } = useProcessManager();
+	const { setStatus } = useProgramState();
 	const [autoScroll, setAutoScroll] = useState(true);
 	const [viewStartLine, setViewStartLine] = useState(0);
 	const [positionLost, setPositionLost] = useState(false);
@@ -365,6 +367,7 @@ function LogTable(props: {
 		}
 
 		if (key.shift && input === "Q") {
+			setStatus(ProgramStatus.Quitting);
 			await killAllProcesses();
 			process.exit(0);
 		}
