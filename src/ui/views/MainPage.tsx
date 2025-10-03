@@ -1,8 +1,13 @@
 import { Box, Text, useInput, useStdout } from "ink";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 
 import { usePage, ViewPage } from "../../hooks/usePage";
-import { useProcessManager, type Process, type ProcessType } from "../../hooks/useProcessManager";
+import {
+	useProcessManager,
+	type Process,
+	type ProcessType,
+} from "../../hooks/useProcessManager";
+import { useRenderTick } from "../../hooks/useRenderTick";
 import { Colors } from "../../lib/Colors";
 import {
 	ShortcutFooter,
@@ -42,8 +47,8 @@ function getReadinessDisplay(process: Process): {
 }
 
 function ProcessTable() {
-	const { processes, selectedProcessIdx } = useProcessManager();
-	const [, forceUpdate] = useState(0);
+	const { processesRef, selectedProcessIdx } = useProcessManager();
+	const processes = processesRef.current;
 	const { stdout } = useStdout();
 
 	const terminalWidth = stdout?.columns ?? 80;
@@ -53,15 +58,6 @@ function ProcessTable() {
 		20,
 		terminalWidth - fixedColumnsWidth - borderAndPadding,
 	);
-
-	// Force re-render every second to update age display
-	useEffect(() => {
-		const interval = setInterval(() => {
-			forceUpdate((prev) => prev + 1);
-		}, 1000);
-
-		return () => clearInterval(interval);
-	}, []);
 
 	return (
 		<Box
@@ -203,16 +199,20 @@ function ProcessTable() {
 
 export function MainPage() {
 	const {
-		processes,
+		processesRef,
 		setSelectedProcessIdx,
 		restartSelectedProcess,
 		killAllProcesses,
 		killSelectedProcess,
 	} = useProcessManager();
+	const processes = processesRef.current;
 
 	const { setPage } = usePage();
 	const [showShortcuts, setShowShortcuts] = useState(false);
 	const { stdout } = useStdout();
+
+	// Force re-render every second to update age display and logs
+	useRenderTick();
 
 	const shortcuts = [
 		"↑/↓ or j/k to navigate",

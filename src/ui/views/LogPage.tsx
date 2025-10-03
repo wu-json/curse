@@ -5,6 +5,7 @@ import stripAnsi from "strip-ansi";
 
 import { usePage, ViewPage } from "../../hooks/usePage";
 import { useProcessManager } from "../../hooks/useProcessManager";
+import { useRenderTick } from "../../hooks/useRenderTick";
 import { Colors } from "../../lib/Colors";
 import { preprocessLog } from "../../lib/LogProcessing";
 import {
@@ -29,7 +30,6 @@ function LogTable(props: {
 	onSelectModeChange?: (isSelectMode: boolean) => void;
 }) {
 	const { selectedProcess, killAllProcesses } = useProcessManager();
-	const [, forceUpdate] = useState(0);
 	const [autoScroll, setAutoScroll] = useState(true);
 	const [viewStartLine, setViewStartLine] = useState(0);
 	const [positionLost, setPositionLost] = useState(false);
@@ -52,6 +52,9 @@ function LogTable(props: {
 		onSearchCursorChange,
 		onSelectModeChange,
 	} = props;
+
+	// Force re-render every second to update logs and check position validity
+	useRenderTick();
 
 	// Function to highlight search terms in text
 	const highlightSearchTerm = (text: string, searchTerm: string) => {
@@ -76,15 +79,6 @@ function LogTable(props: {
 
 		return parts;
 	};
-
-	// Force re-render every second to update logs and check position validity
-	useEffect(() => {
-		const interval = setInterval(() => {
-			forceUpdate((prev) => prev + 1);
-		}, 1000);
-
-		return () => clearInterval(interval);
-	}, []);
 
 	// Handle view in context request
 	useEffect(() => {

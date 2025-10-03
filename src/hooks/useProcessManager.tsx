@@ -5,6 +5,7 @@ import {
 	useState,
 	useCallback,
 	useEffect,
+	useRef,
 } from "react";
 import { spawn, type Subprocess } from "bun";
 import { LogBuffer, readStreamToBuffer } from "../lib/LogBuffer";
@@ -296,10 +297,9 @@ async function execProcess({
 }
 
 type ProcessManagerCtx = {
-	processes: Process[];
+	processesRef: React.MutableRefObject<Process[]>;
 	selectedProcess: Process | null;
 	selectedProcessIdx: number;
-	setProcesses: React.Dispatch<React.SetStateAction<Process[]>>;
 	setSelectedProcessIdx: React.Dispatch<React.SetStateAction<number>>;
 	runPendingProcesses: () => void;
 	restartSelectedProcess: () => Promise<void>;
@@ -310,10 +310,9 @@ type ProcessManagerCtx = {
 };
 
 const ProcessManagerCtx = createContext<ProcessManagerCtx>({
-	processes: [],
+	processesRef: { current: [] },
 	selectedProcess: null,
 	selectedProcessIdx: 0,
-	setProcesses: () => {},
 	setSelectedProcessIdx: () => {},
 	runPendingProcesses: () => {},
 	restartSelectedProcess: async () => {},
@@ -328,7 +327,10 @@ export function ProcessManagerProvider(props: {
 	children: React.ReactNode;
 }) {
 	const [selectedProcessIdx, setSelectedProcessIdx] = useState(0);
-	const [processes, setProcesses] = useState<Process[]>(() => {
+	const processesRef = useRef<Process[]>([]);
+
+	// Initialize processes ref
+	if (processesRef.current.length === 0) {
 		const allProcesses: Process[] = [];
 
 		// Add startup hook if present
@@ -368,36 +370,34 @@ export function ProcessManagerProvider(props: {
 			});
 		}
 
-		return allProcesses;
-	});
+		processesRef.current = allProcesses;
+	}
 
 	const selectedProcess = useMemo(() => {
-		if (processes.length === 0) {
+		if (processesRef.current.length === 0) {
 			return null;
 		}
-		return processes[selectedProcessIdx] ?? null;
-	}, [processes, selectedProcessIdx]);
+		return processesRef.current[selectedProcessIdx] ?? null;
+	}, [selectedProcessIdx]);
 
 	const updateProcess = (processIdx: number, fields: UpdateProcessFields) => {
-		setProcesses((prev) =>
-			prev.map((process, i) =>
-				i === processIdx ? { ...process, ...fields } : process,
-			),
+		processesRef.current = processesRef.current.map((process, i) =>
+			i === processIdx ? { ...process, ...fields } : process,
 		);
 	};
 
 	const runPendingProcesses = useCallback(() => {
 		// Check if startup hook exists and hasn't completed
-		const startupHook = processes.find((p) => p.type === "startup_hook");
+		const startupHook = processesRef.current.find((p) => p.type === "startup_hook");
 		const isStartupComplete =
 			!startupHook || startupHook.status === ProcessStatus.Success;
 
-		processes.map((p, i) => {
+		processesRef.current.map((p, i) => {
 			if (
 				p.status === ProcessStatus.Pending &&
 				p.type === "process" &&
 				isStartupComplete && // Only run processes after startup hook completes
-				areDependenciesSatisfied(p, processes)
+				areDependenciesSatisfied(p, processesRef.current)
 			) {
 				execProcess({
 					process: p,
@@ -406,25 +406,25 @@ export function ProcessManagerProvider(props: {
 				});
 			}
 		});
-	}, [processes]);
+	}, []);
 
 	// Watch for processes becoming ready or completing successfully and trigger pending process checks
 	useEffect(() => {
-		const readyProcesses = processes.filter((p) => p.isReady === true);
-		const successProcesses = processes.filter(
+		const readyProcesses = processesRef.current.filter((p) => p.isReady === true);
+		const successProcesses = processesRef.current.filter(
 			(p) => p.status === ProcessStatus.Success,
 		);
 		if (readyProcesses.length > 0 || successProcesses.length > 0) {
 			runPendingProcesses();
 		}
 	}, [
-		processes.map((p) => p.isReady).join(","),
-		processes.map((p) => p.status).join(","),
+		processesRef.current.map((p) => p.isReady).join(","),
+		processesRef.current.map((p) => p.status).join(","),
 		runPendingProcesses,
 	]);
 
 	const restartSelectedProcess = async () => {
-		const process = processes[selectedProcessIdx];
+		const process = processesRef.current[selectedProcessIdx];
 		if (!process) {
 			return;
 		}
@@ -439,11 +439,11 @@ export function ProcessManagerProvider(props: {
 	};
 
 	const killProcess = async (processIdx: number) => {
-		if (!processes[processIdx]) {
+		if (!processesRef.current[processIdx]) {
 			return;
 		}
 		const { proc, status, readinessTimer, profileTimer } =
-			processes[processIdx];
+			processesRef.current[processIdx];
 		if (!proc || status !== ProcessStatus.Running) {
 			return;
 		}
@@ -476,12 +476,12 @@ export function ProcessManagerProvider(props: {
 	};
 
 	const runStartupHook = async () => {
-		const startupHookIndex = processes.findIndex(
+		const startupHookIndex = processesRef.current.findIndex(
 			(p) => p.type === "startup_hook",
 		);
 		if (startupHookIndex === -1) return;
 
-		const startupHook = processes[startupHookIndex];
+		const startupHook = processesRef.current[startupHookIndex];
 		if (!startupHook || startupHook.status !== ProcessStatus.Pending) return;
 
 		await execProcess({
@@ -492,12 +492,12 @@ export function ProcessManagerProvider(props: {
 	};
 
 	const runShutdownHook = async () => {
-		const shutdownHookIndex = processes.findIndex(
+		const shutdownHookIndex = processesRef.current.findIndex(
 			(p) => p.type === "shutdown_hook",
 		);
 		if (shutdownHookIndex === -1) return;
 
-		const shutdownHook = processes[shutdownHookIndex];
+		const shutdownHook = processesRef.current[shutdownHookIndex];
 		if (!shutdownHook) return;
 
 		// Reset shutdown hook to pending and run it
@@ -514,7 +514,7 @@ export function ProcessManagerProvider(props: {
 	const killAllProcesses = async () => {
 		// Kill all regular processes first
 		await Promise.all(
-			processes.map(async (p, i) => {
+			processesRef.current.map(async (p, i) => {
 				if (p.type === "process") {
 					await killProcess(i);
 				}
@@ -528,10 +528,9 @@ export function ProcessManagerProvider(props: {
 	return (
 		<ProcessManagerCtx.Provider
 			value={{
-				processes,
+				processesRef,
 				selectedProcess,
 				selectedProcessIdx,
-				setProcesses,
 				setSelectedProcessIdx,
 				runPendingProcesses,
 				restartSelectedProcess,
