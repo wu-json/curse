@@ -42,7 +42,8 @@ function getReadinessDisplay(process: Process): {
 }
 
 function ProcessTable() {
-	const { processes, selectedProcessIdx } = useProcessManager();
+	const { processesRef, selectedProcessIdx } = useProcessManager();
+	const processes = processesRef.current;
 	const [, forceUpdate] = useState(0);
 	const { stdout } = useStdout();
 
@@ -203,12 +204,13 @@ function ProcessTable() {
 
 export function MainPage() {
 	const {
-		processes,
+		processesRef,
 		setSelectedProcessIdx,
 		restartSelectedProcess,
 		killAllProcesses,
 		killSelectedProcess,
 	} = useProcessManager();
+	const processes = processesRef.current;
 
 	const { setPage } = usePage();
 	const [showShortcuts, setShowShortcuts] = useState(false);
