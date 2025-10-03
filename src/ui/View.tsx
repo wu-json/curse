@@ -45,13 +45,15 @@ function View(props: { config: CurseConfig }) {
 
 	return (
 		<Box flexDirection="column">
-			<Box flexDirection="row">
-				<Text bold color={Colors.primary}>
-					Curse 🕯
-				</Text>
-				<Text color={Colors.darkGray}> v{version}</Text>
+			<Box flexDirection="row" justifyContent="space-between">
+				<Box flexDirection="row">
+					<Text bold color={Colors.primary}>
+						Curse 🕯
+					</Text>
+					<Text color={Colors.darkGray}> v{version}</Text>
+				</Box>
 				{status === ProgramStatus.Quitting && (
-					<Text color={Colors.brightOrange}> [Quitting...]</Text>
+					<Text color={Colors.brightOrange}>Quitting...</Text>
 				)}
 			</Box>
 			<Box flexDirection="row">
