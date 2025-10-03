@@ -47,7 +47,8 @@ export async function parseCurseConfig(path: string): Promise<CurseConfig> {
 	const contents = await file.text();
 	const result = CurseConfig.assert(toml.parse(contents));
 	if (result instanceof type.errors) {
-		throw new Error("Failed to parse curse config");
+		console.error("Failed to parse curse config");
+		process.exit(1);
 	}
 
 	// Check for duplicate names across processes and hooks
@@ -64,9 +65,25 @@ export async function parseCurseConfig(path: string): Promise<CurseConfig> {
 		const duplicates = allNames.filter(
 			(name, index) => allNames.indexOf(name) !== index,
 		);
-		throw new Error(
+		console.error(
 			`Duplicate names found: ${[...new Set(duplicates)].join(", ")}`,
 		);
+		process.exit(1);
+	}
+
+	// Validate that all dependency names reference actual processes
+	const processNames = new Set(result.process.map((p) => p.name));
+	for (const proc of result.process) {
+		if (proc.deps) {
+			for (const dep of proc.deps) {
+				if (!processNames.has(dep.name)) {
+					console.error(
+						`Process "${proc.name}" has dependency "${dep.name}" which is not defined in the config`,
+					);
+					process.exit(1);
+				}
+			}
+		}
 	}
 
 	const fileName = path.split("/").pop() || path;
