@@ -1,6 +1,7 @@
 export const Colors = {
 	primary: "#8b5cf6", // violet
 	darkGray: "#4b5563",
+	mutedCyan: "#5f8a8b",
 	indigo: "#6366f1",
 	purple: "#a78bfa",
 	green: "#10b981",

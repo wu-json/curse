@@ -51,6 +51,7 @@ function ProcessTable() {
 	const { processesRef, selectedProcessIdx } = useProcessManager();
 	const processes = processesRef.current;
 	const { stdout } = useStdout();
+	const { status: programStatus } = useProgramState();
 
 	const terminalWidth = stdout?.columns ?? 80;
 	const fixedColumnsWidth = 10 + 2 + 8 + 2 + 8 + 2 + 8 + 2 + 8; // STATUS + margin + READY + margin + AGE + margin + MEM + margin + CPU
@@ -94,11 +95,17 @@ function ProcessTable() {
 			{processes.map((process: Process, index: number) => {
 				const isSelected = index === selectedProcessIdx;
 				const isSuccess = process.status === "success";
+				const isShutdownHookPending =
+					process.type === "shutdown_hook" &&
+					process.status === "pending" &&
+					programStatus === ProgramStatus.Running;
 				const textColor = isSelected
 					? "white"
 					: isSuccess
 						? Colors.darkGray
-						: Colors.indigo;
+						: isShutdownHookPending
+							? Colors.mutedCyan
+							: Colors.indigo;
 				return (
 					<Box
 						key={process.name}
