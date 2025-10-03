@@ -8,6 +8,7 @@ import {
 	type ProcessType,
 } from "../../hooks/useProcessManager";
 import { useRenderTick } from "../../hooks/useRenderTick";
+import { useProgramState, ProgramStatus } from "../../hooks/useProgramState";
 import { Colors } from "../../lib/Colors";
 import {
 	ShortcutFooter,
@@ -208,6 +209,7 @@ export function MainPage() {
 	const processes = processesRef.current;
 
 	const { setPage } = usePage();
+	const { setStatus } = useProgramState();
 	const [showShortcuts, setShowShortcuts] = useState(false);
 	const { stdout } = useStdout();
 
@@ -234,6 +236,7 @@ export function MainPage() {
 		} else if (key.shift && input === "K") {
 			await killSelectedProcess();
 		} else if (key.shift && input === "Q") {
+			setStatus(ProgramStatus.Quitting);
 			await killAllProcesses();
 			process.exit(0);
 		} else if (input === "?") {

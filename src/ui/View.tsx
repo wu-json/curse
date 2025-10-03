@@ -9,6 +9,11 @@ import { ProcessManagerProvider } from "../hooks/useProcessManager";
 import { useAltScreen } from "../hooks/useAltScreen";
 import { usePage, PageProvider, ViewPage } from "../hooks/usePage";
 import { useProcessManager } from "../hooks/useProcessManager";
+import {
+	ProgramStateProvider,
+	useProgramState,
+	ProgramStatus,
+} from "../hooks/useProgramState";
 import { version } from "../version";
 
 function View(props: { config: CurseConfig }) {
@@ -16,6 +21,7 @@ function View(props: { config: CurseConfig }) {
 	const { runPendingProcesses, killAllProcesses, runStartupHook } =
 		useProcessManager();
 	const { page } = usePage();
+	const { status } = useProgramState();
 
 	useInput(async (input, key) => {
 		if (key.ctrl && input === "c") {
@@ -39,11 +45,16 @@ function View(props: { config: CurseConfig }) {
 
 	return (
 		<Box flexDirection="column">
-			<Box flexDirection="row">
-				<Text bold color={Colors.primary}>
-					Curse 🕯
-				</Text>
-				<Text color={Colors.darkGray}> v{version}</Text>
+			<Box flexDirection="row" justifyContent="space-between">
+				<Box flexDirection="row">
+					<Text bold color={Colors.primary}>
+						Curse 🕯
+					</Text>
+					<Text color={Colors.darkGray}> v{version}</Text>
+				</Box>
+				{status === ProgramStatus.Quitting && (
+					<Text color={Colors.brightOrange}>Quitting...</Text>
+				)}
 			</Box>
 			<Box flexDirection="row">
 				<Text color={Colors.primary}>Config: </Text>
@@ -67,11 +78,13 @@ function View(props: { config: CurseConfig }) {
 
 export function renderView(config: CurseConfig) {
 	render(
-		<ProcessManagerProvider config={config}>
-			<PageProvider>
-				<View config={config} />
-			</PageProvider>
-		</ProcessManagerProvider>,
+		<ProgramStateProvider>
+			<ProcessManagerProvider config={config}>
+				<PageProvider>
+					<View config={config} />
+				</PageProvider>
+			</ProcessManagerProvider>
+		</ProgramStateProvider>,
 		{ exitOnCtrlC: false },
 	);
 }
