@@ -259,13 +259,14 @@ function LogTable(props: {
 	};
 
 	const copyToClipboard = async (text: string, indicatorText: string) => {
+		const cleanText = stripAnsi(text);
 		try {
-			await $`echo ${text} | pbcopy`;
+			await $`echo ${cleanText} | pbcopy`;
 			showCopyFeedback(indicatorText);
 		} catch (error) {
 			try {
 				// Fallback for non-macOS systems
-				await $`echo ${text} | xclip -selection clipboard`;
+				await $`echo ${cleanText} | xclip -selection clipboard`;
 				showCopyFeedback(indicatorText);
 			} catch {
 				showCopyFeedback("copy failed");
