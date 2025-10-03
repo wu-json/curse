@@ -47,7 +47,7 @@ function getReadinessDisplay(process: Process): {
 	return { char, color };
 }
 
-function ProcessTable() {
+function ProcessTable(props: { numberPrefix: string }) {
 	const { processesRef, selectedProcessIdx } = useProcessManager();
 	const processes = processesRef.current;
 	const { stdout } = useStdout();
@@ -90,6 +90,9 @@ function ProcessTable() {
 				</Box>
 				<Box width={8} marginLeft={2}>
 					<Text bold>CPU</Text>
+					{props.numberPrefix && (
+						<Text color={Colors.brightPink}> [{props.numberPrefix}]</Text>
+					)}
 				</Box>
 			</Box>
 			{processes.map((process: Process, index: number) => {
@@ -218,6 +221,7 @@ export function MainPage() {
 	const { setPage } = usePage();
 	const { setStatus } = useProgramState();
 	const [showShortcuts, setShowShortcuts] = useState(false);
+	const [numberPrefix, setNumberPrefix] = useState("");
 	const { stdout } = useStdout();
 
 	// Force re-render every second to update age display and logs
@@ -225,6 +229,7 @@ export function MainPage() {
 
 	const shortcuts = [
 		"↑/↓ or j/k to navigate",
+		"[number]j/k for multi-line moves",
 		"enter/l to show logs",
 		"shift+r to restart process",
 		"shift+k to kill process",
@@ -232,24 +237,44 @@ export function MainPage() {
 	];
 
 	useInput(async (input, key) => {
+		// Handle number input for vim-style prefixes
+		if (/^[0-9]$/.test(input)) {
+			setNumberPrefix((prev) => prev + input);
+			return;
+		}
+
+		// Get the repeat count from number prefix (default to 1)
+		const repeatCount = numberPrefix
+			? Math.max(1, parseInt(numberPrefix, 10))
+			: 1;
+
 		if (key.downArrow || input === "j") {
 			setSelectedProcessIdx((prev: number) =>
-				Math.min(prev + 1, processes.length - 1),
+				Math.min(prev + repeatCount, processes.length - 1),
 			);
+			setNumberPrefix("");
 		} else if (key.upArrow || input === "k") {
-			setSelectedProcessIdx((prev: number) => Math.max(prev - 1, 0));
+			setSelectedProcessIdx((prev: number) => Math.max(prev - repeatCount, 0));
+			setNumberPrefix("");
 		} else if (key.shift && input === "R") {
 			await restartSelectedProcess();
+			setNumberPrefix("");
 		} else if (key.shift && input === "K") {
 			await killSelectedProcess();
+			setNumberPrefix("");
 		} else if (key.shift && input === "Q") {
 			setStatus(ProgramStatus.Quitting);
 			await killAllProcesses();
 			process.exit(0);
 		} else if (input === "?") {
 			setShowShortcuts((prev) => !prev);
+			setNumberPrefix("");
 		} else if (input === "l" || key.return) {
 			setPage(ViewPage.Logs);
+			setNumberPrefix("");
+		} else {
+			// Clear number prefix on any other input
+			setNumberPrefix("");
 		}
 	});
 
@@ -271,7 +296,7 @@ export function MainPage() {
 
 	return (
 		<Box flexDirection="column">
-			<ProcessTable />
+			<ProcessTable numberPrefix={numberPrefix} />
 			<LogTailPreview height={logPreviewHeight} />
 			<ShortcutFooter shortcuts={shortcuts} showShortcuts={showShortcuts} />
 		</Box>
