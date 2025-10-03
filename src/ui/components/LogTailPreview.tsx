@@ -3,6 +3,7 @@ import { useMemo } from "react";
 
 import { useProcessManager } from "../../hooks/useProcessManager";
 import { Colors } from "../../lib/Colors";
+import { preprocessLog } from "../../lib/LogProcessing";
 
 export function LogTailPreview(props: { height: number }) {
 	const { selectedProcess } = useProcessManager();
@@ -13,7 +14,11 @@ export function LogTailPreview(props: { height: number }) {
 
 		const linesPerPage = props.height - 2; // Account for borders only
 		return selectedProcess.logBuffer.getRecentLines(linesPerPage);
-	}, [selectedProcess, selectedProcess?.logBuffer.getTotalLines(), props.height]);
+	}, [
+		selectedProcess,
+		selectedProcess?.logBuffer.getTotalLines(),
+		props.height,
+	]);
 
 	if (!selectedProcess) {
 		return (
@@ -49,7 +54,7 @@ export function LogTailPreview(props: { height: number }) {
 								color={log.includes("stderr") ? "red" : Colors.purple}
 								wrap="truncate"
 							>
-								{log}
+								{preprocessLog(log)}
 							</Text>
 						</Box>
 					))

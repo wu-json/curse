@@ -6,6 +6,7 @@ import stripAnsi from "strip-ansi";
 import { usePage, ViewPage } from "../../hooks/usePage";
 import { useProcessManager } from "../../hooks/useProcessManager";
 import { Colors } from "../../lib/Colors";
+import { preprocessLog } from "../../lib/LogProcessing";
 import {
 	ShortcutFooter,
 	getShortcutFooterHeight,
@@ -760,7 +761,9 @@ function LogTable(props: {
 									)}
 									bold={part.isHighlight || isCursor}
 								>
-									{isCursor || isSelected ? stripAnsi(part.text) : part.text}
+									{isCursor || isSelected
+										? stripAnsi(preprocessLog(part.text))
+										: preprocessLog(part.text)}
 								</Text>
 							))}
 						</Text>
