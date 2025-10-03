@@ -2,11 +2,7 @@ import { Box, Text, useInput, useStdout } from "ink";
 import { useState } from "react";
 
 import { usePage, ViewPage } from "../../hooks/usePage";
-import {
-	useProcessManager,
-	type Process,
-	type ProcessType,
-} from "../../hooks/useProcessManager";
+import { useProcessManager, type Process } from "../../hooks/useProcessManager";
 import { useRenderTick } from "../../hooks/useRenderTick";
 import { useProgramState, ProgramStatus } from "../../hooks/useProgramState";
 import { Colors } from "../../lib/Colors";
@@ -47,7 +43,10 @@ function getReadinessDisplay(process: Process): {
 	return { char, color };
 }
 
-function ProcessTable(props: { numberPrefix: string }) {
+function ProcessTable(props: {
+	numberPrefix: string;
+	waitingForSecondG: boolean;
+}) {
 	const { processesRef, selectedProcessIdx } = useProcessManager();
 	const processes = processesRef.current;
 	const { stdout } = useStdout();
@@ -92,6 +91,9 @@ function ProcessTable(props: { numberPrefix: string }) {
 					<Text bold>CPU</Text>
 					{props.numberPrefix && (
 						<Text color={Colors.brightPink}> [{props.numberPrefix}]</Text>
+					)}
+					{props.waitingForSecondG && (
+						<Text color={Colors.brightGreen}> [g]</Text>
 					)}
 				</Box>
 			</Box>
@@ -222,6 +224,7 @@ export function MainPage() {
 	const { setStatus } = useProgramState();
 	const [showShortcuts, setShowShortcuts] = useState(false);
 	const [numberPrefix, setNumberPrefix] = useState("");
+	const [waitingForSecondG, setWaitingForSecondG] = useState(false);
 	const { stdout } = useStdout();
 
 	// Force re-render every second to update age display and logs
@@ -230,6 +233,8 @@ export function MainPage() {
 	const shortcuts = [
 		"↑/↓ or j/k to navigate",
 		"[number]j/k for multi-line moves",
+		"gg to jump to beginning",
+		"shift+g to jump to end",
 		"enter/l to show logs",
 		"shift+r to restart process",
 		"shift+k to kill process",
@@ -241,6 +246,31 @@ export function MainPage() {
 		if (/^[0-9]$/.test(input)) {
 			setNumberPrefix((prev) => prev + input);
 			return;
+		}
+
+		// Handle 'g' sequence for vim-style navigation
+		if (input === "g") {
+			if (waitingForSecondG) {
+				// This is 'gg' - jump to beginning
+				setSelectedProcessIdx(0);
+				setWaitingForSecondG(false);
+				setNumberPrefix("");
+			} else {
+				// First 'g' - wait for second 'g'
+				setWaitingForSecondG(true);
+			}
+			return;
+		} else if (key.shift && input === "G") {
+			// Shift+G - jump to end
+			setSelectedProcessIdx(processes.length - 1);
+			setWaitingForSecondG(false);
+			setNumberPrefix("");
+			return;
+		}
+
+		// Clear waiting state if any other key is pressed
+		if (waitingForSecondG) {
+			setWaitingForSecondG(false);
 		}
 
 		// Get the repeat count from number prefix (default to 1)
@@ -296,7 +326,10 @@ export function MainPage() {
 
 	return (
 		<Box flexDirection="column">
-			<ProcessTable numberPrefix={numberPrefix} />
+			<ProcessTable
+				numberPrefix={numberPrefix}
+				waitingForSecondG={waitingForSecondG}
+			/>
 			<LogTailPreview height={logPreviewHeight} />
 			<ShortcutFooter shortcuts={shortcuts} showShortcuts={showShortcuts} />
 		</Box>
