@@ -75,16 +75,14 @@ If you've been writing code for a while, you're likely no stranger to the sacred
 # start local pg and redis
 docker compose up
 
-# build everything in monorepo
-pnpm build:all
+# watch everything in monorepo
+pnpm watch:all
 
 # start local dev server
 pnpm start:dev:local
 
 # start client app
 cd app/client yarn start
-
-# start
 ```
 
 <table>
