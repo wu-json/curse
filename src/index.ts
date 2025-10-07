@@ -39,7 +39,6 @@ const command = define({
 			short: "p",
 		},
 	},
-	// The 'ctx' parameter is automatically typed based on the args
 	run: async (ctx) => {
 		const configPath = await resolveConfigPath(ctx.values.path);
 		if (!configPath) {
