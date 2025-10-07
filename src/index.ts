@@ -68,16 +68,10 @@ const command = define({
 	},
 });
 
-async function renderHeader(ctx: CommandContext): Promise<string> {
-	if (ctx.values.help) {
-		return `${ctx.env.description} (curse v${version})`;
-	}
-	return "";
-}
-
 await cli(process.argv.slice(2), command, {
 	name: "curse",
 	version,
 	description: "Manage processes in your terminal.",
-	renderHeader,
+	renderHeader: async (ctx: CommandContext): Promise<string> =>
+		ctx.values.help ? `${ctx.env.description} (lazygt v${version})` : "",
 });
