@@ -412,7 +412,10 @@ export function ProcessManagerProvider(props: {
 			`Process at index ${processIdx} not found after update`,
 		);
 
-		if (shouldTriggerDependencyCheck(oldProcess, newProcess) && !pendingRunRef.current) {
+		if (
+			shouldTriggerDependencyCheck(oldProcess, newProcess) &&
+			!pendingRunRef.current
+		) {
 			pendingRunRef.current = true;
 			queueMicrotask(() => {
 				pendingRunRef.current = false;
@@ -436,7 +439,7 @@ export function ProcessManagerProvider(props: {
 				isStartupComplete && // Only run processes after startup hook completes
 				areDependenciesSatisfied(p, processesRef.current)
 			) {
-				execProcess({
+				void execProcess({
 					process: p,
 					updateProcess: (fields: UpdateProcessFields) =>
 						updateProcess(i, fields),
