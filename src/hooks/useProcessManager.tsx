@@ -5,6 +5,7 @@ import {
 	useState,
 	useCallback,
 	useRef,
+	type RefObject,
 } from "react";
 import { spawn, type Subprocess } from "bun";
 import { LogBuffer, readStreamToBuffer } from "../lib/LogBuffer";
@@ -313,7 +314,7 @@ async function execProcess({
 }
 
 type ProcessManagerCtx = {
-	processesRef: React.MutableRefObject<Process[]>;
+	processesRef: RefObject<Process[]>;
 	selectedProcess: Process | null;
 	selectedProcessIdx: number;
 	setSelectedProcessIdx: React.Dispatch<React.SetStateAction<number>>;
