@@ -345,6 +345,7 @@ export function ProcessManagerProvider(props: {
 }) {
 	const [selectedProcessIdx, setSelectedProcessIdx] = useState(0);
 	const processesRef = useRef<Process[]>([]);
+	const pendingRunRef = useRef(false);
 
 	// Initialize processes ref
 	if (processesRef.current.length === 0) {
@@ -411,9 +412,12 @@ export function ProcessManagerProvider(props: {
 			`Process at index ${processIdx} not found after update`,
 		);
 
-		if (shouldTriggerDependencyCheck(oldProcess, newProcess)) {
-			// Use setTimeout to avoid calling during state mutation
-			setTimeout(() => runPendingProcesses(), 0);
+		if (shouldTriggerDependencyCheck(oldProcess, newProcess) && !pendingRunRef.current) {
+			pendingRunRef.current = true;
+			queueMicrotask(() => {
+				pendingRunRef.current = false;
+				runPendingProcesses();
+			});
 		}
 	};
 
