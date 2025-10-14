@@ -4,11 +4,12 @@ import {
 	useMemo,
 	useState,
 	useCallback,
-	useEffect,
 	useRef,
+	type RefObject,
 } from "react";
 import { spawn, type Subprocess } from "bun";
 import { LogBuffer, readStreamToBuffer } from "../lib/LogBuffer";
+import { invariant } from "../lib/invariant";
 
 import type { CurseConfig } from "../parser";
 import { ENV } from "../env";
@@ -223,6 +224,22 @@ function areDependenciesSatisfied(
 	});
 }
 
+function shouldTriggerDependencyCheck(
+	oldProcess: Process,
+	newProcess: Process,
+): boolean {
+	const becameReady = !oldProcess.isReady && newProcess.isReady === true;
+	const becameSuccessful =
+		oldProcess.status !== ProcessStatus.Success &&
+		newProcess.status === ProcessStatus.Success;
+	const becameRunning =
+		oldProcess.status !== ProcessStatus.Running &&
+		newProcess.status === ProcessStatus.Running &&
+		!newProcess.readinessProbe; // Only for processes without readiness probes
+
+	return becameReady || becameSuccessful || becameRunning;
+}
+
 function createEnv(
 	processEnv?: Record<string, string | number>,
 ): Record<string, string | undefined> {
@@ -297,7 +314,7 @@ async function execProcess({
 }
 
 type ProcessManagerCtx = {
-	processesRef: React.MutableRefObject<Process[]>;
+	processesRef: RefObject<Process[]>;
 	selectedProcess: Process | null;
 	selectedProcessIdx: number;
 	setSelectedProcessIdx: React.Dispatch<React.SetStateAction<number>>;
@@ -328,6 +345,7 @@ export function ProcessManagerProvider(props: {
 }) {
 	const [selectedProcessIdx, setSelectedProcessIdx] = useState(0);
 	const processesRef = useRef<Process[]>([]);
+	const pendingRunRef = useRef(false);
 
 	// Initialize processes ref
 	if (processesRef.current.length === 0) {
@@ -381,14 +399,36 @@ export function ProcessManagerProvider(props: {
 	}, [selectedProcessIdx]);
 
 	const updateProcess = (processIdx: number, fields: UpdateProcessFields) => {
+		const oldProcess = processesRef.current[processIdx];
+		invariant(oldProcess, `Process at index ${processIdx} not found`);
+
 		processesRef.current = processesRef.current.map((process, i) =>
 			i === processIdx ? { ...process, ...fields } : process,
 		);
+
+		const newProcess = processesRef.current[processIdx];
+		invariant(
+			newProcess,
+			`Process at index ${processIdx} not found after update`,
+		);
+
+		if (
+			shouldTriggerDependencyCheck(oldProcess, newProcess) &&
+			!pendingRunRef.current
+		) {
+			pendingRunRef.current = true;
+			queueMicrotask(() => {
+				pendingRunRef.current = false;
+				runPendingProcesses();
+			});
+		}
 	};
 
 	const runPendingProcesses = useCallback(() => {
 		// Check if startup hook exists and hasn't completed
-		const startupHook = processesRef.current.find((p) => p.type === "startup_hook");
+		const startupHook = processesRef.current.find(
+			(p) => p.type === "startup_hook",
+		);
 		const isStartupComplete =
 			!startupHook || startupHook.status === ProcessStatus.Success;
 
@@ -399,7 +439,7 @@ export function ProcessManagerProvider(props: {
 				isStartupComplete && // Only run processes after startup hook completes
 				areDependenciesSatisfied(p, processesRef.current)
 			) {
-				execProcess({
+				void execProcess({
 					process: p,
 					updateProcess: (fields: UpdateProcessFields) =>
 						updateProcess(i, fields),
@@ -407,21 +447,6 @@ export function ProcessManagerProvider(props: {
 			}
 		});
 	}, []);
-
-	// Watch for processes becoming ready or completing successfully and trigger pending process checks
-	useEffect(() => {
-		const readyProcesses = processesRef.current.filter((p) => p.isReady === true);
-		const successProcesses = processesRef.current.filter(
-			(p) => p.status === ProcessStatus.Success,
-		);
-		if (readyProcesses.length > 0 || successProcesses.length > 0) {
-			runPendingProcesses();
-		}
-	}, [
-		processesRef.current.map((p) => p.isReady).join(","),
-		processesRef.current.map((p) => p.status).join(","),
-		runPendingProcesses,
-	]);
 
 	const restartSelectedProcess = async () => {
 		const process = processesRef.current[selectedProcessIdx];
