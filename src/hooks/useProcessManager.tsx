@@ -4,11 +4,11 @@ import {
 	useMemo,
 	useState,
 	useCallback,
-	useEffect,
 	useRef,
 } from "react";
 import { spawn, type Subprocess } from "bun";
 import { LogBuffer, readStreamToBuffer } from "../lib/LogBuffer";
+import { invariant } from "../lib/invariant";
 
 import type { CurseConfig } from "../parser";
 import { ENV } from "../env";
@@ -223,6 +223,22 @@ function areDependenciesSatisfied(
 	});
 }
 
+function shouldTriggerDependencyCheck(
+	oldProcess: Process,
+	newProcess: Process,
+): boolean {
+	const becameReady = !oldProcess.isReady && newProcess.isReady === true;
+	const becameSuccessful =
+		oldProcess.status !== ProcessStatus.Success &&
+		newProcess.status === ProcessStatus.Success;
+	const becameRunning =
+		oldProcess.status !== ProcessStatus.Running &&
+		newProcess.status === ProcessStatus.Running &&
+		!newProcess.readinessProbe; // Only for processes without readiness probes
+
+	return becameReady || becameSuccessful || becameRunning;
+}
+
 function createEnv(
 	processEnv?: Record<string, string | number>,
 ): Record<string, string | undefined> {
@@ -381,14 +397,30 @@ export function ProcessManagerProvider(props: {
 	}, [selectedProcessIdx]);
 
 	const updateProcess = (processIdx: number, fields: UpdateProcessFields) => {
+		const oldProcess = processesRef.current[processIdx];
+		invariant(oldProcess, `Process at index ${processIdx} not found`);
+
 		processesRef.current = processesRef.current.map((process, i) =>
 			i === processIdx ? { ...process, ...fields } : process,
 		);
+
+		const newProcess = processesRef.current[processIdx];
+		invariant(
+			newProcess,
+			`Process at index ${processIdx} not found after update`,
+		);
+
+		if (shouldTriggerDependencyCheck(oldProcess, newProcess)) {
+			// Use setTimeout to avoid calling during state mutation
+			setTimeout(() => runPendingProcesses(), 0);
+		}
 	};
 
 	const runPendingProcesses = useCallback(() => {
 		// Check if startup hook exists and hasn't completed
-		const startupHook = processesRef.current.find((p) => p.type === "startup_hook");
+		const startupHook = processesRef.current.find(
+			(p) => p.type === "startup_hook",
+		);
 		const isStartupComplete =
 			!startupHook || startupHook.status === ProcessStatus.Success;
 
@@ -407,21 +439,6 @@ export function ProcessManagerProvider(props: {
 			}
 		});
 	}, []);
-
-	// Watch for processes becoming ready or completing successfully and trigger pending process checks
-	useEffect(() => {
-		const readyProcesses = processesRef.current.filter((p) => p.isReady === true);
-		const successProcesses = processesRef.current.filter(
-			(p) => p.status === ProcessStatus.Success,
-		);
-		if (readyProcesses.length > 0 || successProcesses.length > 0) {
-			runPendingProcesses();
-		}
-	}, [
-		processesRef.current.map((p) => p.isReady).join(","),
-		processesRef.current.map((p) => p.status).join(","),
-		runPendingProcesses,
-	]);
 
 	const restartSelectedProcess = async () => {
 		const process = processesRef.current[selectedProcessIdx];
