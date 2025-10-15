@@ -51,7 +51,7 @@ export class LogBuffer {
 	}
 
 	getRecentLines(count: number): string[] {
-		return this.lines.peekBack(count);
+		return this.lines.peekBack(count).reverse();
 	}
 
 	getLinesByAbsolutePosition(
