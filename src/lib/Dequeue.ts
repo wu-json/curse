@@ -1,4 +1,4 @@
-// Vendored from: https://github.com/petkaantonov/deque
+// Vendored and adapted from: https://github.com/petkaantonov/deque
 
 const DEQUE_MIN_CAPACITY = 16;
 const DEQUE_MAX_CAPACITY = (1 << 30) | 0;
