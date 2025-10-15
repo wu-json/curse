@@ -1,8 +1,8 @@
 import MiniSearch from "minisearch";
-import { type DequeInstance, Deque } from "./Dequeue";
+import { Deque } from "./Dequeue";
 
 export class LogBuffer {
-	private lines: DequeInstance<string>;
+	private lines: Deque<string>;
 	private readonly maxSize: number;
 	private totalLinesAdded = 0;
 	private searchIndex: MiniSearch<{
@@ -14,7 +14,7 @@ export class LogBuffer {
 
 	// We store line ID's in a queue so that when we hit the max buffer capacity we can remove the
 	// discarded logs from the minisearch index in O(1) time.
-	private discardLineIdQueue: DequeInstance<number>;
+	private discardLineIdQueue: Deque<number>;
 
 	constructor(maxSize: number) {
 		this.maxSize = maxSize;

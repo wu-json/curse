@@ -152,7 +152,8 @@ export class Deque<T> {
 			} else {
 				let front = this._front;
 				for (let i = argsLength - 1; i >= 0; i--) {
-					const j: number = (((front - 1) & (capacity - 1)) ^ capacity) - capacity;
+					const j: number =
+						(((front - 1) & (capacity - 1)) ^ capacity) - capacity;
 					this[j] = arguments[i];
 					front = j;
 				}
@@ -295,7 +296,3 @@ export class Deque<T> {
 		}
 	}
 }
-
-// Legacy type exports for backwards compatibility
-export type DequeInstance<T> = Deque<T>;
-export type DequeConstructor = typeof Deque;
