@@ -1,7 +1,8 @@
 import MiniSearch from "minisearch";
+import { Deque } from "./Dequeue";
 
 export class LogBuffer {
-	private lines: string[] = [];
+	private lines: Deque<string>;
 	private readonly maxSize: number;
 	private totalLinesAdded = 0;
 	private searchIndex: MiniSearch<{
@@ -11,8 +12,14 @@ export class LogBuffer {
 	}>;
 	private nextId = 0;
 
+	// We store line ID's in a queue so that when we hit the max buffer capacity we can remove the
+	// discarded logs from the minisearch index in O(1) time.
+	private discardLineIdQueue: Deque<number>;
+
 	constructor(maxSize: number) {
 		this.maxSize = maxSize;
+		this.lines = new Deque<string>();
+		this.discardLineIdQueue = new Deque<number>();
 		this.searchIndex = new MiniSearch({
 			fields: ["text"],
 			storeFields: ["text", "lineNumber"],
@@ -31,39 +38,20 @@ export class LogBuffer {
 			lineNumber: this.totalLinesAdded - 1,
 		};
 		this.searchIndex.add(doc);
+		this.discardLineIdQueue.push(doc.id);
 
 		if (this.lines.length > this.maxSize) {
 			this.lines.shift();
-			// Remove oldest entry from search index
-			const oldestLineNumber = this.getOldestAvailableLineNumber();
-			const docsToRemove = this.searchIndex.search("*", {
-				filter: (result) => result.lineNumber < oldestLineNumber,
-			});
-			for (const doc of docsToRemove) {
-				this.searchIndex.discard(doc.id);
+			// Remove oldest entry from search index using O(1) queue removal
+			const oldestDocId = this.discardLineIdQueue.shift();
+			if (oldestDocId !== undefined) {
+				this.searchIndex.discard(oldestDocId);
 			}
 		}
 	}
 
-	getLines(): string[] {
-		return [...this.lines];
-	}
-
 	getRecentLines(count: number): string[] {
-		if (count <= 0 || this.lines.length === 0) return [];
-
-		const startIndex = Math.max(0, this.lines.length - count);
-		return this.lines.slice(startIndex);
-	}
-
-	getLinesFromEnd(offset: number, count: number): string[] {
-		if (count <= 0 || this.lines.length === 0 || offset >= this.lines.length)
-			return [];
-
-		const endIndex = this.lines.length - offset;
-		const startIndex = Math.max(0, endIndex - count);
-
-		return this.lines.slice(startIndex, endIndex);
+		return this.lines.peekBack(count).reverse();
 	}
 
 	getLinesByAbsolutePosition(
@@ -85,10 +73,18 @@ export class LogBuffer {
 
 		// Convert absolute position to relative position within current buffer
 		const relativeStart = absoluteStartLine - oldestLine;
-		const relativeEnd = Math.min(relativeStart + count, this.lines.length);
 		const actualStart = Math.max(0, relativeStart);
+		const actualCount = Math.min(count, this.lines.length - actualStart);
 
-		return this.lines.slice(actualStart, relativeEnd);
+		// Build result array using deque.get() for O(actualCount) performance
+		const result: string[] = [];
+		for (let i = 0; i < actualCount; i++) {
+			const line = this.lines.get(actualStart + i);
+			if (line !== undefined) {
+				result.push(line);
+			}
+		}
+		return result;
 	}
 
 	getOldestAvailableLineNumber(): number {
@@ -102,19 +98,16 @@ export class LogBuffer {
 		);
 	}
 
-	getCurrentEndPosition(): number {
-		return this.lines.length;
-	}
-
 	getTotalLines(): number {
 		return this.lines.length;
 	}
 
 	clear(): void {
-		this.lines = [];
+		this.lines.clear();
 		this.searchIndex.removeAll();
 		this.nextId = 0;
 		this.totalLinesAdded = 0;
+		this.discardLineIdQueue.clear();
 	}
 
 	search(
