@@ -748,22 +748,29 @@ function LogTable(props: {
 							bold={isCursor}
 							wrap="truncate"
 						>
-							{textParts.map((part, partIndex) => (
-								<Text
-									key={partIndex}
-									color={getPartTextColor(
-										part.isHighlight,
-										isCursor,
-										isSelected,
-										log,
-									)}
-									bold={part.isHighlight || isCursor}
-								>
-									{isCursor || isSelected
+							{textParts.map((part, partIndex) => {
+								const processedText =
+									isCursor || isSelected
 										? stripAnsi(preprocessLog(part.text))
-										: preprocessLog(part.text)}
-								</Text>
-							))}
+										: preprocessLog(part.text);
+								// Ensure empty lines render at least a space so the line doesn't just disappear
+								const displayText = processedText || " ";
+
+								return (
+									<Text
+										key={partIndex}
+										color={getPartTextColor(
+											part.isHighlight,
+											isCursor,
+											isSelected,
+											log,
+										)}
+										bold={part.isHighlight || isCursor}
+									>
+										{displayText}
+									</Text>
+								);
+							})}
 						</Text>
 					</Box>
 				);
