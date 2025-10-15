@@ -1,7 +1,8 @@
 import MiniSearch from "minisearch";
+import { type DequeInstance, Deque } from "./Dequeue";
 
 export class LogBuffer {
-	private lines: string[] = [];
+	private lines: DequeInstance<string>;
 	private readonly maxSize: number;
 	private totalLinesAdded = 0;
 	private searchIndex: MiniSearch<{
@@ -13,10 +14,12 @@ export class LogBuffer {
 
 	// We store line ID's in a queue so that when we hit the max buffer capacity we can remove the
 	// discarded logs from the minisearch index in O(1) time.
-	private discardLineIdQueue: number[] = [];
+	private discardLineIdQueue: DequeInstance<number>;
 
 	constructor(maxSize: number) {
 		this.maxSize = maxSize;
+		this.lines = new Deque<string>();
+		this.discardLineIdQueue = new Deque<number>();
 		this.searchIndex = new MiniSearch({
 			fields: ["text"],
 			storeFields: ["text", "lineNumber"],
@@ -48,10 +51,7 @@ export class LogBuffer {
 	}
 
 	getRecentLines(count: number): string[] {
-		if (count <= 0 || this.lines.length === 0) return [];
-
-		const startIndex = Math.max(0, this.lines.length - count);
-		return this.lines.slice(startIndex);
+		return this.lines.peekBack(count);
 	}
 
 	getLinesByAbsolutePosition(
@@ -73,10 +73,18 @@ export class LogBuffer {
 
 		// Convert absolute position to relative position within current buffer
 		const relativeStart = absoluteStartLine - oldestLine;
-		const relativeEnd = Math.min(relativeStart + count, this.lines.length);
 		const actualStart = Math.max(0, relativeStart);
+		const actualCount = Math.min(count, this.lines.length - actualStart);
 
-		return this.lines.slice(actualStart, relativeEnd);
+		// Build result array using deque.get() for O(actualCount) performance
+		const result: string[] = [];
+		for (let i = 0; i < actualCount; i++) {
+			const line = this.lines.get(actualStart + i);
+			if (line !== undefined) {
+				result.push(line);
+			}
+		}
+		return result;
 	}
 
 	getOldestAvailableLineNumber(): number {
@@ -95,11 +103,11 @@ export class LogBuffer {
 	}
 
 	clear(): void {
-		this.lines = [];
+		this.lines.clear();
 		this.searchIndex.removeAll();
 		this.nextId = 0;
 		this.totalLinesAdded = 0;
-		this.discardLineIdQueue = [];
+		this.discardLineIdQueue.clear();
 	}
 
 	search(

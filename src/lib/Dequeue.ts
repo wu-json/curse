@@ -3,7 +3,7 @@
 const DEQUE_MIN_CAPACITY = 16;
 const DEQUE_MAX_CAPACITY = (1 << 30) | 0;
 
-interface DequeInstance<T> {
+export interface DequeInstance<T> {
 	_capacity: number;
 	_length: number;
 	_front: number;
@@ -37,7 +37,10 @@ interface DequeConstructor {
 	<T>(capacity?: number | T[]): DequeInstance<T>;
 }
 
-function Deque<T>(this: DequeInstance<T>, capacity?: number | T[]): void {
+export function Deque<T>(
+	this: DequeInstance<T>,
+	capacity?: number | T[],
+): void {
 	this._capacity = getCapacity(capacity);
 	this._length = 0;
 	this._front = 0;
@@ -61,7 +64,10 @@ Deque.prototype.toArray = function Deque$toArray<T>(this: DequeInstance<T>) {
 	return ret;
 };
 
-Deque.prototype.push = function Deque$push<T>(this: DequeInstance<T>, item?: T) {
+Deque.prototype.push = function Deque$push<T>(
+	this: DequeInstance<T>,
+	item?: T,
+) {
 	var argsLength = arguments.length;
 	var length = this._length;
 	if (argsLength > 1) {
@@ -120,7 +126,10 @@ Deque.prototype.shift = function Deque$shift<T>(this: DequeInstance<T>) {
 	return ret;
 };
 
-Deque.prototype.unshift = function Deque$unshift<T>(this: DequeInstance<T>, item?: T) {
+Deque.prototype.unshift = function Deque$unshift<T>(
+	this: DequeInstance<T>,
+	item?: T,
+) {
 	var length = this._length;
 	var argsLength = arguments.length;
 
@@ -130,7 +139,8 @@ Deque.prototype.unshift = function Deque$unshift<T>(this: DequeInstance<T>, item
 			for (var i = argsLength - 1; i >= 0; i--) {
 				this._checkCapacity(length + 1);
 				var capacity = this._capacity;
-				var j: number = (((this._front - 1) & (capacity - 1)) ^ capacity) - capacity;
+				var j: number =
+					(((this._front - 1) & (capacity - 1)) ^ capacity) - capacity;
 				this[j] = arguments[i];
 				length++;
 				this._length = length;
@@ -161,7 +171,10 @@ Deque.prototype.unshift = function Deque$unshift<T>(this: DequeInstance<T>, item
 	return length + 1;
 };
 
-Deque.prototype.peekBack = function Deque$peekBack<T>(this: DequeInstance<T>, count?: number): T[] {
+Deque.prototype.peekBack = function Deque$peekBack<T>(
+	this: DequeInstance<T>,
+	count?: number,
+): T[] {
 	if (count === void 0) count = 1;
 	var length = this._length;
 	if (length === 0 || count <= 0) {
@@ -176,7 +189,10 @@ Deque.prototype.peekBack = function Deque$peekBack<T>(this: DequeInstance<T>, co
 	return ret;
 };
 
-Deque.prototype.peekFront = function Deque$peekFront<T>(this: DequeInstance<T>, count?: number): T[] {
+Deque.prototype.peekFront = function Deque$peekFront<T>(
+	this: DequeInstance<T>,
+	count?: number,
+): T[] {
 	if (count === void 0) count = 1;
 	var length = this._length;
 	if (length === 0 || count <= 0) {
@@ -192,7 +208,10 @@ Deque.prototype.peekFront = function Deque$peekFront<T>(this: DequeInstance<T>, 
 	return ret;
 };
 
-Deque.prototype.get = function Deque$get<T>(this: DequeInstance<T>, index: number) {
+Deque.prototype.get = function Deque$get<T>(
+	this: DequeInstance<T>,
+	index: number,
+) {
 	var i = index;
 	if (i !== (i | 0)) {
 		return void 0;
@@ -244,13 +263,19 @@ Object.defineProperty(Deque.prototype, "length", {
 	},
 });
 
-Deque.prototype._checkCapacity = function Deque$_checkCapacity<T>(this: DequeInstance<T>, size: number) {
+Deque.prototype._checkCapacity = function Deque$_checkCapacity<T>(
+	this: DequeInstance<T>,
+	size: number,
+) {
 	if (this._capacity < size) {
 		this._resizeTo(getCapacity(this._capacity * 1.5 + 16));
 	}
 };
 
-Deque.prototype._resizeTo = function Deque$_resizeTo<T>(this: DequeInstance<T>, capacity: number) {
+Deque.prototype._resizeTo = function Deque$_resizeTo<T>(
+	this: DequeInstance<T>,
+	capacity: number,
+) {
 	var oldCapacity = this._capacity;
 	this._capacity = capacity;
 	var front = this._front;
@@ -263,7 +288,13 @@ Deque.prototype._resizeTo = function Deque$_resizeTo<T>(this: DequeInstance<T>, 
 
 var isArray = Array.isArray;
 
-function arrayMove<T>(src: DequeInstance<T>, srcIndex: number, dst: DequeInstance<T>, dstIndex: number, len: number): void {
+function arrayMove<T>(
+	src: DequeInstance<T>,
+	srcIndex: number,
+	dst: DequeInstance<T>,
+	dstIndex: number,
+	len: number,
+): void {
 	for (var j = 0; j < len; ++j) {
 		dst[j + dstIndex] = src[j + srcIndex];
 		src[j + srcIndex] = void 0;
@@ -293,5 +324,3 @@ function getCapacity<T>(capacity: number | T[] | undefined): number {
 		Math.min(Math.max(DEQUE_MIN_CAPACITY, capacity), DEQUE_MAX_CAPACITY),
 	);
 }
-
-export default Deque as DequeConstructor;
