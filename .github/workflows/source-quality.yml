@@ -25,3 +25,6 @@ jobs:
         run: just build
         env:
           GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
+
+      - name: Test
+        run: just test

@@ -1,3 +1,5 @@
+// Vendored and adapted from: https://github.com/petkaantonov/deque
+
 import { describe, it, expect } from "bun:test";
 import { Deque } from "./Dequeue";
 

@@ -5,6 +5,9 @@ build:
   GORELEASER_CURRENT_TAG=v{{current_version}} goreleaser build --clean --snapshot
   rm -f .*.bun-build
 
+test:
+  bun test
+
 bump-and-commit-version bump_type:
   #!/usr/bin/env bash
   bun install
