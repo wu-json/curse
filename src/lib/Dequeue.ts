@@ -32,12 +32,12 @@ export interface DequeInstance<T> {
 	_resizeTo(capacity: number): void;
 }
 
-interface DequeConstructor {
+export interface DequeConstructor {
 	new <T>(capacity?: number | T[]): DequeInstance<T>;
 	<T>(capacity?: number | T[]): DequeInstance<T>;
 }
 
-export function Deque<T>(
+export const Deque: DequeConstructor = function Deque<T>(
 	this: DequeInstance<T>,
 	capacity?: number | T[],
 ): void {
@@ -51,7 +51,7 @@ export function Deque<T>(
 		}
 		this._length = len;
 	}
-}
+} as any;
 
 Deque.prototype.toArray = function Deque$toArray<T>(this: DequeInstance<T>) {
 	var len = this._length;
