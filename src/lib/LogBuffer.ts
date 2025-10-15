@@ -11,6 +11,10 @@ export class LogBuffer {
 	}>;
 	private nextId = 0;
 
+	// We store line ID's in a queue so that when we hit the max buffer capacity we can remove the
+	// discarded logs from the minisearch index in O(1) time.
+	private discardLineIdQueue: number[] = [];
+
 	constructor(maxSize: number) {
 		this.maxSize = maxSize;
 		this.searchIndex = new MiniSearch({
@@ -31,16 +35,14 @@ export class LogBuffer {
 			lineNumber: this.totalLinesAdded - 1,
 		};
 		this.searchIndex.add(doc);
+		this.discardLineIdQueue.push(doc.id);
 
 		if (this.lines.length > this.maxSize) {
 			this.lines.shift();
-			// Remove oldest entry from search index
-			const oldestLineNumber = this.getOldestAvailableLineNumber();
-			const docsToRemove = this.searchIndex.search("*", {
-				filter: (result) => result.lineNumber < oldestLineNumber,
-			});
-			for (const doc of docsToRemove) {
-				this.searchIndex.discard(doc.id);
+			// Remove oldest entry from search index using O(1) queue removal
+			const oldestDocId = this.discardLineIdQueue.shift();
+			if (oldestDocId !== undefined) {
+				this.searchIndex.discard(oldestDocId);
 			}
 		}
 	}
@@ -115,6 +117,7 @@ export class LogBuffer {
 		this.searchIndex.removeAll();
 		this.nextId = 0;
 		this.totalLinesAdded = 0;
+		this.discardLineIdQueue = [];
 	}
 
 	search(
