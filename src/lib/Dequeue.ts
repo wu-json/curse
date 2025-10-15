@@ -45,8 +45,8 @@ export const Deque: DequeConstructor = function Deque<T>(
 	this._length = 0;
 	this._front = 0;
 	if (isArray(capacity)) {
-		var len = capacity.length;
-		for (var i = 0; i < len; ++i) {
+		const len = capacity.length;
+		for (let i = 0; i < len; ++i) {
 			this[i] = capacity[i];
 		}
 		this._length = len;
@@ -54,11 +54,11 @@ export const Deque: DequeConstructor = function Deque<T>(
 } as any;
 
 Deque.prototype.toArray = function Deque$toArray<T>(this: DequeInstance<T>) {
-	var len = this._length;
-	var ret = new Array(len);
-	var front = this._front;
-	var capacity = this._capacity;
-	for (var j = 0; j < len; ++j) {
+	const len = this._length;
+	const ret = new Array(len);
+	const front = this._front;
+	const capacity = this._capacity;
+	for (let j = 0; j < len; ++j) {
 		ret[j] = this[(front + j) & (capacity - 1)];
 	}
 	return ret;
@@ -68,22 +68,22 @@ Deque.prototype.push = function Deque$push<T>(
 	this: DequeInstance<T>,
 	item?: T,
 ) {
-	var argsLength = arguments.length;
-	var length = this._length;
+	const argsLength = arguments.length;
+	let length = this._length;
 	if (argsLength > 1) {
-		var capacity = this._capacity;
+		const capacity = this._capacity;
 		if (length + argsLength > capacity) {
-			for (var i = 0; i < argsLength; ++i) {
+			for (let i = 0; i < argsLength; ++i) {
 				this._checkCapacity(length + 1);
-				var j: number = (this._front + length) & (this._capacity - 1);
+				const j: number = (this._front + length) & (this._capacity - 1);
 				this[j] = arguments[i];
 				length++;
 				this._length = length;
 			}
 			return length;
 		} else {
-			var j: number = this._front;
-			for (var i = 0; i < argsLength; ++i) {
+			let j: number = this._front;
+			for (let i = 0; i < argsLength; ++i) {
 				this[(j + length) & (capacity - 1)] = arguments[i];
 				j++;
 			}
@@ -95,31 +95,31 @@ Deque.prototype.push = function Deque$push<T>(
 	if (argsLength === 0) return length;
 
 	this._checkCapacity(length + 1);
-	var i = (this._front + length) & (this._capacity - 1);
+	const i = (this._front + length) & (this._capacity - 1);
 	this[i] = item;
 	this._length = length + 1;
 	return length + 1;
 };
 
 Deque.prototype.pop = function Deque$pop<T>(this: DequeInstance<T>) {
-	var length = this._length;
+	const length = this._length;
 	if (length === 0) {
 		return void 0;
 	}
-	var i = (this._front + length - 1) & (this._capacity - 1);
-	var ret = this[i];
+	const i = (this._front + length - 1) & (this._capacity - 1);
+	const ret = this[i];
 	this[i] = void 0;
 	this._length = length - 1;
 	return ret;
 };
 
 Deque.prototype.shift = function Deque$shift<T>(this: DequeInstance<T>) {
-	var length = this._length;
+	const length = this._length;
 	if (length === 0) {
 		return void 0;
 	}
-	var front = this._front;
-	var ret = this[front];
+	const front = this._front;
+	const ret = this[front];
 	this[front] = void 0;
 	this._front = (front + 1) & (this._capacity - 1);
 	this._length = length - 1;
@@ -130,16 +130,16 @@ Deque.prototype.unshift = function Deque$unshift<T>(
 	this: DequeInstance<T>,
 	item?: T,
 ) {
-	var length = this._length;
-	var argsLength = arguments.length;
+	let length = this._length;
+	const argsLength = arguments.length;
 
 	if (argsLength > 1) {
-		var capacity = this._capacity;
+		let capacity = this._capacity;
 		if (length + argsLength > capacity) {
-			for (var i = argsLength - 1; i >= 0; i--) {
+			for (let i = argsLength - 1; i >= 0; i--) {
 				this._checkCapacity(length + 1);
-				var capacity = this._capacity;
-				var j: number =
+				capacity = this._capacity;
+				const j: number =
 					(((this._front - 1) & (capacity - 1)) ^ capacity) - capacity;
 				this[j] = arguments[i];
 				length++;
@@ -148,9 +148,9 @@ Deque.prototype.unshift = function Deque$unshift<T>(
 			}
 			return length;
 		} else {
-			var front = this._front;
-			for (var i = argsLength - 1; i >= 0; i--) {
-				var j: number = (((front - 1) & (capacity - 1)) ^ capacity) - capacity;
+			let front = this._front;
+			for (let i = argsLength - 1; i >= 0; i--) {
+				const j: number = (((front - 1) & (capacity - 1)) ^ capacity) - capacity;
 				this[j] = arguments[i];
 				front = j;
 			}
@@ -163,8 +163,8 @@ Deque.prototype.unshift = function Deque$unshift<T>(
 	if (argsLength === 0) return length;
 
 	this._checkCapacity(length + 1);
-	var capacity = this._capacity;
-	var i = (((this._front - 1) & (capacity - 1)) ^ capacity) - capacity;
+	const capacity = this._capacity;
+	const i = (((this._front - 1) & (capacity - 1)) ^ capacity) - capacity;
 	this[i] = item;
 	this._length = length + 1;
 	this._front = i;
@@ -176,14 +176,14 @@ Deque.prototype.peekBack = function Deque$peekBack<T>(
 	count?: number,
 ): T[] {
 	if (count === void 0) count = 1;
-	var length = this._length;
+	const length = this._length;
 	if (length === 0 || count <= 0) {
 		return [];
 	}
-	var actualCount = count > length ? length : count;
-	var ret = new Array(actualCount);
-	var capacity = this._capacity;
-	for (var i = 0; i < actualCount; ++i) {
+	const actualCount = count > length ? length : count;
+	const ret = new Array(actualCount);
+	const capacity = this._capacity;
+	for (let i = 0; i < actualCount; ++i) {
 		ret[i] = this[(this._front + length - 1 - i) & (capacity - 1)];
 	}
 	return ret;
@@ -194,15 +194,15 @@ Deque.prototype.peekFront = function Deque$peekFront<T>(
 	count?: number,
 ): T[] {
 	if (count === void 0) count = 1;
-	var length = this._length;
+	const length = this._length;
 	if (length === 0 || count <= 0) {
 		return [];
 	}
-	var actualCount = count > length ? length : count;
-	var ret = new Array(actualCount);
-	var front = this._front;
-	var capacity = this._capacity;
-	for (var i = 0; i < actualCount; ++i) {
+	const actualCount = count > length ? length : count;
+	const ret = new Array(actualCount);
+	const front = this._front;
+	const capacity = this._capacity;
+	for (let i = 0; i < actualCount; ++i) {
 		ret[i] = this[(front + i) & (capacity - 1)];
 	}
 	return ret;
@@ -212,11 +212,11 @@ Deque.prototype.get = function Deque$get<T>(
 	this: DequeInstance<T>,
 	index: number,
 ) {
-	var i = index;
+	let i = index;
 	if (i !== (i | 0)) {
 		return void 0;
 	}
-	var len = this._length;
+	const len = this._length;
 	if (i < 0) {
 		i = i + len;
 	}
@@ -231,10 +231,10 @@ Deque.prototype.isEmpty = function Deque$isEmpty<T>(this: DequeInstance<T>) {
 };
 
 Deque.prototype.clear = function Deque$clear<T>(this: DequeInstance<T>) {
-	var len = this._length;
-	var front = this._front;
-	var capacity = this._capacity;
-	for (var j = 0; j < len; ++j) {
+	const len = this._length;
+	const front = this._front;
+	const capacity = this._capacity;
+	for (let j = 0; j < len; ++j) {
 		this[(front + j) & (capacity - 1)] = void 0;
 	}
 	this._length = 0;
@@ -276,17 +276,17 @@ Deque.prototype._resizeTo = function Deque$_resizeTo<T>(
 	this: DequeInstance<T>,
 	capacity: number,
 ) {
-	var oldCapacity = this._capacity;
+	const oldCapacity = this._capacity;
 	this._capacity = capacity;
-	var front = this._front;
-	var length = this._length;
+	const front = this._front;
+	const length = this._length;
 	if (front + length > oldCapacity) {
-		var moveItemsCount = (front + length) & (oldCapacity - 1);
+		const moveItemsCount = (front + length) & (oldCapacity - 1);
 		arrayMove(this, 0, this, oldCapacity, moveItemsCount);
 	}
 };
 
-var isArray = Array.isArray;
+const isArray = Array.isArray;
 
 function arrayMove<T>(
 	src: DequeInstance<T>,
@@ -295,7 +295,7 @@ function arrayMove<T>(
 	dstIndex: number,
 	len: number,
 ): void {
-	for (var j = 0; j < len; ++j) {
+	for (let j = 0; j < len; ++j) {
 		dst[j + dstIndex] = src[j + srcIndex];
 		src[j + srcIndex] = void 0;
 	}
