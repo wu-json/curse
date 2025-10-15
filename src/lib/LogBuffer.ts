@@ -54,16 +54,6 @@ export class LogBuffer {
 		return this.lines.slice(startIndex);
 	}
 
-	getLinesFromEnd(offset: number, count: number): string[] {
-		if (count <= 0 || this.lines.length === 0 || offset >= this.lines.length)
-			return [];
-
-		const endIndex = this.lines.length - offset;
-		const startIndex = Math.max(0, endIndex - count);
-
-		return this.lines.slice(startIndex, endIndex);
-	}
-
 	getLinesByAbsolutePosition(
 		absoluteStartLine: number,
 		count: number,
@@ -98,10 +88,6 @@ export class LogBuffer {
 		return (
 			absolutePosition >= oldestLine && absolutePosition < this.totalLinesAdded
 		);
-	}
-
-	getCurrentEndPosition(): number {
-		return this.lines.length;
 	}
 
 	getTotalLines(): number {
