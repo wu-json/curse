@@ -13,8 +13,8 @@ interface DequeInstance<T> {
 	pop(): T | undefined;
 	shift(): T | undefined;
 	unshift(...items: T[]): number;
-	peekBack(): T | undefined;
-	peekFront(): T | undefined;
+	peekBack(count?: number): T[];
+	peekFront(count?: number): T[];
 	get(index: number): T | undefined;
 	isEmpty(): boolean;
 	clear(): void;
@@ -161,20 +161,35 @@ Deque.prototype.unshift = function Deque$unshift<T>(this: DequeInstance<T>, item
 	return length + 1;
 };
 
-Deque.prototype.peekBack = function Deque$peekBack<T>(this: DequeInstance<T>) {
+Deque.prototype.peekBack = function Deque$peekBack<T>(this: DequeInstance<T>, count?: number): T[] {
+	if (count === void 0) count = 1;
 	var length = this._length;
-	if (length === 0) {
-		return void 0;
+	if (length === 0 || count <= 0) {
+		return [];
 	}
-	var index = (this._front + length - 1) & (this._capacity - 1);
-	return this[index];
+	var actualCount = count > length ? length : count;
+	var ret = new Array(actualCount);
+	var capacity = this._capacity;
+	for (var i = 0; i < actualCount; ++i) {
+		ret[i] = this[(this._front + length - 1 - i) & (capacity - 1)];
+	}
+	return ret;
 };
 
-Deque.prototype.peekFront = function Deque$peekFront<T>(this: DequeInstance<T>) {
-	if (this._length === 0) {
-		return void 0;
+Deque.prototype.peekFront = function Deque$peekFront<T>(this: DequeInstance<T>, count?: number): T[] {
+	if (count === void 0) count = 1;
+	var length = this._length;
+	if (length === 0 || count <= 0) {
+		return [];
 	}
-	return this[this._front];
+	var actualCount = count > length ? length : count;
+	var ret = new Array(actualCount);
+	var front = this._front;
+	var capacity = this._capacity;
+	for (var i = 0; i < actualCount; ++i) {
+		ret[i] = this[(front + i) & (capacity - 1)];
+	}
+	return ret;
 };
 
 Deque.prototype.get = function Deque$get<T>(this: DequeInstance<T>, index: number) {
