@@ -47,10 +47,6 @@ export class LogBuffer {
 		}
 	}
 
-	getLines(): string[] {
-		return [...this.lines];
-	}
-
 	getRecentLines(count: number): string[] {
 		if (count <= 0 || this.lines.length === 0) return [];
 
