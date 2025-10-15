@@ -162,12 +162,6 @@ The `examples/` directory contains various test scenarios:
 3. **Familiarity**: vim-like keybindings and k9s-inspired UI
 4. **Performance**: Efficient log buffering and minimal re-renders
 
-## Current Branch
-
-Working on: `fix/mem-issues`
-- Recent commits focus on memory optimization with dequeue implementation
-- Converted log buffer to use class-based approach
-
 ## Distribution
 
 Distributed via the [wu-json/cursed-tools](https://github.com/wu-json/cursed-tools) Aqua registry as a single binary with embedded Bun runtime.
