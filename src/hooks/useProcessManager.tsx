@@ -288,11 +288,9 @@ async function execProcess({
 	};
 
 	if (p.readinessProbe) {
-		// Update process with proc first
 		p.proc = proc;
 		updateProcess({ proc });
 		timers.readiness = startReadinessTimer(p, updateProcess, (profileTimer) => {
-			// Store profile timer when it's created by readiness timer
 			timers.profile = profileTimer;
 		});
 		updateProcess({ readinessTimer: timers.readiness });
@@ -310,7 +308,6 @@ async function execProcess({
 
 	const result = await proc.exited;
 
-	// Clean up all timers
 	clearReadinessTimer(timers.readiness);
 	clearProfileTimer(timers.profile);
 
@@ -481,7 +478,6 @@ export function ProcessManagerProvider(props: {
 		const { proc, status, readinessTimer, profileTimer } =
 			processesRef.current[processIdx];
 
-		// Can only kill processes that are running or starting
 		if (
 			!proc ||
 			(status !== ProcessStatus.Running && status !== ProcessStatus.Starting)
@@ -490,7 +486,6 @@ export function ProcessManagerProvider(props: {
 		}
 		updateProcess(processIdx, { status: ProcessStatus.Killing });
 
-		// Clean up all timers
 		clearReadinessTimer(readinessTimer);
 		clearProfileTimer(profileTimer);
 
