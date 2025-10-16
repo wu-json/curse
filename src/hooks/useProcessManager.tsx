@@ -102,6 +102,8 @@ function startReadinessTimer(
 		return undefined;
 	}
 
+	let profileTimerStarted = false;
+
 	const timer = setInterval(async () => {
 		if (process.readinessProbeInProgress) {
 			return;
@@ -111,7 +113,8 @@ function startReadinessTimer(
 		const isReady = await performReadinessProbe(process.readinessProbe!);
 
 		// Start profiling timer if process is running and we don't have one yet
-		if (!process.profileTimer && process.proc) {
+		if (!profileTimerStarted && process.proc) {
+			profileTimerStarted = true;
 			const profileTimer = startProfileTimer(process.proc, updateProcess);
 			updateProcess({
 				isReady,
@@ -302,6 +305,10 @@ async function execProcess({
 	clearReadinessTimer(readinessTimer);
 	if (profileTimer) {
 		clearProfileTimer(profileTimer);
+	}
+	// Also clear profile timer that may have been created by readiness timer
+	if (p.profileTimer) {
+		clearProfileTimer(p.profileTimer);
 	}
 	updateProcess({
 		status: result === 0 ? ProcessStatus.Success : ProcessStatus.Error,
