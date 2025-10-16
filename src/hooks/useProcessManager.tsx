@@ -97,10 +97,13 @@ async function performReadinessProbe(
 function startReadinessTimer(
 	process: Process,
 	updateProcess: (updates: UpdateProcessFields) => void,
+	onProfileTimerCreated: (timer: NodeJS.Timeout) => void,
 ): NodeJS.Timeout | undefined {
 	if (!process.readinessProbe) {
 		return undefined;
 	}
+
+	let profileTimerStarted = false;
 
 	const timer = setInterval(async () => {
 		if (process.readinessProbeInProgress) {
@@ -111,8 +114,10 @@ function startReadinessTimer(
 		const isReady = await performReadinessProbe(process.readinessProbe!);
 
 		// Start profiling timer if process is running and we don't have one yet
-		if (!process.profileTimer && process.proc) {
+		if (!profileTimerStarted && process.proc) {
+			profileTimerStarted = true;
 			const profileTimer = startProfileTimer(process.proc, updateProcess);
+			onProfileTimerCreated(profileTimer);
 			updateProcess({
 				isReady,
 				readinessProbeInProgress: false,
@@ -277,21 +282,24 @@ async function execProcess({
 		env: createEnv(p.env),
 	});
 
-	let profileTimer: NodeJS.Timeout | undefined;
-	let readinessTimer: NodeJS.Timeout | undefined;
+	const timers = {
+		profile: undefined as NodeJS.Timeout | undefined,
+		readiness: undefined as NodeJS.Timeout | undefined,
+	};
 
 	if (p.readinessProbe) {
-		// Update process with proc first
 		p.proc = proc;
 		updateProcess({ proc });
-		readinessTimer = startReadinessTimer(p, updateProcess);
-		updateProcess({ readinessTimer });
+		timers.readiness = startReadinessTimer(p, updateProcess, (profileTimer) => {
+			timers.profile = profileTimer;
+		});
+		updateProcess({ readinessTimer: timers.readiness });
 	} else {
-		profileTimer = startProfileTimer(proc, updateProcess);
+		timers.profile = startProfileTimer(proc, updateProcess);
 		updateProcess({
 			status: ProcessStatus.Running,
 			proc,
-			profileTimer,
+			profileTimer: timers.profile,
 		});
 	}
 
@@ -299,10 +307,10 @@ async function execProcess({
 	readStreamToBuffer(proc.stderr, p.logBuffer);
 
 	const result = await proc.exited;
-	clearReadinessTimer(readinessTimer);
-	if (profileTimer) {
-		clearProfileTimer(profileTimer);
-	}
+
+	clearReadinessTimer(timers.readiness);
+	clearProfileTimer(timers.profile);
+
 	updateProcess({
 		status: result === 0 ? ProcessStatus.Success : ProcessStatus.Error,
 		readinessTimer: undefined,
@@ -469,7 +477,11 @@ export function ProcessManagerProvider(props: {
 		}
 		const { proc, status, readinessTimer, profileTimer } =
 			processesRef.current[processIdx];
-		if (!proc || status !== ProcessStatus.Running) {
+
+		if (
+			!proc ||
+			(status !== ProcessStatus.Running && status !== ProcessStatus.Starting)
+		) {
 			return;
 		}
 		updateProcess(processIdx, { status: ProcessStatus.Killing });
