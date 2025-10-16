@@ -282,7 +282,6 @@ async function execProcess({
 		env: createEnv(p.env),
 	});
 
-	// Track all timers to ensure cleanup
 	const timers = {
 		profile: undefined as NodeJS.Timeout | undefined,
 		readiness: undefined as NodeJS.Timeout | undefined,
