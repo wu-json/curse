@@ -119,3 +119,204 @@ Local logs are really useful, and are often the reason we want to run things loc
 
 Coming from `k9s`, constantly having to context switch shortcuts between `k9s` and `process-compose` was unpleasant, especially given that they look so similar. The key-binds in curse are meant to feel warm and familiar so that anyone using vim motions should feel right at home.
 
+## Configuration Reference
+
+### curse.toml Specification
+
+The `curse.toml` file uses TOML format to define processes, dependencies, and lifecycle hooks. Below is a complete specification of all available configuration options.
+
+#### Top-Level Fields
+
+```toml
+version = 0  # Required: Must be 0 (only supported version)
+
+[hooks]      # Optional: Lifecycle hooks
+# ...
+
+[[process]]  # Required: Array of process definitions
+# ...
+```
+
+#### Process Definition
+
+Each process is defined as a `[[process]]` table with the following fields:
+
+| Field | Type | Required | Description |
+|-------|------|----------|-------------|
+| `name` | string | Yes | Unique identifier for the process. Used for dependencies and display. |
+| `command` | string | Yes | Shell command to execute. Runs in a shell context. |
+| `env` | object | No | Environment variables for the process. Keys are strings, values can be strings or numbers. |
+| `deps` | array | No | Array of dependency objects. See [Dependencies](#dependencies) below. |
+| `readiness_probe` | object | No | Health check configuration. See [Readiness Probes](#readiness-probes) below. |
+
+**Example:**
+```toml
+[[process]]
+name = "api-server"
+command = "npm run dev"
+env = { PORT = 8080, NODE_ENV = "development", DEBUG = "true" }
+deps = [{ name = "database", condition = "ready" }]
+readiness_probe = { type = "http", host = "127.0.0.1", path = "/health", port = 8080 }
+```
+
+#### Dependencies
+
+Dependencies control the execution order of processes. Each dependency object has two fields:
+
+| Field | Type | Required | Description |
+|-------|------|----------|-------------|
+| `name` | string | Yes | Name of the process this depends on. Must reference an existing process. |
+| `condition` | string | Yes | When to consider the dependency satisfied. One of: `"started"`, `"succeeded"`, or `"ready"`. |
+
+**Dependency Conditions:**
+
+- **`"started"`**: Dependent process starts as soon as the dependency process is running (any state after pending).
+- **`"succeeded"`**: Dependent process waits for dependency to exit with code 0.
+- **`"ready"`**: Dependent process waits for the readiness probe to pass (or just running if no probe defined).
+
+**Example:**
+```toml
+[[process]]
+name = "migrations"
+command = "npm run db:migrate"
+
+[[process]]
+name = "api-server"
+command = "npm start"
+deps = [
+  { name = "migrations", condition = "succeeded" }
+]
+```
+
+#### Readiness Probes
+
+Readiness probes are health checks that determine when a process is ready to accept traffic or be depended upon. Two types are supported:
+
+##### HTTP Probe
+
+Polls an HTTP endpoint until it returns a 200 OK response.
+
+| Field | Type | Required | Description |
+|-------|------|----------|-------------|
+| `type` | string | Yes | Must be `"http"`. |
+| `host` | string | Yes | Hostname or IP address to connect to. |
+| `path` | string | Yes | HTTP path to request (e.g., `"/health"`). |
+| `port` | number | Yes | Port number to connect to. |
+
+**Example:**
+```toml
+[[process]]
+name = "web-server"
+command = "python -m http.server 8000"
+readiness_probe = { type = "http", host = "127.0.0.1", path = "/", port = 8000 }
+```
+
+##### Exec Probe
+
+Runs a shell command repeatedly until it exits with code 0.
+
+| Field | Type | Required | Description |
+|-------|------|----------|-------------|
+| `type` | string | Yes | Must be `"exec"`. |
+| `command` | string | Yes | Shell command to execute. |
+
+**Example:**
+```toml
+[[process]]
+name = "postgres"
+command = "docker-compose up postgres"
+readiness_probe = { type = "exec", command = "pg_isready -h localhost" }
+```
+
+#### Lifecycle Hooks
+
+Hooks are special processes that run at specific points in the application lifecycle. Both hooks are **blocking** operations.
+
+```toml
+[hooks]
+startup = { name = "setup", command = "npm install && npm run db:setup" }
+shutdown = { name = "cleanup", command = "docker-compose down" }
+```
+
+##### Startup Hook
+
+Runs before any processes start. If it fails (non-zero exit), Curse will exit.
+
+| Field | Type | Required | Description |
+|-------|------|----------|-------------|
+| `name` | string | Yes | Display name for the hook. Must be unique across all processes and hooks. |
+| `command` | string | Yes | Shell command to execute. |
+
+##### Shutdown Hook
+
+Runs after all processes are killed (when user presses `q` or Curse exits). Runs regardless of whether processes succeeded or failed.
+
+| Field | Type | Required | Description |
+|-------|------|----------|-------------|
+| `name` | string | Yes | Display name for the hook. Must be unique across all processes and hooks. |
+| `command` | string | Yes | Shell command to execute. |
+
+### Validation Rules
+
+The parser enforces these validation rules:
+
+1. **Version must be 0**: Only version 0 is currently supported.
+2. **Unique names**: All process names and hook names must be unique across the entire configuration.
+3. **Valid dependencies**: All dependency references must point to actual processes defined in the config.
+4. **No extra fields**: Unknown fields in the TOML will cause parsing to fail.
+
+### Complete Example
+
+```toml
+version = 0
+
+[hooks]
+startup = { name = "install-deps", command = "npm install" }
+shutdown = { name = "cleanup", command = "docker-compose down -v" }
+
+[[process]]
+name = "postgres"
+command = "docker-compose up postgres"
+readiness_probe = { type = "exec", command = "pg_isready -h localhost -p 5432" }
+
+[[process]]
+name = "redis"
+command = "docker-compose up redis"
+readiness_probe = { type = "exec", command = "redis-cli ping" }
+
+[[process]]
+name = "migrations"
+command = "npm run db:migrate"
+deps = [{ name = "postgres", condition = "ready" }]
+
+[[process]]
+name = "seed-data"
+command = "npm run db:seed"
+deps = [{ name = "migrations", condition = "succeeded" }]
+
+[[process]]
+name = "api-server"
+command = "npm run dev:api"
+env = { PORT = 3000, NODE_ENV = "development", DATABASE_URL = "postgresql://localhost:5432/dev" }
+readiness_probe = { type = "http", host = "127.0.0.1", path = "/health", port = 3000 }
+deps = [
+  { name = "postgres", condition = "ready" },
+  { name = "redis", condition = "ready" },
+  { name = "seed-data", condition = "succeeded" }
+]
+
+[[process]]
+name = "worker"
+command = "npm run dev:worker"
+env = { REDIS_URL = "redis://localhost:6379" }
+deps = [
+  { name = "redis", condition = "ready" },
+  { name = "api-server", condition = "ready" }
+]
+
+[[process]]
+name = "frontend"
+command = "npm run dev:frontend"
+env = { VITE_API_URL = "http://localhost:3000" }
+deps = [{ name = "api-server", condition = "ready" }]
+```
