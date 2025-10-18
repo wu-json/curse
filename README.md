@@ -117,5 +117,5 @@ Local logs are really useful, and are often the reason we want to run things loc
 
 ### Familiarity
 
-Coming from `k9s`, constantly having to context switch shortcuts between `k9s` and `process-compose` was unpleasant, especially given that they look so similar. The key-binds in curse are meant to feel warm and familiar such that anyone using vim motions should feel right at home.
+Coming from `k9s`, constantly having to context switch shortcuts between `k9s` and `process-compose` was unpleasant, especially given that they look so similar. The key-binds in curse are meant to feel warm and familiar so that anyone using vim motions should feel right at home.
 
