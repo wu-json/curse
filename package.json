@@ -1,6 +1,6 @@
 {
 	"name": "curse",
-	"version": "0.0.16",
+	"version": "0.0.17",
 	"module": "src/index.ts",
 	"type": "module",
 	"private": false,
