@@ -85,6 +85,6 @@ export function renderView(config: CurseConfig) {
 				</PageProvider>
 			</ProcessManagerProvider>
 		</ProgramStateProvider>,
-		{ exitOnCtrlC: false },
+		{ exitOnCtrlC: false, incrementalRendering: true },
 	);
 }
