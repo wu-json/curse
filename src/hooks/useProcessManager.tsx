@@ -551,7 +551,6 @@ export function ProcessManagerProvider(props: {
 	};
 
 	const killAllProcesses = async () => {
-		// Kill all regular processes first
 		await Promise.all(
 			processesRef.current.map(async (p, i) => {
 				if (p.type === "process") {
@@ -560,12 +559,10 @@ export function ProcessManagerProvider(props: {
 			}),
 		);
 
-		// Then run shutdown hook
 		await runShutdownHook();
 	};
 
 	const restartAllProcesses = async () => {
-		// 1. Kill all running processes (except hooks)
 		await Promise.all(
 			processesRef.current.map(async (p, i) => {
 				if (p.type === "process") {
@@ -574,17 +571,14 @@ export function ProcessManagerProvider(props: {
 			}),
 		);
 
-		// 2. Run shutdown hook
 		await runShutdownHook();
 
-		// 3. Reset all regular processes to pending
 		processesRef.current.forEach((p, i) => {
 			if (p.type === "process") {
 				updateProcess(i, { status: ProcessStatus.Pending });
 			}
 		});
 
-		// 4. Reset and run startup hook (if it exists)
 		const startupHookIndex = processesRef.current.findIndex(
 			(p) => p.type === "startup_hook",
 		);
@@ -592,7 +586,6 @@ export function ProcessManagerProvider(props: {
 			const startupHook = processesRef.current[startupHookIndex];
 			if (startupHook) {
 				updateProcess(startupHookIndex, { status: ProcessStatus.Pending });
-				// Give it a moment to update state
 				await new Promise((resolve) => setTimeout(resolve, 50));
 				await execProcess({
 					process: { ...startupHook, status: ProcessStatus.Pending },
@@ -602,7 +595,6 @@ export function ProcessManagerProvider(props: {
 			}
 		}
 
-		// 5. Run all pending processes
 		runPendingProcesses();
 	};
 
