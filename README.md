@@ -11,12 +11,14 @@ Curse is a dead simple Terminal UI for running processes, configured through a s
 
 ## Installation & Setup
 
-Curse is a single binary and it's _definitely lightweight._ Not like I shoved bun in there or anything. 
+Curse is a single binary and it's _definitely lightweight._ Not like I shoved bun in there or anything.
 
-1. Install the [wu-json/cursed-tools](https://github.com/wu-json/cursed-tools) Aqua registry. After installing the `cursed-tools` Aqua registry, curse should be available via `aqua g -i`.
+1. Install via [Homebrew](https://brew.sh):
 
-> [!NOTE]
-> If you haven't used [aqua](https://github.com/aquaproj/aqua) before, now is a good time to start.
+```bash
+brew tap wu-json/asahi
+brew install curse
+```
 
 2. Create your `curse.toml` and put it in your project root.
 
