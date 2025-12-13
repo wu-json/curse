@@ -361,6 +361,80 @@ describe("Deque.prototype.peekBack", () => {
 	});
 });
 
+describe("Deque.prototype.peekBackReversed", () => {
+	it("Should return empty array when empty deque", () => {
+		const a = new Deque();
+		expect(a.length).toBe(0);
+		expect(a.peekBackReversed()).toEqual([]);
+		expect(a.peekBackReversed()).toEqual([]);
+		expect(a.length).toBe(0);
+	});
+
+	it("Should return empty array when count is 0 or negative", () => {
+		const a = new Deque([1, 2, 3]);
+		expect(a.peekBackReversed(0)).toEqual([]);
+		expect(a.peekBackReversed(-1)).toEqual([]);
+	});
+
+	it("Should return items in forward order (oldest to newest)", () => {
+		const a = new Deque([1, 2, 3, 4, 5]);
+		// peekBackReversed should return in forward order (oldest first)
+		expect(a.peekBackReversed(3)).toEqual([3, 4, 5]);
+		expect(a.peekBackReversed(1)).toEqual([5]);
+		expect(a.peekBackReversed(5)).toEqual([1, 2, 3, 4, 5]);
+	});
+
+	it("Should be equivalent to peekBack().reverse()", () => {
+		const a = new Deque([1, 2, 3, 4, 5, 6, 7, 8, 9]);
+		expect(a.peekBackReversed(3)).toEqual(a.peekBack(3).reverse());
+		expect(a.peekBackReversed(5)).toEqual(a.peekBack(5).reverse());
+		expect(a.peekBackReversed(9)).toEqual(a.peekBack(9).reverse());
+	});
+
+	it("Should handle count larger than length", () => {
+		const a = new Deque([1, 2, 3, 4, 5]);
+		expect(a.peekBackReversed(10)).toEqual([1, 2, 3, 4, 5]);
+		expect(a.length).toBe(5); // should not modify length
+	});
+
+	it("Should not modify the deque", () => {
+		const a = new Deque([1, 2, 3, 4, 5]);
+		a.peekBackReversed(3);
+		expect(a.toArray()).toEqual([1, 2, 3, 4, 5]);
+		expect(a.length).toBe(5);
+	});
+
+	it("Should work correctly after push and shift operations", () => {
+		const a = new Deque<number>();
+		a.push(1, 2, 3, 4, 5);
+		a.shift(); // removes 1
+		a.shift(); // removes 2
+		a.push(6, 7); // adds 6, 7
+		// deque now contains [3, 4, 5, 6, 7]
+		expect(a.peekBackReversed(3)).toEqual([5, 6, 7]);
+		expect(a.peekBackReversed(5)).toEqual([3, 4, 5, 6, 7]);
+	});
+
+	it("Should work correctly with wrapped buffer", () => {
+		// Create a deque that will have wrapped indices
+		const a = new Deque<number>(16);
+		// Fill and then remove from front to create wrap-around
+		for (let i = 0; i < 10; i++) {
+			a.push(i);
+		}
+		for (let i = 0; i < 8; i++) {
+			a.shift();
+		}
+		// Now add more elements
+		for (let i = 10; i < 20; i++) {
+			a.push(i);
+		}
+		// Deque should contain [8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19]
+		expect(a.peekBackReversed(4)).toEqual([16, 17, 18, 19]);
+		expect(a.peekBackReversed(4)).toEqual(a.peekBack(4).reverse());
+	});
+});
+
 describe("Deque.prototype.peekFront", () => {
 	it("Should return empty array when empty deque", () => {
 		const a = new Deque();
