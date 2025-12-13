@@ -330,6 +330,7 @@ type ProcessManagerCtx = {
 	restartSelectedProcess: () => Promise<void>;
 	killSelectedProcess: () => Promise<void>;
 	killAllProcesses: () => Promise<void>;
+	restartAllProcesses: () => Promise<void>;
 	runStartupHook: () => Promise<void>;
 	runShutdownHook: () => Promise<void>;
 };
@@ -343,6 +344,7 @@ const ProcessManagerCtx = createContext<ProcessManagerCtx>({
 	restartSelectedProcess: async () => {},
 	killSelectedProcess: async () => {},
 	killAllProcesses: async () => {},
+	restartAllProcesses: async () => {},
 	runStartupHook: async () => {},
 	runShutdownHook: async () => {},
 });
@@ -562,6 +564,41 @@ export function ProcessManagerProvider(props: {
 		await runShutdownHook();
 	};
 
+	const restartAllProcesses = async () => {
+		// 1. Kill all running processes (except hooks)
+		await Promise.all(
+			processesRef.current.map(async (p, i) => {
+				if (p.type === "process") {
+					await killProcess(i);
+				}
+			}),
+		);
+
+		// 2. Run shutdown hook
+		await runShutdownHook();
+
+		// 3. Reset all regular processes to pending
+		processesRef.current.forEach((p, i) => {
+			if (p.type === "process") {
+				updateProcess(i, { status: ProcessStatus.Pending });
+			}
+		});
+
+		// 4. Reset startup hook to pending (if it exists)
+		const startupHookIndex = processesRef.current.findIndex(
+			(p) => p.type === "startup_hook",
+		);
+		if (startupHookIndex !== -1) {
+			updateProcess(startupHookIndex, { status: ProcessStatus.Pending });
+		}
+
+		// 5. Run startup hook
+		await runStartupHook();
+
+		// 6. Run all pending processes
+		runPendingProcesses();
+	};
+
 	return (
 		<ProcessManagerCtx.Provider
 			value={{
@@ -573,6 +610,7 @@ export function ProcessManagerProvider(props: {
 				restartSelectedProcess,
 				killSelectedProcess,
 				killAllProcesses,
+				restartAllProcesses,
 				runStartupHook,
 				runShutdownHook,
 			}}
