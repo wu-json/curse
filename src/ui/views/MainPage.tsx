@@ -238,7 +238,7 @@ export function MainPage() {
 		"shift+g to jump to end",
 		"enter/l to show logs",
 		"shift+r to restart process",
-		"cmd+shift+r to restart all",
+		"shift+a to restart all",
 		"shift+k to kill process",
 		"shift+q to quit",
 	];
@@ -289,11 +289,10 @@ export function MainPage() {
 			setSelectedProcessIdx((prev: number) => Math.max(prev - repeatCount, 0));
 			setNumberPrefix("");
 		} else if (key.shift && input === "R") {
-			if (key.meta) {
-				await restartAllProcesses();
-			} else {
-				await restartSelectedProcess();
-			}
+			await restartSelectedProcess();
+			setNumberPrefix("");
+		} else if (key.shift && input === "A") {
+			await restartAllProcesses();
 			setNumberPrefix("");
 		} else if (key.shift && input === "K") {
 			await killSelectedProcess();

@@ -584,18 +584,25 @@ export function ProcessManagerProvider(props: {
 			}
 		});
 
-		// 4. Reset startup hook to pending (if it exists)
+		// 4. Reset and run startup hook (if it exists)
 		const startupHookIndex = processesRef.current.findIndex(
 			(p) => p.type === "startup_hook",
 		);
 		if (startupHookIndex !== -1) {
-			updateProcess(startupHookIndex, { status: ProcessStatus.Pending });
+			const startupHook = processesRef.current[startupHookIndex];
+			if (startupHook) {
+				updateProcess(startupHookIndex, { status: ProcessStatus.Pending });
+				// Give it a moment to update state
+				await new Promise((resolve) => setTimeout(resolve, 50));
+				await execProcess({
+					process: { ...startupHook, status: ProcessStatus.Pending },
+					updateProcess: (fields: UpdateProcessFields) =>
+						updateProcess(startupHookIndex, fields),
+				});
+			}
 		}
 
-		// 5. Run startup hook
-		await runStartupHook();
-
-		// 6. Run all pending processes
+		// 5. Run all pending processes
 		runPendingProcesses();
 	};
 
