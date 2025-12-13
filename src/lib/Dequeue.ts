@@ -189,6 +189,26 @@ export class Deque<T> {
 		return ret;
 	}
 
+	/**
+	 * Returns the last `count` elements in forward order (oldest to newest).
+	 * More efficient than peekBack().reverse() as it avoids the reversal step.
+	 */
+	peekBackReversed(count?: number): T[] {
+		if (count === void 0) count = 1;
+		const length = this._length;
+		if (length === 0 || count <= 0) {
+			return [];
+		}
+		const actualCount = count > length ? length : count;
+		const ret = new Array(actualCount);
+		const capacity = this._capacity;
+		const startIndex = length - actualCount;
+		for (let i = 0; i < actualCount; ++i) {
+			ret[i] = this[(this._front + startIndex + i) & (capacity - 1)];
+		}
+		return ret;
+	}
+
 	peekFront(count?: number): T[] {
 		if (count === void 0) count = 1;
 		const length = this._length;
