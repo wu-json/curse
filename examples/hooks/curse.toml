@@ -4,11 +4,11 @@ version = 0
 startup = { name = "startup-hook", command = "echo 'Starting up...' && sleep 2 && echo 'Environment ready!'" }
 shutdown = { name = "shutdown-hook", command = "echo 'Shutting down...' && sleep 1 && echo 'Cleanup complete!'" }
 
-# Regular processes - run indefinitely to test restart all
+# Regular processes
 [[process]]
 name = "web-server"
-command = "echo 'Web server starting...' && while true; do echo \"[web-server] $(date '+%H:%M:%S') - serving requests\"; sleep 2; done"
+command = "echo 'Web server starting...' && sleep 5 && echo 'Web server running'"
 
 [[process]]
 name = "background-job"
-command = "echo 'Background job starting...' && while true; do echo \"[background-job] $(date '+%H:%M:%S') - processing\"; sleep 3; done"
+command = "echo 'Background job running...' && sleep 3"
