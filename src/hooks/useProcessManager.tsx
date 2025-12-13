@@ -330,6 +330,7 @@ type ProcessManagerCtx = {
 	restartSelectedProcess: () => Promise<void>;
 	killSelectedProcess: () => Promise<void>;
 	killAllProcesses: () => Promise<void>;
+	restartAllProcesses: () => Promise<void>;
 	runStartupHook: () => Promise<void>;
 	runShutdownHook: () => Promise<void>;
 };
@@ -343,6 +344,7 @@ const ProcessManagerCtx = createContext<ProcessManagerCtx>({
 	restartSelectedProcess: async () => {},
 	killSelectedProcess: async () => {},
 	killAllProcesses: async () => {},
+	restartAllProcesses: async () => {},
 	runStartupHook: async () => {},
 	runShutdownHook: async () => {},
 });
@@ -549,7 +551,6 @@ export function ProcessManagerProvider(props: {
 	};
 
 	const killAllProcesses = async () => {
-		// Kill all regular processes first
 		await Promise.all(
 			processesRef.current.map(async (p, i) => {
 				if (p.type === "process") {
@@ -558,8 +559,43 @@ export function ProcessManagerProvider(props: {
 			}),
 		);
 
-		// Then run shutdown hook
 		await runShutdownHook();
+	};
+
+	const restartAllProcesses = async () => {
+		await Promise.all(
+			processesRef.current.map(async (p, i) => {
+				if (p.type === "process") {
+					await killProcess(i);
+				}
+			}),
+		);
+
+		await runShutdownHook();
+
+		processesRef.current.forEach((p, i) => {
+			if (p.type === "process") {
+				updateProcess(i, { status: ProcessStatus.Pending });
+			}
+		});
+
+		const startupHookIndex = processesRef.current.findIndex(
+			(p) => p.type === "startup_hook",
+		);
+		if (startupHookIndex !== -1) {
+			const startupHook = processesRef.current[startupHookIndex];
+			if (startupHook) {
+				updateProcess(startupHookIndex, { status: ProcessStatus.Pending });
+				await new Promise((resolve) => setTimeout(resolve, 50));
+				await execProcess({
+					process: { ...startupHook, status: ProcessStatus.Pending },
+					updateProcess: (fields: UpdateProcessFields) =>
+						updateProcess(startupHookIndex, fields),
+				});
+			}
+		}
+
+		runPendingProcesses();
 	};
 
 	return (
@@ -573,6 +609,7 @@ export function ProcessManagerProvider(props: {
 				restartSelectedProcess,
 				killSelectedProcess,
 				killAllProcesses,
+				restartAllProcesses,
 				runStartupHook,
 				runShutdownHook,
 			}}

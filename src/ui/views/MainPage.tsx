@@ -215,6 +215,7 @@ export function MainPage() {
 		processesRef,
 		setSelectedProcessIdx,
 		restartSelectedProcess,
+		restartAllProcesses,
 		killAllProcesses,
 		killSelectedProcess,
 	} = useProcessManager();
@@ -237,6 +238,7 @@ export function MainPage() {
 		"shift+g to jump to end",
 		"enter/l to show logs",
 		"shift+r to restart process",
+		"shift+a to restart all",
 		"shift+k to kill process",
 		"shift+q to quit",
 	];
@@ -288,6 +290,9 @@ export function MainPage() {
 			setNumberPrefix("");
 		} else if (key.shift && input === "R") {
 			await restartSelectedProcess();
+			setNumberPrefix("");
+		} else if (key.shift && input === "A") {
+			await restartAllProcesses();
 			setNumberPrefix("");
 		} else if (key.shift && input === "K") {
 			await killSelectedProcess();
