@@ -3,7 +3,7 @@ import { resolve } from "path";
 
 import { parseCurseConfig } from "./parser";
 import { renderView } from "./ui/View.tsx";
-import { version } from "./version";
+import { version } from "./generated/version";
 
 function makeCursePath(rawPath: string): string {
 	if (rawPath.startsWith("/")) {

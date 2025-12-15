@@ -30,8 +30,8 @@ typecheck:
 
 version semver:
   jq '.version = "{{semver}}"' package.json > package.json.tmp && mv package.json.tmp package.json
-  echo "export const version = \"{{semver}}\";" > src/version.ts
-  just fmt package.json src/version.ts
+  echo "// This file is auto-generated. Do not edit directly.\n// Run \`just version <semver>\` to update.\nexport const version = \"{{semver}}\";" > src/generated/version.ts
+  just fmt package.json src/generated/version.ts
 
 release:
   goreleaser release --clean {{ if dry_run == "true" { "--snapshot" } else { "" } }}

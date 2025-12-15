@@ -14,7 +14,7 @@ import {
 	useProgramState,
 	ProgramStatus,
 } from "../hooks/useProgramState";
-import { version } from "../version";
+import { version } from "../generated/version";
 
 function View(props: { config: CurseConfig }) {
 	const { isReady } = useAltScreen();
