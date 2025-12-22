@@ -15,7 +15,7 @@
 	"dependencies": {
 		"arktype": "^2.1.22",
 		"gunshi": "^0.26.3",
-		"ink": "^6.5.1",
+		"ink": "^6.6.0",
 		"minisearch": "^7.1.2",
 		"react": "^19.1.1",
 		"strip-ansi": "^7.1.2",
