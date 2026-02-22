@@ -10,5 +10,5 @@ registries:
 packages:
   - name: goreleaser/goreleaser@v2.12.3
   - name: casey/just@1.43.0
-  - name: oven-sh/bun@bun-v1.3.4
   - name: caarlos0/svu@v3.2.4
+  - name: oven-sh/bun@bun-v1.3.9
