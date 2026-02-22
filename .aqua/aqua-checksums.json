@@ -1,159 +1,159 @@
 {
-  "checksums": [
-    {
-      "id": "github_release/github.com/caarlos0/svu/v3.2.4/svu_3.2.4_darwin_all.tar.gz",
-      "checksum": "E5664B4DE41C6696358BD456F5283E86F0BD30E65AB65FAAD349293D804F088E",
-      "algorithm": "sha256"
-    },
-    {
-      "id": "github_release/github.com/caarlos0/svu/v3.2.4/svu_3.2.4_linux_amd64.tar.gz",
-      "checksum": "89A0BD658256C8561272EF2927EC0240C860779B042598C0456864583C88F702",
-      "algorithm": "sha256"
-    },
-    {
-      "id": "github_release/github.com/caarlos0/svu/v3.2.4/svu_3.2.4_linux_arm64.tar.gz",
-      "checksum": "59B973E51E65BB153B97A1D4CA1E46347136EEDC0DA60594F6BB5B87C8B1AD45",
-      "algorithm": "sha256"
-    },
-    {
-      "id": "github_release/github.com/caarlos0/svu/v3.2.4/svu_3.2.4_windows_amd64.zip",
-      "checksum": "74D8F24C312F2FFBD0866A2D38780B076A3D5EDF6690FBB17783358E3E88AFB4",
-      "algorithm": "sha256"
-    },
-    {
-      "id": "github_release/github.com/caarlos0/svu/v3.2.4/svu_3.2.4_windows_arm64.zip",
-      "checksum": "2622A9322D6786363E746F6A5CA4884F858C59289571D567B46C18D2C2E160ED",
-      "algorithm": "sha256"
-    },
-    {
-      "id": "github_release/github.com/casey/just/1.43.0/just-1.43.0-aarch64-apple-darwin.tar.gz",
-      "checksum": "BB0D35F6CA04709B798A19217693C16F4086170C580CC3B5C2531AD2794D2E32",
-      "algorithm": "sha256"
-    },
-    {
-      "id": "github_release/github.com/casey/just/1.43.0/just-1.43.0-aarch64-unknown-linux-musl.tar.gz",
-      "checksum": "4FCD8310081C32742EB984B1FDD0EEE2E5D4D0F1BE9629318012D42606EC9B3E",
-      "algorithm": "sha256"
-    },
-    {
-      "id": "github_release/github.com/casey/just/1.43.0/just-1.43.0-x86_64-apple-darwin.tar.gz",
-      "checksum": "687F66A6BD4D7D946EF5FF1E3EFEBB3D39DADAD151A8C6B1DE884CC93ADC06A5",
-      "algorithm": "sha256"
-    },
-    {
-      "id": "github_release/github.com/casey/just/1.43.0/just-1.43.0-x86_64-pc-windows-msvc.zip",
-      "checksum": "04BE7B6D7F8419288CE75532F1962CEE1756992E494E6C8063BB3AB8DB21B52C",
-      "algorithm": "sha256"
-    },
-    {
-      "id": "github_release/github.com/casey/just/1.43.0/just-1.43.0-x86_64-unknown-linux-musl.tar.gz",
-      "checksum": "A1BC93654F31669FD964EA3011A5E5E9676B9B6F8ADCD762606E5140632EA72D",
-      "algorithm": "sha256"
-    },
-    {
-      "id": "github_release/github.com/goreleaser/goreleaser/v2.12.3/goreleaser_Darwin_all.tar.gz",
-      "checksum": "7AF0CE76660556F8A7CEB6C3D1B438E170EE3F551D5408153830697EB25F5962",
-      "algorithm": "sha256"
-    },
-    {
-      "id": "github_release/github.com/goreleaser/goreleaser/v2.12.3/goreleaser_Linux_arm64.tar.gz",
-      "checksum": "A841DB4911C1DC32FB8EB1D4AFE91AE218C71BBC3B18379F9CDDB2EE899ACA31",
-      "algorithm": "sha256"
-    },
-    {
-      "id": "github_release/github.com/goreleaser/goreleaser/v2.12.3/goreleaser_Linux_x86_64.tar.gz",
-      "checksum": "FD64C4BAEA57043A63CC209E8AD3FA54A7E3EDA88BF0D053D1AF9B577F328EAC",
-      "algorithm": "sha256"
-    },
-    {
-      "id": "github_release/github.com/goreleaser/goreleaser/v2.12.3/goreleaser_Windows_arm64.zip",
-      "checksum": "D2FF86ED139485397DE82274628D6C1F725AD33614F81F043C798FDA46030D23",
-      "algorithm": "sha256"
-    },
-    {
-      "id": "github_release/github.com/goreleaser/goreleaser/v2.12.3/goreleaser_Windows_x86_64.zip",
-      "checksum": "2D7E94D17806ED2EB704870716E66218AC8D062BFDB7DC105E575564AA54ADFE",
-      "algorithm": "sha256"
-    },
-    {
-      "id": "github_release/github.com/oven-sh/bun/bun-v1.2.22/bun-darwin-aarch64.zip",
-      "checksum": "EB8C7E09CBEA572414A0A367848E1ACBF05294A946A594405A014B1FB3B3FC76",
-      "algorithm": "sha256"
-    },
-    {
-      "id": "github_release/github.com/oven-sh/bun/bun-v1.2.22/bun-darwin-x64.zip",
-      "checksum": "A7484721A7EAD45887C812E760B124047E663173CF2A3BA7C5AA1992CB22CD3E",
-      "algorithm": "sha256"
-    },
-    {
-      "id": "github_release/github.com/oven-sh/bun/bun-v1.2.22/bun-linux-aarch64.zip",
-      "checksum": "A97C687FB5E54DE4E2FB0869A7AC9A2D9C3AF75AC182E2B68138C1DD8F98131B",
-      "algorithm": "sha256"
-    },
-    {
-      "id": "github_release/github.com/oven-sh/bun/bun-v1.2.22/bun-linux-x64.zip",
-      "checksum": "4C446AF1A01D7B40E1E11BAEBC352F9B2BFD12887E51B97DD3B59879CEE2743A",
-      "algorithm": "sha256"
-    },
-    {
-      "id": "github_release/github.com/oven-sh/bun/bun-v1.2.22/bun-windows-x64.zip",
-      "checksum": "3A28C685B47A159C5707D150ACCB5B4903C30F1E7B4DD01BB311D4112BDEB452",
-      "algorithm": "sha256"
-    },
-    {
-      "id": "github_release/github.com/oven-sh/bun/bun-v1.3.4/bun-darwin-aarch64.zip",
-      "checksum": "8803774E4C6C55C8A517464C508F02821E6DB57F94CA1BB5CC2A39F4D2326A51",
-      "algorithm": "sha256"
-    },
-    {
-      "id": "github_release/github.com/oven-sh/bun/bun-v1.3.4/bun-darwin-x64.zip",
-      "checksum": "3390F9E6A82A9C718E187513B1C56405D0DE9ED3F6B092222B15B4D4BA6E304D",
-      "algorithm": "sha256"
-    },
-    {
-      "id": "github_release/github.com/oven-sh/bun/bun-v1.3.4/bun-linux-aarch64.zip",
-      "checksum": "C46E841FED85347521915B1B3904D6D175D8E2FD915E18E01C111318219115A4",
-      "algorithm": "sha256"
-    },
-    {
-      "id": "github_release/github.com/oven-sh/bun/bun-v1.3.4/bun-linux-x64.zip",
-      "checksum": "33C6996049E8D37E8B815959B14B05E5B6F496121352BF11BAE7D047193C28BF",
-      "algorithm": "sha256"
-    },
-    {
-      "id": "github_release/github.com/oven-sh/bun/bun-v1.3.4/bun-windows-x64.zip",
-      "checksum": "2A9C0A9E6AD77D0C31FD8FB1F596B61AFA7F2F2F580BAAD597F17E7A0DBAD960",
-      "algorithm": "sha256"
-    },
-    {
-      "id": "github_release/github.com/oven-sh/bun/bun-v1.3.9/bun-darwin-aarch64.zip",
-      "checksum": "CDE6A4EDF19CF64909158FA5A464A12026FD7F0D79A4A950C10CF0AF04266D85",
-      "algorithm": "sha256"
-    },
-    {
-      "id": "github_release/github.com/oven-sh/bun/bun-v1.3.9/bun-darwin-x64.zip",
-      "checksum": "588F4A48740B9A0C366A00F878810AB3AB5E6734D29B7C3CBDD9484B74A007DE",
-      "algorithm": "sha256"
-    },
-    {
-      "id": "github_release/github.com/oven-sh/bun/bun-v1.3.9/bun-linux-aarch64.zip",
-      "checksum": "A2C2862BCC1FD1C0B3A8DCDC8C7EFB5E2ACD871EB20ED2F17617884EDE81C844",
-      "algorithm": "sha256"
-    },
-    {
-      "id": "github_release/github.com/oven-sh/bun/bun-v1.3.9/bun-linux-x64.zip",
-      "checksum": "4680E80E44E32AA718560CEAE85D22ECFBF2EFB8F3641782E35E4B7EFD65A1AA",
-      "algorithm": "sha256"
-    },
-    {
-      "id": "github_release/github.com/oven-sh/bun/bun-v1.3.9/bun-windows-x64.zip",
-      "checksum": "F4C1CF3549F6AF986DC6535C40B4785FF1A7E7805E59637EC450FC11ADB0C874",
-      "algorithm": "sha256"
-    },
-    {
-      "id": "registries/github_content/github.com/aquaproj/aqua-registry/v4.418.0/registry.yaml",
-      "checksum": "A388A9445DBB89721022D840C42A73106650FB0536C4ED6F0C38537C7AC32701",
-      "algorithm": "sha256"
-    }
-  ]
+	"checksums": [
+		{
+			"id": "github_release/github.com/caarlos0/svu/v3.2.4/svu_3.2.4_darwin_all.tar.gz",
+			"checksum": "E5664B4DE41C6696358BD456F5283E86F0BD30E65AB65FAAD349293D804F088E",
+			"algorithm": "sha256"
+		},
+		{
+			"id": "github_release/github.com/caarlos0/svu/v3.2.4/svu_3.2.4_linux_amd64.tar.gz",
+			"checksum": "89A0BD658256C8561272EF2927EC0240C860779B042598C0456864583C88F702",
+			"algorithm": "sha256"
+		},
+		{
+			"id": "github_release/github.com/caarlos0/svu/v3.2.4/svu_3.2.4_linux_arm64.tar.gz",
+			"checksum": "59B973E51E65BB153B97A1D4CA1E46347136EEDC0DA60594F6BB5B87C8B1AD45",
+			"algorithm": "sha256"
+		},
+		{
+			"id": "github_release/github.com/caarlos0/svu/v3.2.4/svu_3.2.4_windows_amd64.zip",
+			"checksum": "74D8F24C312F2FFBD0866A2D38780B076A3D5EDF6690FBB17783358E3E88AFB4",
+			"algorithm": "sha256"
+		},
+		{
+			"id": "github_release/github.com/caarlos0/svu/v3.2.4/svu_3.2.4_windows_arm64.zip",
+			"checksum": "2622A9322D6786363E746F6A5CA4884F858C59289571D567B46C18D2C2E160ED",
+			"algorithm": "sha256"
+		},
+		{
+			"id": "github_release/github.com/casey/just/1.43.0/just-1.43.0-aarch64-apple-darwin.tar.gz",
+			"checksum": "BB0D35F6CA04709B798A19217693C16F4086170C580CC3B5C2531AD2794D2E32",
+			"algorithm": "sha256"
+		},
+		{
+			"id": "github_release/github.com/casey/just/1.43.0/just-1.43.0-aarch64-unknown-linux-musl.tar.gz",
+			"checksum": "4FCD8310081C32742EB984B1FDD0EEE2E5D4D0F1BE9629318012D42606EC9B3E",
+			"algorithm": "sha256"
+		},
+		{
+			"id": "github_release/github.com/casey/just/1.43.0/just-1.43.0-x86_64-apple-darwin.tar.gz",
+			"checksum": "687F66A6BD4D7D946EF5FF1E3EFEBB3D39DADAD151A8C6B1DE884CC93ADC06A5",
+			"algorithm": "sha256"
+		},
+		{
+			"id": "github_release/github.com/casey/just/1.43.0/just-1.43.0-x86_64-pc-windows-msvc.zip",
+			"checksum": "04BE7B6D7F8419288CE75532F1962CEE1756992E494E6C8063BB3AB8DB21B52C",
+			"algorithm": "sha256"
+		},
+		{
+			"id": "github_release/github.com/casey/just/1.43.0/just-1.43.0-x86_64-unknown-linux-musl.tar.gz",
+			"checksum": "A1BC93654F31669FD964EA3011A5E5E9676B9B6F8ADCD762606E5140632EA72D",
+			"algorithm": "sha256"
+		},
+		{
+			"id": "github_release/github.com/goreleaser/goreleaser/v2.12.3/goreleaser_Darwin_all.tar.gz",
+			"checksum": "7AF0CE76660556F8A7CEB6C3D1B438E170EE3F551D5408153830697EB25F5962",
+			"algorithm": "sha256"
+		},
+		{
+			"id": "github_release/github.com/goreleaser/goreleaser/v2.12.3/goreleaser_Linux_arm64.tar.gz",
+			"checksum": "A841DB4911C1DC32FB8EB1D4AFE91AE218C71BBC3B18379F9CDDB2EE899ACA31",
+			"algorithm": "sha256"
+		},
+		{
+			"id": "github_release/github.com/goreleaser/goreleaser/v2.12.3/goreleaser_Linux_x86_64.tar.gz",
+			"checksum": "FD64C4BAEA57043A63CC209E8AD3FA54A7E3EDA88BF0D053D1AF9B577F328EAC",
+			"algorithm": "sha256"
+		},
+		{
+			"id": "github_release/github.com/goreleaser/goreleaser/v2.12.3/goreleaser_Windows_arm64.zip",
+			"checksum": "D2FF86ED139485397DE82274628D6C1F725AD33614F81F043C798FDA46030D23",
+			"algorithm": "sha256"
+		},
+		{
+			"id": "github_release/github.com/goreleaser/goreleaser/v2.12.3/goreleaser_Windows_x86_64.zip",
+			"checksum": "2D7E94D17806ED2EB704870716E66218AC8D062BFDB7DC105E575564AA54ADFE",
+			"algorithm": "sha256"
+		},
+		{
+			"id": "github_release/github.com/oven-sh/bun/bun-v1.2.22/bun-darwin-aarch64.zip",
+			"checksum": "EB8C7E09CBEA572414A0A367848E1ACBF05294A946A594405A014B1FB3B3FC76",
+			"algorithm": "sha256"
+		},
+		{
+			"id": "github_release/github.com/oven-sh/bun/bun-v1.2.22/bun-darwin-x64.zip",
+			"checksum": "A7484721A7EAD45887C812E760B124047E663173CF2A3BA7C5AA1992CB22CD3E",
+			"algorithm": "sha256"
+		},
+		{
+			"id": "github_release/github.com/oven-sh/bun/bun-v1.2.22/bun-linux-aarch64.zip",
+			"checksum": "A97C687FB5E54DE4E2FB0869A7AC9A2D9C3AF75AC182E2B68138C1DD8F98131B",
+			"algorithm": "sha256"
+		},
+		{
+			"id": "github_release/github.com/oven-sh/bun/bun-v1.2.22/bun-linux-x64.zip",
+			"checksum": "4C446AF1A01D7B40E1E11BAEBC352F9B2BFD12887E51B97DD3B59879CEE2743A",
+			"algorithm": "sha256"
+		},
+		{
+			"id": "github_release/github.com/oven-sh/bun/bun-v1.2.22/bun-windows-x64.zip",
+			"checksum": "3A28C685B47A159C5707D150ACCB5B4903C30F1E7B4DD01BB311D4112BDEB452",
+			"algorithm": "sha256"
+		},
+		{
+			"id": "github_release/github.com/oven-sh/bun/bun-v1.3.4/bun-darwin-aarch64.zip",
+			"checksum": "8803774E4C6C55C8A517464C508F02821E6DB57F94CA1BB5CC2A39F4D2326A51",
+			"algorithm": "sha256"
+		},
+		{
+			"id": "github_release/github.com/oven-sh/bun/bun-v1.3.4/bun-darwin-x64.zip",
+			"checksum": "3390F9E6A82A9C718E187513B1C56405D0DE9ED3F6B092222B15B4D4BA6E304D",
+			"algorithm": "sha256"
+		},
+		{
+			"id": "github_release/github.com/oven-sh/bun/bun-v1.3.4/bun-linux-aarch64.zip",
+			"checksum": "C46E841FED85347521915B1B3904D6D175D8E2FD915E18E01C111318219115A4",
+			"algorithm": "sha256"
+		},
+		{
+			"id": "github_release/github.com/oven-sh/bun/bun-v1.3.4/bun-linux-x64.zip",
+			"checksum": "33C6996049E8D37E8B815959B14B05E5B6F496121352BF11BAE7D047193C28BF",
+			"algorithm": "sha256"
+		},
+		{
+			"id": "github_release/github.com/oven-sh/bun/bun-v1.3.4/bun-windows-x64.zip",
+			"checksum": "2A9C0A9E6AD77D0C31FD8FB1F596B61AFA7F2F2F580BAAD597F17E7A0DBAD960",
+			"algorithm": "sha256"
+		},
+		{
+			"id": "github_release/github.com/oven-sh/bun/bun-v1.3.9/bun-darwin-aarch64.zip",
+			"checksum": "CDE6A4EDF19CF64909158FA5A464A12026FD7F0D79A4A950C10CF0AF04266D85",
+			"algorithm": "sha256"
+		},
+		{
+			"id": "github_release/github.com/oven-sh/bun/bun-v1.3.9/bun-darwin-x64.zip",
+			"checksum": "588F4A48740B9A0C366A00F878810AB3AB5E6734D29B7C3CBDD9484B74A007DE",
+			"algorithm": "sha256"
+		},
+		{
+			"id": "github_release/github.com/oven-sh/bun/bun-v1.3.9/bun-linux-aarch64.zip",
+			"checksum": "A2C2862BCC1FD1C0B3A8DCDC8C7EFB5E2ACD871EB20ED2F17617884EDE81C844",
+			"algorithm": "sha256"
+		},
+		{
+			"id": "github_release/github.com/oven-sh/bun/bun-v1.3.9/bun-linux-x64.zip",
+			"checksum": "4680E80E44E32AA718560CEAE85D22ECFBF2EFB8F3641782E35E4B7EFD65A1AA",
+			"algorithm": "sha256"
+		},
+		{
+			"id": "github_release/github.com/oven-sh/bun/bun-v1.3.9/bun-windows-x64.zip",
+			"checksum": "F4C1CF3549F6AF986DC6535C40B4785FF1A7E7805E59637EC450FC11ADB0C874",
+			"algorithm": "sha256"
+		},
+		{
+			"id": "registries/github_content/github.com/aquaproj/aqua-registry/v4.418.0/registry.yaml",
+			"checksum": "A388A9445DBB89721022D840C42A73106650FB0536C4ED6F0C38537C7AC32701",
+			"algorithm": "sha256"
+		}
+	]
 }

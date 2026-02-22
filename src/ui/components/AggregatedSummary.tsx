@@ -14,10 +14,7 @@ const statusColorMap: Record<string, string> = {
 	killed: Colors.brightOrange,
 };
 
-export function AggregatedSummary(props: {
-	numberPrefix: string;
-	waitingForSecondG: boolean;
-}) {
+export function AggregatedSummary(props: { numberPrefix: string; waitingForSecondG: boolean }) {
 	const { processesRef, selectedProcessIdx } = useProcessManager();
 	const processes = processesRef.current;
 	useRenderTick();
@@ -46,19 +43,12 @@ export function AggregatedSummary(props: {
 	}
 
 	// Line 2: readiness
-	const readinessText =
-		withProbe.length > 0 ? `Ready: ${readyCount}/${withProbe.length}` : "";
+	const readinessText = withProbe.length > 0 ? `Ready: ${readyCount}/${withProbe.length}` : "";
 
 	// Line 3: selected process detail
 	const readinessLabel =
-		selected?.readinessProbe !== undefined
-			? selected.isReady
-				? ", ready"
-				: ", not ready"
-			: "";
-	const selectedDetail = selected
-		? `> ${selected.name} (${selected.status}${readinessLabel})`
-		: "";
+		selected?.readinessProbe !== undefined ? (selected.isReady ? ", ready" : ", not ready") : "";
+	const selectedDetail = selected ? `> ${selected.name} (${selected.status}${readinessLabel})` : "";
 
 	return (
 		<Box flexDirection="column">

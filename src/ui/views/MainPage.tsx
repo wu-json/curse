@@ -63,13 +63,19 @@ function ProcessTable(props: {
 			<Box flexDirection="column">
 				<Box flexDirection="row" paddingX={1}>
 					<Box width={compactNameColumnWidth}>
-						<Text bold dimColor>NAME</Text>
+						<Text bold dimColor>
+							NAME
+						</Text>
 					</Box>
 					<Box width={10} marginLeft={2}>
-						<Text bold dimColor>STATUS</Text>
+						<Text bold dimColor>
+							STATUS
+						</Text>
 					</Box>
 					<Box width={8} marginLeft={2}>
-						<Text bold dimColor>READY</Text>
+						<Text bold dimColor>
+							READY
+						</Text>
 						{props.numberPrefix && <Text color={Colors.brightPink}> [{props.numberPrefix}]</Text>}
 						{props.waitingForSecondG && <Text color={Colors.brightGreen}> [g]</Text>}
 					</Box>
