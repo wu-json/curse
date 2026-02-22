@@ -33,26 +33,27 @@ function simulateJobProcessing() {
 
 		console.log(`[QUEUE] Processing job ${jobId} (${jobType})...`);
 
-		setTimeout(() => {
-			if (Math.random() > 0.85) {
-				const error = errors[Math.floor(Math.random() * errors.length)];
-				failedJobs++;
-				pendingJobs = Math.max(0, pendingJobs - 1);
-				console.log(`[QUEUE] Job ${jobId} FAILED: ${error}`);
-			} else {
-				processedJobs++;
-				pendingJobs = Math.max(0, pendingJobs - 1);
-				console.log(`[QUEUE] Job ${jobId} completed in ${processingTime}s`);
-			}
-		}, parseFloat(processingTime) * 1000);
+		setTimeout(
+			() => {
+				if (Math.random() > 0.85) {
+					const error = errors[Math.floor(Math.random() * errors.length)];
+					failedJobs++;
+					pendingJobs = Math.max(0, pendingJobs - 1);
+					console.log(`[QUEUE] Job ${jobId} FAILED: ${error}`);
+				} else {
+					processedJobs++;
+					pendingJobs = Math.max(0, pendingJobs - 1);
+					console.log(`[QUEUE] Job ${jobId} completed in ${processingTime}s`);
+				}
+			},
+			parseFloat(processingTime) * 1000,
+		);
 	}
 
 	if (Math.random() > 0.7) {
 		const newJobs = Math.floor(Math.random() * 3) + 1;
 		pendingJobs += newJobs;
-		console.log(
-			`[QUEUE] ${newJobs} new job(s) queued (${pendingJobs} pending)`,
-		);
+		console.log(`[QUEUE] ${newJobs} new job(s) queued (${pendingJobs} pending)`);
 	}
 
 	if (Math.random() > 0.9) {

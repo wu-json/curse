@@ -23,19 +23,14 @@ const operations = [
 
 function simulateActivity() {
 	if (Math.random() > 0.7) {
-		connectionCount = Math.max(
-			0,
-			connectionCount + (Math.random() > 0.5 ? 1 : -1),
-		);
+		connectionCount = Math.max(0, connectionCount + (Math.random() > 0.5 ? 1 : -1));
 		console.log(`[DATABASE] Active connections: ${connectionCount}/20`);
 	}
 
 	if (Math.random() > 0.8) {
 		const query = queries[Math.floor(Math.random() * queries.length)];
 		const duration = (Math.random() * 50 + 5).toFixed(2);
-		console.log(
-			`[DATABASE] Query executed in ${duration}ms: ${query.substring(0, 50)}...`,
-		);
+		console.log(`[DATABASE] Query executed in ${duration}ms: ${query.substring(0, 50)}...`);
 	}
 
 	if (Math.random() > 0.9) {

@@ -1,18 +1,15 @@
+import { $ } from "bun";
 import { Box, Text, useInput, useStdout } from "ink";
 import { useEffect, useState, useMemo, useCallback } from "react";
-import { $ } from "bun";
 import stripAnsi from "strip-ansi";
 
 import { usePage, ViewPage } from "../../hooks/usePage";
 import { useProcessManager } from "../../hooks/useProcessManager";
-import { useRenderTick } from "../../hooks/useRenderTick";
 import { useProgramState, ProgramStatus } from "../../hooks/useProgramState";
+import { useRenderTick } from "../../hooks/useRenderTick";
 import { Colors } from "../../lib/Colors";
 import { preprocessLog } from "../../lib/LogProcessing";
-import {
-	ShortcutFooter,
-	getShortcutFooterHeight,
-} from "../components/ShortcutFooter";
+import { ShortcutFooter, getShortcutFooterHeight } from "../components/ShortcutFooter";
 
 function LogTable(props: {
 	height: number;
@@ -39,8 +36,7 @@ function LogTable(props: {
 	const [numberPrefix, setNumberPrefix] = useState("");
 	const [waitingForSecondG, setWaitingForSecondG] = useState(false);
 	const [isSelectMode, setIsSelectMode] = useState(false);
-	const [selectionStartAbsoluteLine, setSelectionStartAbsoluteLine] =
-		useState(0);
+	const [selectionStartAbsoluteLine, setSelectionStartAbsoluteLine] = useState(0);
 	const [selectionStartViewIndex, setSelectionStartViewIndex] = useState(0);
 	const [searchViewStartIndex, setSearchViewStartIndex] = useState(0);
 	const [showCopyIndicator, setShowCopyIndicator] = useState(false);
@@ -65,10 +61,7 @@ function LogTable(props: {
 		}
 
 		const parts = [];
-		const regex = new RegExp(
-			`(${searchTerm.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")})`,
-			"gi",
-		);
+		const regex = new RegExp(`(${searchTerm.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")})`, "gi");
 		const matches = text.split(regex);
 
 		for (let i = 0; i < matches.length; i++) {
@@ -110,12 +103,7 @@ function LogTable(props: {
 			// Notify parent that we've handled the request
 			onViewInContextHandled();
 		}
-	}, [
-		viewInContextRequested,
-		selectedProcess,
-		props.height,
-		onViewInContextHandled,
-	]);
+	}, [viewInContextRequested, selectedProcess, props.height, onViewInContextHandled]);
 
 	// Notify parent about current search cursor position
 	useEffect(() => {
@@ -125,20 +113,15 @@ function LogTable(props: {
 			appliedSearchQuery.trim() &&
 			selectedProcess
 		) {
-			const searchResults =
-				selectedProcess.logBuffer.search(appliedSearchQuery);
+			const searchResults = selectedProcess.logBuffer.search(appliedSearchQuery);
 			const sortedResults = searchResults.sort(
-				(a: { lineNumber: number }, b: { lineNumber: number }) =>
-					a.lineNumber - b.lineNumber,
+				(a: { lineNumber: number }, b: { lineNumber: number }) => a.lineNumber - b.lineNumber,
 			);
 
 			// Calculate the actual cursor position within search results
 			let actualCursorIndex = 0;
 			if (autoScroll) {
-				actualCursorIndex = Math.max(
-					0,
-					sortedResults.length - (props.height - 3) + cursorIndex,
-				);
+				actualCursorIndex = Math.max(0, sortedResults.length - (props.height - 3) + cursorIndex);
 			} else {
 				actualCursorIndex = searchViewStartIndex + cursorIndex;
 			}
@@ -158,8 +141,7 @@ function LogTable(props: {
 		if (!selectedProcess) return 0;
 
 		if (autoScroll) {
-			const oldestLine =
-				selectedProcess.logBuffer.getOldestAvailableLineNumber();
+			const oldestLine = selectedProcess.logBuffer.getOldestAvailableLineNumber();
 			const totalLines = selectedProcess.logBuffer.getTotalLines();
 			const viewStart = oldestLine + Math.max(0, totalLines - linesPerPage);
 			return viewStart + cursorIndex;
@@ -173,8 +155,7 @@ function LogTable(props: {
 		if (!selectedProcess) return 0;
 
 		if (autoScroll) {
-			const oldestLine =
-				selectedProcess.logBuffer.getOldestAvailableLineNumber();
+			const oldestLine = selectedProcess.logBuffer.getOldestAvailableLineNumber();
 			const totalLines = selectedProcess.logBuffer.getTotalLines();
 			const viewStart = oldestLine + Math.max(0, totalLines - linesPerPage);
 			return viewStart + index;
@@ -197,19 +178,10 @@ function LogTable(props: {
 			const currentAbsoluteLine = getCurrentAbsoluteLine();
 			const lineAbsolutePosition = getAbsoluteLineForIndex(index);
 
-			const selectionStart = Math.min(
-				selectionStartAbsoluteLine,
-				currentAbsoluteLine,
-			);
-			const selectionEnd = Math.max(
-				selectionStartAbsoluteLine,
-				currentAbsoluteLine,
-			);
+			const selectionStart = Math.min(selectionStartAbsoluteLine, currentAbsoluteLine);
+			const selectionEnd = Math.max(selectionStartAbsoluteLine, currentAbsoluteLine);
 
-			return (
-				lineAbsolutePosition >= selectionStart &&
-				lineAbsolutePosition <= selectionEnd
-			);
+			return lineAbsolutePosition >= selectionStart && lineAbsolutePosition <= selectionEnd;
 		}
 	};
 
@@ -219,14 +191,8 @@ function LogTable(props: {
 		// When showing search results, work with the filtered logs array
 		if (currentSearchQuery && currentSearchQuery.trim()) {
 			const currentIndex = cursorIndex;
-			const selectionStartIndex = Math.min(
-				selectionStartViewIndex || 0,
-				currentIndex,
-			);
-			const selectionEndIndex = Math.max(
-				selectionStartViewIndex || 0,
-				currentIndex,
-			);
+			const selectionStartIndex = Math.min(selectionStartViewIndex || 0, currentIndex);
+			const selectionEndIndex = Math.max(selectionStartViewIndex || 0, currentIndex);
 
 			const selectedLines = [];
 			for (let i = selectionStartIndex; i <= selectionEndIndex; i++) {
@@ -238,21 +204,14 @@ function LogTable(props: {
 		} else {
 			// Original behavior for non-search mode
 			const currentAbsoluteLine = getCurrentAbsoluteLine();
-			const selectionStart = Math.min(
-				selectionStartAbsoluteLine,
-				currentAbsoluteLine,
-			);
-			const selectionEnd = Math.max(
-				selectionStartAbsoluteLine,
-				currentAbsoluteLine,
-			);
+			const selectionStart = Math.min(selectionStartAbsoluteLine, currentAbsoluteLine);
+			const selectionEnd = Math.max(selectionStartAbsoluteLine, currentAbsoluteLine);
 
 			const selectionCount = selectionEnd - selectionStart + 1;
-			const selectedLines =
-				selectedProcess.logBuffer.getLinesByAbsolutePosition(
-					selectionStart,
-					selectionCount,
-				);
+			const selectedLines = selectedProcess.logBuffer.getLinesByAbsolutePosition(
+				selectionStart,
+				selectionCount,
+			);
 
 			return selectedLines.join("\n");
 		}
@@ -263,7 +222,7 @@ function LogTable(props: {
 		try {
 			await $`echo ${cleanText} | pbcopy`;
 			showCopyFeedback(indicatorText);
-		} catch (error) {
+		} catch {
 			try {
 				// Fallback for non-macOS systems
 				await $`echo ${cleanText} | xclip -selection clipboard`;
@@ -290,8 +249,7 @@ function LogTable(props: {
 		if (!currentSearchQuery || !currentSearchQuery.trim()) return [];
 		const searchResults = selectedProcess.logBuffer.search(currentSearchQuery);
 		return searchResults.sort(
-			(a: { lineNumber: number }, b: { lineNumber: number }) =>
-				a.lineNumber - b.lineNumber,
+			(a: { lineNumber: number }, b: { lineNumber: number }) => a.lineNumber - b.lineNumber,
 		);
 	}, [currentSearchQuery, selectedProcess.logBuffer.getTotalLines()]);
 
@@ -299,19 +257,14 @@ function LogTable(props: {
 		if (autoScroll) {
 			// In autoscroll mode, show the most recent search results
 			const startIndex = Math.max(0, sortedSearchResults.length - linesPerPage);
-			logs = sortedSearchResults
-				.slice(startIndex)
-				.map((result: { text: string }) => result.text);
+			logs = sortedSearchResults.slice(startIndex).map((result: { text: string }) => result.text);
 		} else {
 			// In manual scroll mode, show results from current view position
 			const startIndex = Math.min(
 				searchViewStartIndex,
 				Math.max(0, sortedSearchResults.length - linesPerPage),
 			);
-			const endIndex = Math.min(
-				startIndex + linesPerPage,
-				sortedSearchResults.length,
-			);
+			const endIndex = Math.min(startIndex + linesPerPage, sortedSearchResults.length);
 			logs = sortedSearchResults
 				.slice(startIndex, endIndex)
 				.map((result: { text: string }) => result.text);
@@ -327,25 +280,17 @@ function LogTable(props: {
 		} else {
 			if (!selectedProcess.logBuffer.isPositionValid(viewStartLine)) {
 				// Cap viewStartLine to valid bounds instead of falling back to autoscroll
-				const oldestLine =
-					selectedProcess.logBuffer.getOldestAvailableLineNumber();
-				const newestLine =
-					selectedProcess.logBuffer.getTotalLines() + oldestLine;
+				const oldestLine = selectedProcess.logBuffer.getOldestAvailableLineNumber();
+				const newestLine = selectedProcess.logBuffer.getTotalLines() + oldestLine;
 				const maxStartLine = Math.max(oldestLine, newestLine - linesPerPage);
-				const cappedViewStartLine = Math.min(
-					Math.max(viewStartLine, oldestLine),
-					maxStartLine,
-				);
+				const cappedViewStartLine = Math.min(Math.max(viewStartLine, oldestLine), maxStartLine);
 				setViewStartLine(cappedViewStartLine);
 				logs = selectedProcess.logBuffer.getLinesByAbsolutePosition(
 					cappedViewStartLine,
 					linesPerPage,
 				);
 			} else {
-				logs = selectedProcess.logBuffer.getLinesByAbsolutePosition(
-					viewStartLine,
-					linesPerPage,
-				);
+				logs = selectedProcess.logBuffer.getLinesByAbsolutePosition(viewStartLine, linesPerPage);
 			}
 		}
 	}
@@ -421,9 +366,7 @@ function LogTable(props: {
 		}
 
 		// Get the repeat count from number prefix (default to 1)
-		const repeatCount = numberPrefix
-			? Math.max(1, parseInt(numberPrefix, 10))
-			: 1;
+		const repeatCount = numberPrefix ? Math.max(1, parseInt(numberPrefix, 10)) : 1;
 
 		// Handle 'g' sequence for vim-style navigation
 		if (input === "g") {
@@ -437,8 +380,7 @@ function LogTable(props: {
 						setAutoScroll(false);
 					} else {
 						// Normal behavior for non-search mode
-						const oldestLine =
-							selectedProcess.logBuffer.getOldestAvailableLineNumber();
+						const oldestLine = selectedProcess.logBuffer.getOldestAvailableLineNumber();
 						setViewStartLine(oldestLine);
 						setCursorIndex(0);
 						setAutoScroll(false);
@@ -456,16 +398,10 @@ function LogTable(props: {
 			if (selectedProcess) {
 				if (currentSearchQuery && currentSearchQuery.trim()) {
 					// When search is active, jump to last search result
-					const maxStartIndex = Math.max(
-						0,
-						sortedSearchResults.length - linesPerPage,
-					);
+					const maxStartIndex = Math.max(0, sortedSearchResults.length - linesPerPage);
 					setSearchViewStartIndex(maxStartIndex);
 					setCursorIndex(
-						Math.min(
-							linesPerPage - 1,
-							sortedSearchResults.length - maxStartIndex - 1,
-						),
+						Math.min(linesPerPage - 1, sortedSearchResults.length - maxStartIndex - 1),
 					);
 					setAutoScroll(true); // Jump to end enables autoscroll
 				} else {
@@ -475,12 +411,7 @@ function LogTable(props: {
 						selectedProcess.logBuffer.getTotalLines();
 					const maxStartLine = Math.max(0, newestLine - linesPerPage);
 					setViewStartLine(maxStartLine);
-					setCursorIndex(
-						Math.min(
-							linesPerPage - 1,
-							selectedProcess.logBuffer.getTotalLines() - 1,
-						),
-					);
+					setCursorIndex(Math.min(linesPerPage - 1, selectedProcess.logBuffer.getTotalLines() - 1));
 					setAutoScroll(true); // Jump to end enables autoscroll
 				}
 			}
@@ -496,11 +427,9 @@ function LogTable(props: {
 
 		if (input === "s") {
 			if (autoScroll && selectedProcess) {
-				const oldestLine =
-					selectedProcess.logBuffer.getOldestAvailableLineNumber();
+				const oldestLine = selectedProcess.logBuffer.getOldestAvailableLineNumber();
 				const currentBufferSize = selectedProcess.logBuffer.getTotalLines();
-				const absoluteStartLine =
-					oldestLine + Math.max(0, currentBufferSize - linesPerPage);
+				const absoluteStartLine = oldestLine + Math.max(0, currentBufferSize - linesPerPage);
 				setViewStartLine(absoluteStartLine);
 			}
 			setAutoScroll(!autoScroll);
@@ -554,8 +483,7 @@ function LogTable(props: {
 						remainingMoves--;
 					} else if (selectedProcess) {
 						// Cursor is at top, try to scroll up
-						const oldestLine =
-							selectedProcess.logBuffer.getOldestAvailableLineNumber();
+						const oldestLine = selectedProcess.logBuffer.getOldestAvailableLineNumber();
 						const possibleNewViewStart = Math.max(oldestLine, newViewStart - 1);
 						if (possibleNewViewStart !== newViewStart) {
 							newViewStart = possibleNewViewStart;
@@ -595,10 +523,7 @@ function LogTable(props: {
 							remainingMoves--;
 						} else {
 							// Cursor is at bottom, try to scroll down through search results
-							const maxStartIndex = Math.max(
-								0,
-								sortedSearchResults.length - linesPerPage,
-							);
+							const maxStartIndex = Math.max(0, sortedSearchResults.length - linesPerPage);
 							if (newSearchViewStart < maxStartIndex) {
 								newSearchViewStart++;
 								remainingMoves--;
@@ -635,10 +560,7 @@ function LogTable(props: {
 							selectedProcess.logBuffer.getOldestAvailableLineNumber() +
 							selectedProcess.logBuffer.getTotalLines();
 						const maxStartLine = newestLine - linesPerPage;
-						const possibleNewViewStart = Math.min(
-							maxStartLine,
-							newViewStart + 1,
-						);
+						const possibleNewViewStart = Math.min(maxStartLine, newViewStart + 1);
 						if (possibleNewViewStart !== newViewStart) {
 							newViewStart = possibleNewViewStart;
 							remainingMoves--;
@@ -664,11 +586,7 @@ function LogTable(props: {
 	});
 
 	// Helper functions for text colors
-	const getTextColor = (
-		isCursor: boolean,
-		isSelected: boolean,
-		log: string,
-	) => {
+	const getTextColor = (isCursor: boolean, isSelected: boolean, log: string) => {
 		if (isCursor) return "white";
 		if (isSelected) return Colors.purple;
 		if (log.includes("stderr")) return "red";
@@ -700,28 +618,16 @@ function LogTable(props: {
 						{autoScroll ? "on" : "off"}
 					</Text>
 					{positionLost && (
-						<Text color={Colors.brightOrange}>
-							{" "}
-							(position lost, returned to tail)
-						</Text>
+						<Text color={Colors.brightOrange}> (position lost, returned to tail)</Text>
 					)}
-					{numberPrefix && (
-						<Text color={Colors.brightPink}> [{numberPrefix}]</Text>
-					)}
+					{numberPrefix && <Text color={Colors.brightPink}> [{numberPrefix}]</Text>}
 					{waitingForSecondG && <Text color={Colors.brightGreen}> [g]</Text>}
 					{isSelectMode && <Text color={Colors.brightOrange}> [SELECT]</Text>}
-					{isSearchMode && (
-						<Text color={Colors.brightGreen}> &lt;/{searchQuery}&gt;</Text>
-					)}
+					{isSearchMode && <Text color={Colors.brightGreen}> &lt;/{searchQuery}&gt;</Text>}
 					{!isSearchMode && appliedSearchQuery && (
-						<Text color={Colors.brightGreen}>
-							{" "}
-							&lt;/{appliedSearchQuery}&gt;
-						</Text>
+						<Text color={Colors.brightGreen}> &lt;/{appliedSearchQuery}&gt;</Text>
 					)}
-					{showCopyIndicator && (
-						<Text color={Colors.brightGreen}> ✓ {copyIndicatorText}</Text>
-					)}
+					{showCopyIndicator && <Text color={Colors.brightGreen}> ✓ {copyIndicatorText}</Text>}
 				</Text>
 			</Box>
 			{logs.map((log, index) => {
@@ -743,11 +649,7 @@ function LogTable(props: {
 
 				return (
 					<Box key={index} backgroundColor={backgroundColor}>
-						<Text
-							color={getTextColor(isCursor, isSelected, log)}
-							bold={isCursor}
-							wrap="truncate"
-						>
+						<Text color={getTextColor(isCursor, isSelected, log)} bold={isCursor} wrap="truncate">
 							{textParts.map((part, partIndex) => {
 								const processedText =
 									isCursor || isSelected
@@ -759,12 +661,7 @@ function LogTable(props: {
 								return (
 									<Text
 										key={partIndex}
-										color={getPartTextColor(
-											part.isHighlight,
-											isCursor,
-											isSelected,
-											log,
-										)}
+										color={getPartTextColor(part.isHighlight, isCursor, isSelected, log)}
 										bold={part.isHighlight || isCursor}
 									>
 										{displayText}
@@ -797,10 +694,7 @@ export function LogPage() {
 	const [isSelectMode, setIsSelectMode] = useState(false);
 
 	const handleSearchCursorChange = useCallback(
-		(
-			cursorIndex: number,
-			searchResults: Array<{ lineNumber: number; text: string }>,
-		) => {
+		(cursorIndex: number, searchResults: Array<{ lineNumber: number; text: string }>) => {
 			setCurrentSearchCursor(cursorIndex);
 			setCurrentSearchResults(searchResults);
 		},
@@ -877,10 +771,7 @@ export function LogPage() {
 
 		// Handle "view in context" with 'o' key when search is applied
 		if (input === "o" && appliedSearchQuery && !key.shift) {
-			if (
-				currentSearchResults.length > 0 &&
-				currentSearchCursor < currentSearchResults.length
-			) {
+			if (currentSearchResults.length > 0 && currentSearchCursor < currentSearchResults.length) {
 				const currentResult = currentSearchResults[currentSearchCursor];
 				if (currentResult) {
 					// Clear the search and navigate to that line
@@ -934,11 +825,7 @@ export function LogPage() {
 					terminalHeight -
 					6 -
 					(isSearchMode ? 1 : 0) -
-					getShortcutFooterHeight(
-						shortcuts.length,
-						terminalWidth,
-						showShortcuts,
-					)
+					getShortcutFooterHeight(shortcuts.length, terminalWidth, showShortcuts)
 				}
 				isSearchMode={isSearchMode}
 				searchQuery={searchQuery}

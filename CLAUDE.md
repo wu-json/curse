@@ -59,6 +59,7 @@ src/
 ### Process Management (useProcessManager.tsx:1)
 
 The heart of Curse's orchestration system. Handles:
+
 - Process lifecycle (spawn, kill, restart)
 - Dependency resolution and execution ordering
 - Readiness probes (HTTP and exec)
@@ -70,6 +71,7 @@ The heart of Curse's orchestration system. Handles:
 ### Log System
 
 **LogBuffer** (lib/LogBuffer.ts:1): Fixed-size circular buffer using a dequeue for efficient log storage and retrieval. Supports:
+
 - O(1) append operations
 - Efficient line-by-line access
 - Memory-bounded storage (default 5,000 lines)
@@ -79,6 +81,7 @@ The heart of Curse's orchestration system. Handles:
 ### Configuration (parser.ts:1)
 
 Uses arktype for runtime validation of TOML configs. Validates:
+
 - Process definitions and dependencies
 - Readiness probe configurations
 - Lifecycle hooks
@@ -109,6 +112,7 @@ shutdown = { name = "cleanup", command = "docker-compose down" }
 ## Process Dependencies
 
 Three dependency conditions:
+
 - **started**: Dependent runs when dependency is running (any state after pending)
 - **succeeded**: Dependent waits for dependency to exit successfully (exit code 0)
 - **ready**: Dependent waits for readiness probe to pass (or running state if no probe)
@@ -116,11 +120,13 @@ Three dependency conditions:
 ## Readiness Probes
 
 **HTTP Probe**: Polls an HTTP endpoint until it returns 200 OK
+
 ```toml
 readiness_probe = { type = "http", host = "127.0.0.1", path = "/health", port = 8080 }
 ```
 
 **Exec Probe**: Runs a shell command until it exits with code 0
+
 ```toml
 readiness_probe = { type = "exec", command = "pg_isready -h localhost" }
 ```
@@ -138,13 +144,16 @@ readiness_probe = { type = "exec", command = "pg_isready -h localhost" }
 ## Development
 
 ### Building
+
 ```bash
 bun install
 bun run src/index.ts -p examples/basic/curse.toml
 ```
 
 ### Testing Examples
+
 The `examples/` directory contains various test scenarios:
+
 - `basic/`: Simple process configuration
 - `deps/`: Dependency chain testing
 - `hooks/`: Lifecycle hook examples

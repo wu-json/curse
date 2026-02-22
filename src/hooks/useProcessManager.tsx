@@ -1,3 +1,4 @@
+import { spawn, type Subprocess } from "bun";
 import {
 	createContext,
 	useContext,
@@ -7,12 +8,11 @@ import {
 	useRef,
 	type RefObject,
 } from "react";
-import { spawn, type Subprocess } from "bun";
-import { LogBuffer, readStreamToBuffer } from "../lib/LogBuffer";
-import { invariant } from "../lib/invariant";
 
-import type { CurseConfig } from "../parser";
 import { ENV } from "../env";
+import { invariant } from "../lib/invariant";
+import { LogBuffer, readStreamToBuffer } from "../lib/LogBuffer";
+import type { CurseConfig } from "../parser";
 
 export enum ProcessStatus {
 	Error = "error",
@@ -142,9 +142,7 @@ function clearReadinessTimer(timer?: NodeJS.Timeout) {
 	}
 }
 
-async function getProcessProfile(
-	proc: Subprocess,
-): Promise<ProcessProfile | null> {
+async function getProcessProfile(proc: Subprocess): Promise<ProcessProfile | null> {
 	if (!proc.pid) return null;
 
 	try {
@@ -190,10 +188,7 @@ function clearProfileTimer(timer?: NodeJS.Timeout) {
 	}
 }
 
-function areDependenciesSatisfied(
-	process: Process,
-	allProcesses: Process[],
-): boolean {
+function areDependenciesSatisfied(process: Process, allProcesses: Process[]): boolean {
 	if (!process.deps || process.deps.length === 0) {
 		return true;
 	}
@@ -229,14 +224,10 @@ function areDependenciesSatisfied(
 	});
 }
 
-function shouldTriggerDependencyCheck(
-	oldProcess: Process,
-	newProcess: Process,
-): boolean {
+function shouldTriggerDependencyCheck(oldProcess: Process, newProcess: Process): boolean {
 	const becameReady = !oldProcess.isReady && newProcess.isReady === true;
 	const becameSuccessful =
-		oldProcess.status !== ProcessStatus.Success &&
-		newProcess.status === ProcessStatus.Success;
+		oldProcess.status !== ProcessStatus.Success && newProcess.status === ProcessStatus.Success;
 	const becameRunning =
 		oldProcess.status !== ProcessStatus.Running &&
 		newProcess.status === ProcessStatus.Running &&
@@ -349,10 +340,7 @@ const ProcessManagerCtx = createContext<ProcessManagerCtx>({
 	runShutdownHook: async () => {},
 });
 
-export function ProcessManagerProvider(props: {
-	config: CurseConfig;
-	children: React.ReactNode;
-}) {
+export function ProcessManagerProvider(props: { config: CurseConfig; children: React.ReactNode }) {
 	const [selectedProcessIdx, setSelectedProcessIdx] = useState(0);
 	const processesRef = useRef<Process[]>([]);
 	const pendingRunRef = useRef(false);
@@ -417,15 +405,9 @@ export function ProcessManagerProvider(props: {
 		);
 
 		const newProcess = processesRef.current[processIdx];
-		invariant(
-			newProcess,
-			`Process at index ${processIdx} not found after update`,
-		);
+		invariant(newProcess, `Process at index ${processIdx} not found after update`);
 
-		if (
-			shouldTriggerDependencyCheck(oldProcess, newProcess) &&
-			!pendingRunRef.current
-		) {
+		if (shouldTriggerDependencyCheck(oldProcess, newProcess) && !pendingRunRef.current) {
 			pendingRunRef.current = true;
 			queueMicrotask(() => {
 				pendingRunRef.current = false;
@@ -436,11 +418,8 @@ export function ProcessManagerProvider(props: {
 
 	const runPendingProcesses = useCallback(() => {
 		// Check if startup hook exists and hasn't completed
-		const startupHook = processesRef.current.find(
-			(p) => p.type === "startup_hook",
-		);
-		const isStartupComplete =
-			!startupHook || startupHook.status === ProcessStatus.Success;
+		const startupHook = processesRef.current.find((p) => p.type === "startup_hook");
+		const isStartupComplete = !startupHook || startupHook.status === ProcessStatus.Success;
 
 		processesRef.current.map((p, i) => {
 			if (
@@ -451,8 +430,7 @@ export function ProcessManagerProvider(props: {
 			) {
 				void execProcess({
 					process: p,
-					updateProcess: (fields: UpdateProcessFields) =>
-						updateProcess(i, fields),
+					updateProcess: (fields: UpdateProcessFields) => updateProcess(i, fields),
 				});
 			}
 		});
@@ -468,8 +446,7 @@ export function ProcessManagerProvider(props: {
 		}
 		await execProcess({
 			process: process,
-			updateProcess: (fields: UpdateProcessFields) =>
-				updateProcess(selectedProcessIdx, fields),
+			updateProcess: (fields: UpdateProcessFields) => updateProcess(selectedProcessIdx, fields),
 		});
 	};
 
@@ -477,13 +454,9 @@ export function ProcessManagerProvider(props: {
 		if (!processesRef.current[processIdx]) {
 			return;
 		}
-		const { proc, status, readinessTimer, profileTimer } =
-			processesRef.current[processIdx];
+		const { proc, status, readinessTimer, profileTimer } = processesRef.current[processIdx];
 
-		if (
-			!proc ||
-			(status !== ProcessStatus.Running && status !== ProcessStatus.Starting)
-		) {
+		if (!proc || (status !== ProcessStatus.Running && status !== ProcessStatus.Starting)) {
 			return;
 		}
 		updateProcess(processIdx, { status: ProcessStatus.Killing });
@@ -515,9 +488,7 @@ export function ProcessManagerProvider(props: {
 	};
 
 	const runStartupHook = async () => {
-		const startupHookIndex = processesRef.current.findIndex(
-			(p) => p.type === "startup_hook",
-		);
+		const startupHookIndex = processesRef.current.findIndex((p) => p.type === "startup_hook");
 		if (startupHookIndex === -1) return;
 
 		const startupHook = processesRef.current[startupHookIndex];
@@ -525,15 +496,12 @@ export function ProcessManagerProvider(props: {
 
 		await execProcess({
 			process: startupHook,
-			updateProcess: (fields: UpdateProcessFields) =>
-				updateProcess(startupHookIndex, fields),
+			updateProcess: (fields: UpdateProcessFields) => updateProcess(startupHookIndex, fields),
 		});
 	};
 
 	const runShutdownHook = async () => {
-		const shutdownHookIndex = processesRef.current.findIndex(
-			(p) => p.type === "shutdown_hook",
-		);
+		const shutdownHookIndex = processesRef.current.findIndex((p) => p.type === "shutdown_hook");
 		if (shutdownHookIndex === -1) return;
 
 		const shutdownHook = processesRef.current[shutdownHookIndex];
@@ -545,8 +513,7 @@ export function ProcessManagerProvider(props: {
 		await new Promise((resolve) => setTimeout(resolve, 50));
 		await execProcess({
 			process: { ...shutdownHook, status: ProcessStatus.Pending },
-			updateProcess: (fields: UpdateProcessFields) =>
-				updateProcess(shutdownHookIndex, fields),
+			updateProcess: (fields: UpdateProcessFields) => updateProcess(shutdownHookIndex, fields),
 		});
 	};
 
@@ -579,9 +546,7 @@ export function ProcessManagerProvider(props: {
 			}
 		});
 
-		const startupHookIndex = processesRef.current.findIndex(
-			(p) => p.type === "startup_hook",
-		);
+		const startupHookIndex = processesRef.current.findIndex((p) => p.type === "startup_hook");
 		if (startupHookIndex !== -1) {
 			const startupHook = processesRef.current[startupHookIndex];
 			if (startupHook) {
@@ -589,8 +554,7 @@ export function ProcessManagerProvider(props: {
 				await new Promise((resolve) => setTimeout(resolve, 50));
 				await execProcess({
 					process: { ...startupHook, status: ProcessStatus.Pending },
-					updateProcess: (fields: UpdateProcessFields) =>
-						updateProcess(startupHookIndex, fields),
+					updateProcess: (fields: UpdateProcessFields) => updateProcess(startupHookIndex, fields),
 				});
 			}
 		}

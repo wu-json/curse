@@ -1,9 +1,10 @@
-import { cli, define, type CommandContext } from "gunshi";
 import { resolve } from "path";
 
+import { cli, define, type CommandContext } from "gunshi";
+
+import { version } from "./generated/version";
 import { parseCurseConfig } from "./parser";
 import { renderView } from "./ui/View.tsx";
-import { version } from "./generated/version";
 
 function makeCursePath(rawPath: string): string {
 	if (rawPath.startsWith("/")) {
@@ -45,9 +46,7 @@ const command = define({
 			if (ctx.values.path) {
 				console.error(`Path does not point to .toml file: ${ctx.values.path}`);
 			} else {
-				console.error(
-					"No config file found. Looking for curse.toml or curse.local.toml",
-				);
+				console.error("No config file found. Looking for curse.toml or curse.local.toml");
 			}
 			process.exit(1);
 		}

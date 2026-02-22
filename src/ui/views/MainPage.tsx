@@ -3,14 +3,11 @@ import { useState } from "react";
 
 import { usePage, ViewPage } from "../../hooks/usePage";
 import { useProcessManager, type Process } from "../../hooks/useProcessManager";
-import { useRenderTick } from "../../hooks/useRenderTick";
 import { useProgramState, ProgramStatus } from "../../hooks/useProgramState";
+import { useRenderTick } from "../../hooks/useRenderTick";
 import { Colors } from "../../lib/Colors";
-import {
-	ShortcutFooter,
-	getShortcutFooterHeight,
-} from "../components/ShortcutFooter";
 import { LogTailPreview } from "../components/LogTailPreview";
+import { ShortcutFooter, getShortcutFooterHeight } from "../components/ShortcutFooter";
 
 function getReadinessDisplay(process: Process): {
 	char: string;
@@ -43,10 +40,7 @@ function getReadinessDisplay(process: Process): {
 	return { char, color };
 }
 
-function ProcessTable(props: {
-	numberPrefix: string;
-	waitingForSecondG: boolean;
-}) {
+function ProcessTable(props: { numberPrefix: string; waitingForSecondG: boolean }) {
 	const { processesRef, selectedProcessIdx } = useProcessManager();
 	const processes = processesRef.current;
 	const { stdout } = useStdout();
@@ -55,23 +49,11 @@ function ProcessTable(props: {
 	const terminalWidth = stdout?.columns ?? 80;
 	const fixedColumnsWidth = 10 + 2 + 8 + 2 + 8 + 2 + 8 + 2 + 8; // STATUS + margin + READY + margin + AGE + margin + MEM + margin + CPU
 	const borderAndPadding = 4; // border + padding
-	const nameColumnWidth = Math.max(
-		20,
-		terminalWidth - fixedColumnsWidth - borderAndPadding,
-	);
+	const nameColumnWidth = Math.max(20, terminalWidth - fixedColumnsWidth - borderAndPadding);
 
 	return (
-		<Box
-			flexDirection="column"
-			borderStyle="single"
-			borderColor={Colors.darkGray}
-		>
-			<Box
-				flexDirection="row"
-				paddingX={1}
-				borderBottom
-				borderColor={Colors.darkGray}
-			>
+		<Box flexDirection="column" borderStyle="single" borderColor={Colors.darkGray}>
+			<Box flexDirection="row" paddingX={1} borderBottom borderColor={Colors.darkGray}>
 				<Box width={nameColumnWidth}>
 					<Text bold>NAME</Text>
 				</Box>
@@ -89,12 +71,8 @@ function ProcessTable(props: {
 				</Box>
 				<Box width={8} marginLeft={2}>
 					<Text bold>CPU</Text>
-					{props.numberPrefix && (
-						<Text color={Colors.brightPink}> [{props.numberPrefix}]</Text>
-					)}
-					{props.waitingForSecondG && (
-						<Text color={Colors.brightGreen}> [g]</Text>
-					)}
+					{props.numberPrefix && <Text color={Colors.brightPink}> [{props.numberPrefix}]</Text>}
+					{props.waitingForSecondG && <Text color={Colors.brightGreen}> [g]</Text>}
 				</Box>
 			</Box>
 			{processes.map((process: Process, index: number) => {
@@ -135,9 +113,7 @@ function ProcessTable(props: {
 								const { char, color } = getReadinessDisplay(process);
 								return (
 									<Text
-										color={
-											isSelected ? "white" : isSuccess ? Colors.darkGray : color
-										}
+										color={isSelected ? "white" : isSuccess ? Colors.darkGray : color}
 										bold={isSelected}
 									>
 										{char}
@@ -276,14 +252,10 @@ export function MainPage() {
 		}
 
 		// Get the repeat count from number prefix (default to 1)
-		const repeatCount = numberPrefix
-			? Math.max(1, parseInt(numberPrefix, 10))
-			: 1;
+		const repeatCount = numberPrefix ? Math.max(1, parseInt(numberPrefix, 10)) : 1;
 
 		if (key.downArrow || input === "j") {
-			setSelectedProcessIdx((prev: number) =>
-				Math.min(prev + repeatCount, processes.length - 1),
-			);
+			setSelectedProcessIdx((prev: number) => Math.min(prev + repeatCount, processes.length - 1));
 			setNumberPrefix("");
 		} else if (key.upArrow || input === "k") {
 			setSelectedProcessIdx((prev: number) => Math.max(prev - repeatCount, 0));
@@ -331,10 +303,7 @@ export function MainPage() {
 
 	return (
 		<Box flexDirection="column">
-			<ProcessTable
-				numberPrefix={numberPrefix}
-				waitingForSecondG={waitingForSecondG}
-			/>
+			<ProcessTable numberPrefix={numberPrefix} waitingForSecondG={waitingForSecondG} />
 			<LogTailPreview height={logPreviewHeight} />
 			<ShortcutFooter shortcuts={shortcuts} showShortcuts={showShortcuts} />
 		</Box>

@@ -14,11 +14,7 @@ export function LogTailPreview(props: { height: number }) {
 
 		const linesPerPage = props.height - 2; // Account for borders only
 		return selectedProcess.logBuffer.getRecentLines(linesPerPage);
-	}, [
-		selectedProcess,
-		selectedProcess?.logBuffer.getTotalLines(),
-		props.height,
-	]);
+	}, [selectedProcess, selectedProcess?.logBuffer.getTotalLines(), props.height]);
 
 	if (!selectedProcess) {
 		return (
@@ -50,10 +46,7 @@ export function LogTailPreview(props: { height: number }) {
 				) : (
 					logs.map((log: string, index: number) => (
 						<Box key={index}>
-							<Text
-								color={log.includes("stderr") ? "red" : Colors.purple}
-								wrap="truncate"
-							>
+							<Text color={log.includes("stderr") ? "red" : Colors.purple} wrap="truncate">
 								{preprocessLog(log)}
 							</Text>
 						</Box>

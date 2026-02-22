@@ -1,25 +1,20 @@
 import { Box, render, Text, useInput } from "ink";
 import { useEffect } from "react";
 
-import type { CurseConfig } from "../parser";
-import { Colors } from "../lib/Colors";
-import { LogPage } from "./views/LogPage";
-import { MainPage } from "./views/MainPage";
-import { ProcessManagerProvider } from "../hooks/useProcessManager";
+import { version } from "../generated/version";
 import { useAltScreen } from "../hooks/useAltScreen";
 import { usePage, PageProvider, ViewPage } from "../hooks/usePage";
+import { ProcessManagerProvider } from "../hooks/useProcessManager";
 import { useProcessManager } from "../hooks/useProcessManager";
-import {
-	ProgramStateProvider,
-	useProgramState,
-	ProgramStatus,
-} from "../hooks/useProgramState";
-import { version } from "../generated/version";
+import { ProgramStateProvider, useProgramState, ProgramStatus } from "../hooks/useProgramState";
+import { Colors } from "../lib/Colors";
+import type { CurseConfig } from "../parser";
+import { LogPage } from "./views/LogPage";
+import { MainPage } from "./views/MainPage";
 
 function View(props: { config: CurseConfig }) {
 	const { isReady } = useAltScreen();
-	const { runPendingProcesses, killAllProcesses, runStartupHook } =
-		useProcessManager();
+	const { runPendingProcesses, killAllProcesses, runStartupHook } = useProcessManager();
 	const { page } = usePage();
 	const { status } = useProgramState();
 
@@ -52,9 +47,7 @@ function View(props: { config: CurseConfig }) {
 					</Text>
 					<Text color={Colors.darkGray}> v{version}</Text>
 				</Box>
-				{status === ProgramStatus.Quitting && (
-					<Text color={Colors.brightOrange}>Quitting...</Text>
-				)}
+				{status === ProgramStatus.Quitting && <Text color={Colors.brightOrange}>Quitting...</Text>}
 			</Box>
 			<Box flexDirection="row">
 				<Text color={Colors.primary}>Config: </Text>

@@ -62,12 +62,8 @@ export async function parseCurseConfig(path: string): Promise<CurseConfig> {
 
 	const uniqueNames = new Set(allNames);
 	if (allNames.length !== uniqueNames.size) {
-		const duplicates = allNames.filter(
-			(name, index) => allNames.indexOf(name) !== index,
-		);
-		console.error(
-			`Duplicate names found: ${[...new Set(duplicates)].join(", ")}`,
-		);
+		const duplicates = allNames.filter((name, index) => allNames.indexOf(name) !== index);
+		console.error(`Duplicate names found: ${[...new Set(duplicates)].join(", ")}`);
 		process.exit(1);
 	}
 

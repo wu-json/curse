@@ -29,9 +29,7 @@ for (const migration of migrations) {
 	const duration = Math.random() * 3000 + 1000;
 	await new Promise((resolve) => setTimeout(resolve, duration));
 
-	console.log(
-		`[DB-MIGRATE] ✓ ${migration} completed (${(duration / 1000).toFixed(1)}s)`,
-	);
+	console.log(`[DB-MIGRATE] ✓ ${migration} completed (${(duration / 1000).toFixed(1)}s)`);
 }
 
 console.log("[DB-MIGRATE] All migrations completed successfully");

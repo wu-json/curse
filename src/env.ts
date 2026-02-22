@@ -1,11 +1,7 @@
 import { type } from "arktype";
 
 const envSchema = type({
-	"LOG_BUFFER_SIZE?": [
-		"string",
-		"=>",
-		(logBufferSize) => Number(logBufferSize),
-	],
+	"LOG_BUFFER_SIZE?": ["string", "=>", (logBufferSize) => Number(logBufferSize)],
 });
 
 const parsedEnv = envSchema(process.env);
