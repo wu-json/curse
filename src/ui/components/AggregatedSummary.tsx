@@ -1,4 +1,4 @@
-import { Box, Text, useStdout } from "ink";
+import { Box, Text } from "ink";
 
 import { useProcessManager, type Process } from "../../hooks/useProcessManager";
 import { useRenderTick } from "../../hooks/useRenderTick";
@@ -20,9 +20,6 @@ export function AggregatedSummary(props: {
 }) {
 	const { processesRef, selectedProcessIdx } = useProcessManager();
 	const processes = processesRef.current;
-	const { stdout } = useStdout();
-	const terminalWidth = stdout?.columns ?? 80;
-
 	useRenderTick();
 
 	// Count statuses
