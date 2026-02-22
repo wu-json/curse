@@ -1,5 +1,5 @@
-import { Box, render, Text, useInput } from "ink";
-import { useEffect } from "react";
+import { Box, render, Text, useInput, useStdout } from "ink";
+import { useEffect, useState } from "react";
 
 import { version } from "../generated/version";
 import { useAltScreen } from "../hooks/useAltScreen";
@@ -10,13 +10,36 @@ import { ProgramStateProvider, useProgramState, ProgramStatus } from "../hooks/u
 import { Colors } from "../lib/Colors";
 import type { CurseConfig } from "../parser";
 import { LogPage } from "./views/LogPage";
-import { MainPage } from "./views/MainPage";
+import { MainPage, type DisplayMode } from "./views/MainPage";
 
 function View(props: { config: CurseConfig }) {
 	const { isReady } = useAltScreen();
-	const { runPendingProcesses, killAllProcesses, runStartupHook } = useProcessManager();
+	const { runPendingProcesses, killAllProcesses, runStartupHook, processesRef } =
+		useProcessManager();
 	const { page } = usePage();
 	const { status } = useProgramState();
+	const { stdout } = useStdout();
+
+	// Force re-render on terminal resize so compact mode toggles immediately
+	const [, setResizeTick] = useState(0);
+	useEffect(() => {
+		const onResize = () => setResizeTick((t) => t + 1);
+		stdout?.on("resize", onResize);
+		return () => {
+			stdout?.off("resize", onResize);
+		};
+	}, [stdout]);
+
+	const terminalHeight = stdout?.rows ?? 24;
+	const processCount = processesRef.current.length;
+	const normalMinHeight = processCount + 13; // header(4) + table(N+3) + logPreview(5) + footer(1)
+	const compactMinHeight = processCount + 1;
+	const displayMode: DisplayMode =
+		terminalHeight < compactMinHeight
+			? "aggregated"
+			: terminalHeight < normalMinHeight
+				? "compact"
+				: "normal";
 
 	useInput(async (input, key) => {
 		if (key.ctrl && input === "c") {
@@ -40,23 +63,29 @@ function View(props: { config: CurseConfig }) {
 
 	return (
 		<Box flexDirection="column">
-			<Box flexDirection="row" justifyContent="space-between">
-				<Box flexDirection="row">
-					<Text bold color={Colors.primary}>
-						Curse 🕯
-					</Text>
-					<Text color={Colors.darkGray}> v{version}</Text>
+			{displayMode === "normal" && (
+				<Box flexDirection="row" justifyContent="space-between">
+					<Box flexDirection="row">
+						<Text bold color={Colors.primary}>
+							Curse 🕯
+						</Text>
+						<Text color={Colors.darkGray}> v{version}</Text>
+					</Box>
+					{status === ProgramStatus.Quitting && (
+						<Text color={Colors.brightOrange}>Quitting...</Text>
+					)}
 				</Box>
-				{status === ProgramStatus.Quitting && <Text color={Colors.brightOrange}>Quitting...</Text>}
-			</Box>
-			<Box flexDirection="row">
-				<Text color={Colors.primary}>Config: </Text>
-				<Text>{props.config.fileName}</Text>
-			</Box>
+			)}
+			{displayMode === "normal" && (
+				<Box flexDirection="row">
+					<Text color={Colors.primary}>Config: </Text>
+					<Text>{props.config.fileName}</Text>
+				</Box>
+			)}
 			{(() => {
 				switch (page) {
 					case ViewPage.Main: {
-						return <MainPage />;
+						return <MainPage displayMode={displayMode} />;
 					}
 					case ViewPage.Logs: {
 						return <LogPage />;

@@ -6,8 +6,11 @@ import { useProcessManager, type Process } from "../../hooks/useProcessManager";
 import { useProgramState, ProgramStatus } from "../../hooks/useProgramState";
 import { useRenderTick } from "../../hooks/useRenderTick";
 import { Colors } from "../../lib/Colors";
+import { AggregatedSummary } from "../components/AggregatedSummary";
 import { LogTailPreview } from "../components/LogTailPreview";
 import { ShortcutFooter, getShortcutFooterHeight } from "../components/ShortcutFooter";
+
+export type DisplayMode = "normal" | "compact" | "aggregated";
 
 function getReadinessDisplay(process: Process): {
 	char: string;
@@ -40,13 +43,90 @@ function getReadinessDisplay(process: Process): {
 	return { char, color };
 }
 
-function ProcessTable(props: { numberPrefix: string; waitingForSecondG: boolean }) {
+function ProcessTable(props: {
+	numberPrefix: string;
+	waitingForSecondG: boolean;
+	compact?: boolean;
+}) {
 	const { processesRef, selectedProcessIdx } = useProcessManager();
 	const processes = processesRef.current;
 	const { stdout } = useStdout();
 	const { status: programStatus } = useProgramState();
 
 	const terminalWidth = stdout?.columns ?? 80;
+
+	if (props.compact) {
+		const compactFixedColumnsWidth = 10 + 2 + 8; // STATUS + margin + READY
+		const compactNameColumnWidth = Math.max(20, terminalWidth - compactFixedColumnsWidth - 2); // 2 for paddingX
+
+		return (
+			<Box flexDirection="column">
+				<Box flexDirection="row" paddingX={1}>
+					<Box width={compactNameColumnWidth}>
+						<Text bold dimColor>NAME</Text>
+					</Box>
+					<Box width={10} marginLeft={2}>
+						<Text bold dimColor>STATUS</Text>
+					</Box>
+					<Box width={8} marginLeft={2}>
+						<Text bold dimColor>READY</Text>
+						{props.numberPrefix && <Text color={Colors.brightPink}> [{props.numberPrefix}]</Text>}
+						{props.waitingForSecondG && <Text color={Colors.brightGreen}> [g]</Text>}
+					</Box>
+				</Box>
+				{processes.map((process: Process, index: number) => {
+					const isSelected = index === selectedProcessIdx;
+					const isSuccess = process.status === "success";
+					const isShutdownHookPending =
+						process.type === "shutdown_hook" &&
+						process.status === "pending" &&
+						programStatus === ProgramStatus.Running;
+					const textColor = isSelected
+						? "white"
+						: isSuccess
+							? Colors.darkGray
+							: isShutdownHookPending
+								? Colors.mutedCyan
+								: Colors.indigo;
+					return (
+						<Box
+							key={process.name}
+							flexDirection="row"
+							paddingX={1}
+							backgroundColor={isSelected ? Colors.indigo : undefined}
+						>
+							<Box width={compactNameColumnWidth}>
+								<Text color={textColor} bold={isSelected}>
+									{process.name.length > compactNameColumnWidth - 2
+										? process.name.slice(0, compactNameColumnWidth - 3) + "…"
+										: process.name}
+								</Text>
+							</Box>
+							<Box width={10} marginLeft={2}>
+								<Text color={textColor} bold={isSelected}>
+									{process.status}
+								</Text>
+							</Box>
+							<Box width={8} marginLeft={2}>
+								{(() => {
+									const { char, color } = getReadinessDisplay(process);
+									return (
+										<Text
+											color={isSelected ? "white" : isSuccess ? Colors.darkGray : color}
+											bold={isSelected}
+										>
+											{char}
+										</Text>
+									);
+								})()}
+							</Box>
+						</Box>
+					);
+				})}
+			</Box>
+		);
+	}
+
 	const fixedColumnsWidth = 10 + 2 + 8 + 2 + 8 + 2 + 8 + 2 + 8; // STATUS + margin + READY + margin + AGE + margin + MEM + margin + CPU
 	const borderAndPadding = 4; // border + padding
 	const nameColumnWidth = Math.max(20, terminalWidth - fixedColumnsWidth - borderAndPadding);
@@ -186,7 +266,7 @@ function ProcessTable(props: { numberPrefix: string; waitingForSecondG: boolean 
 	);
 }
 
-export function MainPage() {
+export function MainPage(props: { displayMode: DisplayMode }) {
 	const {
 		processesRef,
 		setSelectedProcessIdx,
@@ -284,6 +364,22 @@ export function MainPage() {
 			setNumberPrefix("");
 		}
 	});
+
+	if (props.displayMode === "aggregated") {
+		return (
+			<Box flexDirection="column">
+				<AggregatedSummary numberPrefix={numberPrefix} waitingForSecondG={waitingForSecondG} />
+			</Box>
+		);
+	}
+
+	if (props.displayMode === "compact") {
+		return (
+			<Box flexDirection="column">
+				<ProcessTable numberPrefix={numberPrefix} waitingForSecondG={waitingForSecondG} compact />
+			</Box>
+		);
+	}
 
 	const terminalHeight = stdout?.rows ?? 24;
 	const terminalWidth = stdout?.columns ?? 80;
