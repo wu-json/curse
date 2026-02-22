@@ -41,9 +41,7 @@ for (const seedSet of seedSets) {
 		await new Promise((resolve) => setTimeout(resolve, duration));
 	}
 
-	console.log(
-		`[SEED-DATA] ✓ ${seedSet.name} completed (${seedSet.count} records)`,
-	);
+	console.log(`[SEED-DATA] ✓ ${seedSet.name} completed (${seedSet.count} records)`);
 }
 
 console.log("[SEED-DATA] Creating indexes for seeded data...");

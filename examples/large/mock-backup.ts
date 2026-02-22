@@ -15,15 +15,11 @@ const storageProviders = ["AWS S3", "Google Cloud", "Azure Blob", "Local NAS"];
 
 function simulateBackupActivity() {
 	if (Math.random() > 0.85) {
-		const target =
-			backupTargets[Math.floor(Math.random() * backupTargets.length)];
-		const provider =
-			storageProviders[Math.floor(Math.random() * storageProviders.length)];
+		const target = backupTargets[Math.floor(Math.random() * backupTargets.length)];
+		const provider = storageProviders[Math.floor(Math.random() * storageProviders.length)];
 		const backupId = `backup_${Date.now()}_${Math.random().toString(36).substring(2, 6)}`;
 
-		console.log(
-			`[BACKUP] Starting backup: ${target.name} (${target.size}) to ${provider}`,
-		);
+		console.log(`[BACKUP] Starting backup: ${target.name} (${target.size}) to ${provider}`);
 		console.log(`[BACKUP] Backup ID: ${backupId}`);
 
 		// Simulate backup progress
@@ -33,10 +29,7 @@ function simulateBackupActivity() {
 		const progressInterval = setInterval(
 			() => {
 				currentStep++;
-				const percentage = Math.min(
-					100,
-					(currentStep / totalSteps) * 100,
-				).toFixed(1);
+				const percentage = Math.min(100, (currentStep / totalSteps) * 100).toFixed(1);
 
 				if (currentStep <= totalSteps) {
 					console.log(`[BACKUP] ${backupId}: ${percentage}% complete...`);
@@ -48,19 +41,11 @@ function simulateBackupActivity() {
 					if (Math.random() > 0.1) {
 						backupsCompleted++;
 						const duration = (Math.random() * 300 + 60).toFixed(1);
-						console.log(
-							`[BACKUP] ${backupId}: Backup completed successfully in ${duration}s`,
-						);
-						console.log(
-							`[BACKUP] ${backupId}: Verification passed, stored at ${provider}`,
-						);
+						console.log(`[BACKUP] ${backupId}: Backup completed successfully in ${duration}s`);
+						console.log(`[BACKUP] ${backupId}: Verification passed, stored at ${provider}`);
 					} else {
-						console.log(
-							`[BACKUP] ${backupId}: Backup failed - Network timeout`,
-						);
-						console.log(
-							`[BACKUP] ${backupId}: Scheduled for retry in 30 minutes`,
-						);
+						console.log(`[BACKUP] ${backupId}: Backup failed - Network timeout`);
+						console.log(`[BACKUP] ${backupId}: Scheduled for retry in 30 minutes`);
 					}
 				}
 			},
@@ -84,14 +69,8 @@ function simulateBackupActivity() {
 }
 
 console.log("[BACKUP] Backup service initialized");
-console.log(
-	"[BACKUP] Checking backup targets:",
-	backupTargets.map((t) => t.name).join(", "),
-);
-console.log(
-	"[BACKUP] Storage providers configured:",
-	storageProviders.join(", "),
-);
+console.log("[BACKUP] Checking backup targets:", backupTargets.map((t) => t.name).join(", "));
+console.log("[BACKUP] Storage providers configured:", storageProviders.join(", "));
 console.log("[BACKUP] Backup service ready");
 
 setInterval(simulateBackupActivity, 5000 + Math.random() * 10000);

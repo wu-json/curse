@@ -1,4 +1,5 @@
 import MiniSearch from "minisearch";
+
 import { Deque } from "./Dequeue";
 
 export class LogBuffer {
@@ -54,20 +55,14 @@ export class LogBuffer {
 		return this.lines.peekBackReversed(count);
 	}
 
-	getLinesByAbsolutePosition(
-		absoluteStartLine: number,
-		count: number,
-	): string[] {
+	getLinesByAbsolutePosition(absoluteStartLine: number, count: number): string[] {
 		if (count <= 0 || this.lines.length === 0) return [];
 
 		const oldestLine = this.getOldestAvailableLineNumber();
 		const newestLine = this.totalLinesAdded - 1;
 
 		// Check if the requested range is available
-		if (
-			absoluteStartLine > newestLine ||
-			absoluteStartLine + count <= oldestLine
-		) {
+		if (absoluteStartLine > newestLine || absoluteStartLine + count <= oldestLine) {
 			return [];
 		}
 
@@ -93,9 +88,7 @@ export class LogBuffer {
 
 	isPositionValid(absolutePosition: number): boolean {
 		const oldestLine = this.getOldestAvailableLineNumber();
-		return (
-			absolutePosition >= oldestLine && absolutePosition < this.totalLinesAdded
-		);
+		return absolutePosition >= oldestLine && absolutePosition < this.totalLinesAdded;
 	}
 
 	getTotalLines(): number {
@@ -110,9 +103,7 @@ export class LogBuffer {
 		this.discardLineIdQueue.clear();
 	}
 
-	search(
-		query: string,
-	): Array<{ text: string; lineNumber: number; score: number }> {
+	search(query: string): Array<{ text: string; lineNumber: number; score: number }> {
 		if (!query.trim()) {
 			return [];
 		}

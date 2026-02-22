@@ -37,9 +37,7 @@ function getCapacity<T>(capacity: number | T[] | undefined): number {
 			return DEQUE_MIN_CAPACITY;
 		}
 	}
-	return pow2AtLeast(
-		Math.min(Math.max(DEQUE_MIN_CAPACITY, capacity), DEQUE_MAX_CAPACITY),
-	);
+	return pow2AtLeast(Math.min(Math.max(DEQUE_MIN_CAPACITY, capacity), DEQUE_MAX_CAPACITY));
 }
 
 export class Deque<T> {
@@ -141,8 +139,7 @@ export class Deque<T> {
 				for (let i = argsLength - 1; i >= 0; i--) {
 					this._checkCapacity(length + 1);
 					capacity = this._capacity;
-					const j: number =
-						(((this._front - 1) & (capacity - 1)) ^ capacity) - capacity;
+					const j: number = (((this._front - 1) & (capacity - 1)) ^ capacity) - capacity;
 					this[j] = arguments[i];
 					length++;
 					this._length = length;
@@ -152,8 +149,7 @@ export class Deque<T> {
 			} else {
 				let front = this._front;
 				for (let i = argsLength - 1; i >= 0; i--) {
-					const j: number =
-						(((front - 1) & (capacity - 1)) ^ capacity) - capacity;
+					const j: number = (((front - 1) & (capacity - 1)) ^ capacity) - capacity;
 					this[j] = arguments[i];
 					front = j;
 				}

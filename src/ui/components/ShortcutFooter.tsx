@@ -1,4 +1,5 @@
 import { Box, Text, useStdout } from "ink";
+
 import { Colors } from "../../lib/Colors";
 
 interface ShortcutFooterProps {
@@ -6,10 +7,7 @@ interface ShortcutFooterProps {
 	showShortcuts: boolean;
 }
 
-export function ShortcutFooter({
-	shortcuts,
-	showShortcuts,
-}: ShortcutFooterProps) {
+export function ShortcutFooter({ shortcuts, showShortcuts }: ShortcutFooterProps) {
 	const { stdout } = useStdout();
 	const terminalWidth = stdout.columns;
 
@@ -29,10 +27,7 @@ export function ShortcutFooter({
 					const columns = [];
 					for (let col = 0; col < numColumns; col++) {
 						const startIdx = col * itemsPerColumn;
-						const endIdx = Math.min(
-							startIdx + itemsPerColumn,
-							shortcuts.length,
-						);
+						const endIdx = Math.min(startIdx + itemsPerColumn, shortcuts.length);
 						const columnShortcuts = shortcuts.slice(startIdx, endIdx);
 
 						columns.push(

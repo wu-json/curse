@@ -53,18 +53,14 @@ function simulateLogAggregation() {
 		const timestamp = new Date().toISOString();
 		const requestId = Math.random().toString(36).substring(2, 8);
 
-		console.log(
-			`[LOGS] ${timestamp} [${level}] ${source}: ${message} (req: ${requestId})`,
-		);
+		console.log(`[LOGS] ${timestamp} [${level}] ${source}: ${message} (req: ${requestId})`);
 		logsProcessed++;
 	}
 
 	if (Math.random() > 0.8) {
 		const batchSize = Math.floor(Math.random() * 20) + 5;
 		const source = logSources[Math.floor(Math.random() * logSources.length)];
-		console.log(
-			`[LOGS] Processing batch from ${source}: ${batchSize} log entries`,
-		);
+		console.log(`[LOGS] Processing batch from ${source}: ${batchSize} log entries`);
 		logsProcessed += batchSize;
 
 		setTimeout(
@@ -78,9 +74,7 @@ function simulateLogAggregation() {
 	if (Math.random() > 0.85) {
 		const errors = Math.floor(Math.random() * 3);
 		const warnings = Math.floor(Math.random() * 8);
-		console.log(
-			`[LOGS] Alert summary: ${errors} errors, ${warnings} warnings in last 5 minutes`,
-		);
+		console.log(`[LOGS] Alert summary: ${errors} errors, ${warnings} warnings in last 5 minutes`);
 	}
 
 	if (Math.random() > 0.9) {
@@ -94,9 +88,7 @@ function simulateLogAggregation() {
 		console.log(`[LOGS] Running log rotation and cleanup...`);
 		setTimeout(() => {
 			const deletedLogs = Math.floor(Math.random() * 1000) + 500;
-			console.log(
-				`[LOGS] Cleanup completed: ${deletedLogs} old log entries archived`,
-			);
+			console.log(`[LOGS] Cleanup completed: ${deletedLogs} old log entries archived`);
 		}, 2000);
 	}
 }

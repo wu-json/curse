@@ -1,15 +1,11 @@
 process.on("SIGTERM", () => {
-	console.log(
-		`[${process.env.SERVICE_NAME}] Received SIGTERM, shutting down gracefully...`,
-	);
+	console.log(`[${process.env.SERVICE_NAME}] Received SIGTERM, shutting down gracefully...`);
 	server.stop();
 	process.exit(0);
 });
 
 process.on("SIGINT", () => {
-	console.log(
-		`[${process.env.SERVICE_NAME}] Received SIGINT, shutting down gracefully...`,
-	);
+	console.log(`[${process.env.SERVICE_NAME}] Received SIGINT, shutting down gracefully...`);
 	server.stop();
 	process.exit(0);
 });
@@ -39,8 +35,7 @@ const server = Bun.serve({
 		if (endpoints.includes(url.pathname)) {
 			const method = req.method;
 			const responseTime = Math.random() * 200 + 50;
-			const statusCode =
-				Math.random() > 0.95 ? 500 : Math.random() > 0.9 ? 404 : 200;
+			const statusCode = Math.random() > 0.95 ? 500 : Math.random() > 0.9 ? 404 : 200;
 
 			setTimeout(() => {
 				console.log(
@@ -65,12 +60,8 @@ const server = Bun.serve({
 	},
 });
 
-console.log(
-	`[${process.env.SERVICE_NAME}] API server running on http://localhost:${server.port}`,
-);
-console.log(
-	`[${process.env.SERVICE_NAME}] Available endpoints: ${endpoints.join(", ")}`,
-);
+console.log(`[${process.env.SERVICE_NAME}] API server running on http://localhost:${server.port}`);
+console.log(`[${process.env.SERVICE_NAME}] Available endpoints: ${endpoints.join(", ")}`);
 
 // Simulate periodic activity
 setInterval(

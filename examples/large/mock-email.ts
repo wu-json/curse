@@ -26,26 +26,19 @@ function simulateEmailActivity() {
 		const recipient = `user${Math.floor(Math.random() * 1000)}@example.com`;
 		const provider = providers[Math.floor(Math.random() * providers.length)];
 
-		console.log(
-			`[EMAIL] Sending ${emailType} email to ${recipient} (ID: ${emailId})`,
-		);
+		console.log(`[EMAIL] Sending ${emailType} email to ${recipient} (ID: ${emailId})`);
 		console.log(`[EMAIL] Using provider: ${provider}`);
 
 		emailsQueued--;
 
 		setTimeout(
 			() => {
-				const status =
-					Math.random() > 0.9
-						? statuses[Math.floor(Math.random() * 4)]
-						: "delivered";
+				const status = Math.random() > 0.9 ? statuses[Math.floor(Math.random() * 4)] : "delivered";
 				if (status === "delivered") {
 					emailsSent++;
 					console.log(`[EMAIL] Email ${emailId} delivered successfully`);
 				} else {
-					console.log(
-						`[EMAIL] Email ${emailId} ${status}: ${getStatusReason(status)}`,
-					);
+					console.log(`[EMAIL] Email ${emailId} ${status}: ${getStatusReason(status)}`);
 				}
 			},
 			Math.random() * 3000 + 1000,

@@ -1,6 +1,7 @@
 // Vendored and adapted from: https://github.com/petkaantonov/deque
 
 import { describe, it, expect } from "bun:test";
+
 import { Deque } from "./Dequeue";
 
 describe("Deque.prototype.constructor", () => {
@@ -61,24 +62,18 @@ describe("Deque.prototype.push", () => {
 		expect(ret).toBe(before + 1);
 		expect(a.length).toBe(ret);
 		expect(ret).toBe(16);
-		expect(a.toArray()).toEqual([
-			1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 1,
-		]);
+		expect(a.toArray()).toEqual([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 1]);
 	});
 
 	it("Should add single argument - over capacity", () => {
-		const a = new Deque([
-			1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16,
-		]);
+		const a = new Deque([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16]);
 		expect(a._capacity - a.length).toBe(0);
 		const before = a.length;
 		const ret = a.push(1);
 		expect(ret).toBe(before + 1);
 		expect(a.length).toBe(ret);
 		expect(ret).toBe(17);
-		expect(a.toArray()).toEqual([
-			1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 1,
-		]);
+		expect(a.toArray()).toEqual([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 1]);
 	});
 
 	it("Should add multiple arguments - plenty of capacity", () => {
@@ -100,9 +95,7 @@ describe("Deque.prototype.push", () => {
 		expect(ret).toBe(before + 2);
 		expect(a.length).toBe(ret);
 		expect(ret).toBe(16);
-		expect(a.toArray()).toEqual([
-			1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 1, 2,
-		]);
+		expect(a.toArray()).toEqual([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 1, 2]);
 	});
 
 	it("Should add multiple arguments - over capacity", () => {
@@ -113,9 +106,7 @@ describe("Deque.prototype.push", () => {
 		expect(ret).toBe(before + 2);
 		expect(a.length).toBe(ret);
 		expect(ret).toBe(17);
-		expect(a.toArray()).toEqual([
-			1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 1, 2,
-		]);
+		expect(a.toArray()).toEqual([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 1, 2]);
 	});
 });
 
@@ -148,24 +139,18 @@ describe("Deque.prototype.unshift", () => {
 		expect(ret).toBe(before + 1);
 		expect(a.length).toBe(ret);
 		expect(ret).toBe(16);
-		expect(a.toArray()).toEqual([
-			1, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15,
-		]);
+		expect(a.toArray()).toEqual([1, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15]);
 	});
 
 	it("Should add single argument - over capacity", () => {
-		const a = new Deque([
-			1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16,
-		]);
+		const a = new Deque([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16]);
 		expect(a._capacity - a.length).toBe(0);
 		const before = a.length;
 		const ret = a.unshift(1);
 		expect(ret).toBe(before + 1);
 		expect(a.length).toBe(ret);
 		expect(ret).toBe(17);
-		expect(a.toArray()).toEqual([
-			1, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16,
-		]);
+		expect(a.toArray()).toEqual([1, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16]);
 	});
 
 	it("Should add multiple arguments - plenty of capacity", () => {
@@ -187,9 +172,7 @@ describe("Deque.prototype.unshift", () => {
 		expect(ret).toBe(before + 2);
 		expect(a.length).toBe(ret);
 		expect(ret).toBe(16);
-		expect(a.toArray()).toEqual([
-			1, 2, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14,
-		]);
+		expect(a.toArray()).toEqual([1, 2, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14]);
 	});
 
 	it("Should add multiple arguments - over capacity", () => {
@@ -200,9 +183,7 @@ describe("Deque.prototype.unshift", () => {
 		expect(ret).toBe(before + 2);
 		expect(a.length).toBe(ret);
 		expect(ret).toBe(17);
-		expect(a.toArray()).toEqual([
-			1, 2, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15,
-		]);
+		expect(a.toArray()).toEqual([1, 2, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15]);
 	});
 });
 
@@ -333,8 +314,8 @@ describe("Deque.prototype.peekBack", () => {
 		);
 
 		expect(a.toArray()).toEqual([
-			1, 2, 3, 4, 5, 6, 78, 89, 12901, 10121, 0, 12, 1, 2, 3, 4, 5, 6, 78, 89,
-			12901, 10121, 0, 12, 3, 4,
+			1, 2, 3, 4, 5, 6, 78, 89, 12901, 10121, 0, 12, 1, 2, 3, 4, 5, 6, 78, 89, 12901, 10121, 0, 12,
+			3, 4,
 		]);
 
 		expect(a.peekBack()).toEqual([4]);
@@ -348,8 +329,8 @@ describe("Deque.prototype.peekBack", () => {
 
 		expect(a.peekBack()).toEqual([3]);
 		expect(a.toArray()).toEqual([
-			2, 3, 4, 5, 6, 78, 89, 12901, 10121, 0, 12, 1, 2, 3, 4, 5, 6, 78, 89,
-			12901, 10121, 0, 12, 3, 4, 1, 3,
+			2, 3, 4, 5, 6, 78, 89, 12901, 10121, 0, 12, 1, 2, 3, 4, 5, 6, 78, 89, 12901, 10121, 0, 12, 3,
+			4, 1, 3,
 		]);
 	});
 
@@ -492,8 +473,8 @@ describe("Deque.prototype.peekFront", () => {
 		);
 
 		expect(a.toArray()).toEqual([
-			1, 2, 3, 4, 5, 6, 78, 89, 12901, 10121, 0, 12, 1, 2, 3, 4, 5, 6, 78, 89,
-			12901, 10121, 0, 12, 3, 4,
+			1, 2, 3, 4, 5, 6, 78, 89, 12901, 10121, 0, 12, 1, 2, 3, 4, 5, 6, 78, 89, 12901, 10121, 0, 12,
+			3, 4,
 		]);
 
 		expect(a.peekFront()).toEqual([1]);
@@ -507,8 +488,8 @@ describe("Deque.prototype.peekFront", () => {
 
 		expect(a.peekFront()).toEqual([2]);
 		expect(a.toArray()).toEqual([
-			2, 3, 4, 5, 6, 78, 89, 12901, 10121, 0, 12, 1, 2, 3, 4, 5, 6, 78, 89,
-			12901, 10121, 0, 12, 3, 4, 1, 3,
+			2, 3, 4, 5, 6, 78, 89, 12901, 10121, 0, 12, 1, 2, 3, 4, 5, 6, 78, 89, 12901, 10121, 0, 12, 3,
+			4, 1, 3,
 		]);
 	});
 
@@ -573,10 +554,7 @@ describe("Deque.prototype.clear", () => {
 });
 
 describe("Deque resizing", () => {
-	function times(
-		x: number,
-		value: number | "index" | undefined,
-	): (number | undefined)[] {
+	function times(x: number, value: number | "index" | undefined): (number | undefined)[] {
 		const a: (number | undefined)[] = [];
 		for (let i = 0; i < x; ++i) {
 			a.push(value === "index" ? i : value);
@@ -595,15 +573,11 @@ describe("Deque resizing", () => {
 		expect(a.peekFront()).toEqual([2]);
 		expect(a.get(3)).toBe(5);
 		expect(a._capacity).toBe(16);
-		expect(a.toArray()).toEqual(
-			[2, 3, 4, 5].concat(times(12, undefined) as any),
-		);
+		expect(a.toArray()).toEqual([2, 3, 4, 5].concat(times(12, undefined) as any));
 		a.push(6);
 		expect(a._capacity).not.toBe(16);
 		a.unshift(1);
-		expect(a.toArray()).toEqual(
-			[1, 2, 3, 4, 5].concat(times(12, undefined) as any, 6),
-		);
+		expect(a.toArray()).toEqual([1, 2, 3, 4, 5].concat(times(12, undefined) as any, 6));
 	});
 
 	it("Resize doesn't require movement", () => {

@@ -15,23 +15,15 @@ const cacheOperations = [
 	"analytics:daily:stats",
 ];
 
-const evictionReasons = [
-	"TTL expired",
-	"Memory pressure",
-	"Manual delete",
-	"Key overwritten",
-];
+const evictionReasons = ["TTL expired", "Memory pressure", "Manual delete", "Key overwritten"];
 
 function simulateCacheActivity() {
 	if (Math.random() > 0.6) {
-		const key =
-			cacheOperations[Math.floor(Math.random() * cacheOperations.length)];
+		const key = cacheOperations[Math.floor(Math.random() * cacheOperations.length)];
 
 		if (Math.random() > 0.3) {
 			cacheHits++;
-			console.log(
-				`[CACHE] HIT ${key} (${(Math.random() * 2 + 0.1).toFixed(2)}ms)`,
-			);
+			console.log(`[CACHE] HIT ${key} (${(Math.random() * 2 + 0.1).toFixed(2)}ms)`);
 		} else {
 			cacheMisses++;
 			console.log(`[CACHE] MISS ${key}`);
@@ -47,10 +39,8 @@ function simulateCacheActivity() {
 	}
 
 	if (Math.random() > 0.95) {
-		const key =
-			cacheOperations[Math.floor(Math.random() * cacheOperations.length)];
-		const reason =
-			evictionReasons[Math.floor(Math.random() * evictionReasons.length)];
+		const key = cacheOperations[Math.floor(Math.random() * cacheOperations.length)];
+		const reason = evictionReasons[Math.floor(Math.random() * evictionReasons.length)];
 		console.log(`[CACHE] EVICTED ${key} (${reason})`);
 	}
 }

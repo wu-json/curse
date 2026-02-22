@@ -1,5 +1,5 @@
-import { mkdir, unlink, readdir } from "fs/promises";
 import { existsSync } from "fs";
+import { mkdir, unlink, readdir } from "fs/promises";
 
 const targets: Bun.Build.Target[] = [
 	"bun-linux-x64",

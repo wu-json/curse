@@ -1,15 +1,11 @@
 process.on("SIGTERM", () => {
-	console.log(
-		`[${process.env.SERVICE_NAME}] Received SIGTERM, shutting down gracefully...`,
-	);
+	console.log(`[${process.env.SERVICE_NAME}] Received SIGTERM, shutting down gracefully...`);
 	server.stop();
 	process.exit(0);
 });
 
 process.on("SIGINT", () => {
-	console.log(
-		`[${process.env.SERVICE_NAME}] Received SIGINT, shutting down gracefully...`,
-	);
+	console.log(`[${process.env.SERVICE_NAME}] Received SIGINT, shutting down gracefully...`);
 	server.stop();
 	process.exit(0);
 });
@@ -22,12 +18,7 @@ await new Promise((resolve) => setTimeout(resolve, 4000));
 let requestCount = 0;
 let staticFileRequests = 0;
 const pages = ["/", "/about", "/contact", "/login", "/dashboard", "/profile"];
-const staticFiles = [
-	"/css/style.css",
-	"/js/app.js",
-	"/images/logo.png",
-	"/favicon.ico",
-];
+const staticFiles = ["/css/style.css", "/js/app.js", "/images/logo.png", "/favicon.ico"];
 
 const server = Bun.serve({
 	port: process.env.PORT ?? 8002,
@@ -43,9 +34,7 @@ const server = Bun.serve({
 		}
 
 		// Simulate static file requests
-		if (
-			staticFiles.some((file) => url.pathname.startsWith(file.split("/")[1]))
-		) {
+		if (staticFiles.some((file) => url.pathname.startsWith(file.split("/")[1]))) {
 			staticFileRequests++;
 			const responseTime = Math.random() * 50 + 10;
 
@@ -86,9 +75,7 @@ const server = Bun.serve({
 	},
 });
 
-console.log(
-	`[${process.env.SERVICE_NAME}] Web server running on http://localhost:${server.port}`,
-);
+console.log(`[${process.env.SERVICE_NAME}] Web server running on http://localhost:${server.port}`);
 console.log(`[${process.env.SERVICE_NAME}] Serving pages: ${pages.join(", ")}`);
 
 // Simulate periodic activity

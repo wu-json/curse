@@ -32,9 +32,7 @@ function simulateAnalyticsActivity() {
 		const userId = `user_${Math.floor(Math.random() * 1000)}`;
 		const timestamp = new Date().toISOString();
 
-		console.log(
-			`[ANALYTICS] Event: ${eventType} | User: ${userId} | ${timestamp}`,
-		);
+		console.log(`[ANALYTICS] Event: ${eventType} | User: ${userId} | ${timestamp}`);
 		eventsProcessed++;
 
 		// Simulate user activity changes
@@ -61,11 +59,7 @@ function simulateAnalyticsActivity() {
 	if (Math.random() > 0.9) {
 		const metric = metrics[Math.floor(Math.random() * metrics.length)];
 		const value = (Math.random() * 100).toFixed(2);
-		const unit = metric.includes("rate")
-			? "%"
-			: metric.includes("time")
-				? "ms"
-				: "";
+		const unit = metric.includes("rate") ? "%" : metric.includes("time") ? "ms" : "";
 		console.log(`[ANALYTICS] Metric update: ${metric} = ${value}${unit}`);
 	}
 

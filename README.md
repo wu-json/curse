@@ -97,7 +97,7 @@ cd app/client yarn start
 </tr>
 </table>
 
-If the above made you cringe, then you're not alone because many others have too. Existing solutions to this problem have come in various forms. 
+If the above made you cringe, then you're not alone because many others have too. Existing solutions to this problem have come in various forms.
 
 - [s(hell) Scripts](https://pythonspeed.com/articles/shell-scripts/): How do you view the ongoing output of each process?. You could hook into TMux or Wezterm panes but that isn't ideal for everyone.
 
@@ -105,7 +105,7 @@ If the above made you cringe, then you're not alone because many others have too
 
 - [process-compose](https://github.com/F1bonacc1/process-compose): Has a lot of features I don't use and feels sluggish.
 
-Out of all of the options above, `process-compose` got the closest to the experience I wanted but was still far from it. It felt quite slow, had limited tooling around logging, and resulted in composed configuration files that were unpleasant to maintain. 
+Out of all of the options above, `process-compose` got the closest to the experience I wanted but was still far from it. It felt quite slow, had limited tooling around logging, and resulted in composed configuration files that were unpleasant to maintain.
 
 ## Design Principles
 
@@ -143,15 +143,16 @@ version = 0  # Required: Must be 0 (only supported version)
 
 Each process is defined as a `[[process]]` table with the following fields:
 
-| Field | Type | Required | Description |
-|-------|------|----------|-------------|
-| `name` | string | Yes | Unique identifier for the process. Used for dependencies and display. |
-| `command` | string | Yes | Shell command to execute. Runs in a shell context. |
-| `env` | object | No | Environment variables for the process. Keys are strings, values can be strings or numbers. |
-| `deps` | array | No | Array of dependency objects. See [Dependencies](#dependencies) below. |
-| `readiness_probe` | object | No | Health check configuration. See [Readiness Probes](#readiness-probes) below. |
+| Field             | Type   | Required | Description                                                                                |
+| ----------------- | ------ | -------- | ------------------------------------------------------------------------------------------ |
+| `name`            | string | Yes      | Unique identifier for the process. Used for dependencies and display.                      |
+| `command`         | string | Yes      | Shell command to execute. Runs in a shell context.                                         |
+| `env`             | object | No       | Environment variables for the process. Keys are strings, values can be strings or numbers. |
+| `deps`            | array  | No       | Array of dependency objects. See [Dependencies](#dependencies) below.                      |
+| `readiness_probe` | object | No       | Health check configuration. See [Readiness Probes](#readiness-probes) below.               |
 
 **Example:**
+
 ```toml
 [[process]]
 name = "api-server"
@@ -165,10 +166,10 @@ readiness_probe = { type = "http", host = "127.0.0.1", path = "/health", port = 
 
 Dependencies control the execution order of processes. Each dependency object has two fields:
 
-| Field | Type | Required | Description |
-|-------|------|----------|-------------|
-| `name` | string | Yes | Name of the process this depends on. Must reference an existing process. |
-| `condition` | string | Yes | When to consider the dependency satisfied. One of: `"started"`, `"succeeded"`, or `"ready"`. |
+| Field       | Type   | Required | Description                                                                                  |
+| ----------- | ------ | -------- | -------------------------------------------------------------------------------------------- |
+| `name`      | string | Yes      | Name of the process this depends on. Must reference an existing process.                     |
+| `condition` | string | Yes      | When to consider the dependency satisfied. One of: `"started"`, `"succeeded"`, or `"ready"`. |
 
 **Dependency Conditions:**
 
@@ -177,6 +178,7 @@ Dependencies control the execution order of processes. Each dependency object ha
 - **`"ready"`**: Dependent process waits for the readiness probe to pass (or just running if no probe defined).
 
 **Example:**
+
 ```toml
 [[process]]
 name = "migrations"
@@ -198,14 +200,15 @@ Readiness probes are health checks that determine when a process is ready to acc
 
 Polls an HTTP endpoint until it returns a 200 OK response.
 
-| Field | Type | Required | Description |
-|-------|------|----------|-------------|
-| `type` | string | Yes | Must be `"http"`. |
-| `host` | string | Yes | Hostname or IP address to connect to. |
-| `path` | string | Yes | HTTP path to request (e.g., `"/health"`). |
-| `port` | number | Yes | Port number to connect to. |
+| Field  | Type   | Required | Description                               |
+| ------ | ------ | -------- | ----------------------------------------- |
+| `type` | string | Yes      | Must be `"http"`.                         |
+| `host` | string | Yes      | Hostname or IP address to connect to.     |
+| `path` | string | Yes      | HTTP path to request (e.g., `"/health"`). |
+| `port` | number | Yes      | Port number to connect to.                |
 
 **Example:**
+
 ```toml
 [[process]]
 name = "web-server"
@@ -217,12 +220,13 @@ readiness_probe = { type = "http", host = "127.0.0.1", path = "/", port = 8000 }
 
 Runs a shell command repeatedly until it exits with code 0.
 
-| Field | Type | Required | Description |
-|-------|------|----------|-------------|
-| `type` | string | Yes | Must be `"exec"`. |
-| `command` | string | Yes | Shell command to execute. |
+| Field     | Type   | Required | Description               |
+| --------- | ------ | -------- | ------------------------- |
+| `type`    | string | Yes      | Must be `"exec"`.         |
+| `command` | string | Yes      | Shell command to execute. |
 
 **Example:**
+
 ```toml
 [[process]]
 name = "postgres"
@@ -244,19 +248,19 @@ shutdown = { name = "cleanup", command = "docker-compose down" }
 
 Runs before any processes start. If it fails (non-zero exit), Curse will exit.
 
-| Field | Type | Required | Description |
-|-------|------|----------|-------------|
-| `name` | string | Yes | Display name for the hook. Must be unique across all processes and hooks. |
-| `command` | string | Yes | Shell command to execute. |
+| Field     | Type   | Required | Description                                                               |
+| --------- | ------ | -------- | ------------------------------------------------------------------------- |
+| `name`    | string | Yes      | Display name for the hook. Must be unique across all processes and hooks. |
+| `command` | string | Yes      | Shell command to execute.                                                 |
 
 ##### Shutdown Hook
 
 Runs after all processes are killed (when user presses `q` or Curse exits). Runs regardless of whether processes succeeded or failed.
 
-| Field | Type | Required | Description |
-|-------|------|----------|-------------|
-| `name` | string | Yes | Display name for the hook. Must be unique across all processes and hooks. |
-| `command` | string | Yes | Shell command to execute. |
+| Field     | Type   | Required | Description                                                               |
+| --------- | ------ | -------- | ------------------------------------------------------------------------- |
+| `name`    | string | Yes      | Display name for the hook. Must be unique across all processes and hooks. |
+| `command` | string | Yes      | Shell command to execute.                                                 |
 
 ### Validation Rules
 

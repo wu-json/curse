@@ -19,7 +19,13 @@ bump-and-commit-version bump_type:
   git push --follow-tags
 
 fmt *args:
-  bun run biome format --write {{args}}
+  bun run oxfmt --write {{args}}
+
+lint:
+  bun run oxlint
+
+lint-fix:
+  bun run oxlint --fix
 
 current-version:
   #!/usr/bin/env bash
