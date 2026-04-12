@@ -617,9 +617,7 @@ function LogTable(props: {
 					<Text color={autoScroll ? Colors.softGreen : Colors.darkGray}>
 						{autoScroll ? "on" : "off"}
 					</Text>
-					{positionLost && (
-						<Text color={Colors.amber}> (position lost, returned to tail)</Text>
-					)}
+					{positionLost && <Text color={Colors.amber}> (position lost, returned to tail)</Text>}
 					{numberPrefix && <Text color={Colors.silver}> [{numberPrefix}]</Text>}
 					{waitingForSecondG && <Text color={Colors.softGreen}> [g]</Text>}
 					{isSelectMode && <Text color={Colors.amber}> [SELECT]</Text>}

@@ -71,9 +71,7 @@ function View(props: { config: CurseConfig }) {
 						</Text>
 						<Text color={Colors.darkGray}> v{version}</Text>
 					</Box>
-					{status === ProgramStatus.Quitting && (
-						<Text color={Colors.amber}>Quitting...</Text>
-					)}
+					{status === ProgramStatus.Quitting && <Text color={Colors.amber}>Quitting...</Text>}
 				</Box>
 			)}
 			{displayMode === "normal" && (
