@@ -1,4 +1,4 @@
-# Curse 🕯️
+# Curse
 
 ![Made with TypeScript](https://img.shields.io/badge/Made%20with-TypeScript-3178C6?style=flat-square&logo=typescript&logoColor=white)
 ![Runs on Bun](https://img.shields.io/badge/Runs%20on-Bun-f9f1e1?style=flat-square&logo=bun&logoColor=black)
@@ -7,7 +7,7 @@
 
 Curse is a dead simple Terminal UI for running processes, configured through a single `curse.toml` file.
 
-<img width="1146" height="885" alt="スクリーンショット 2025-09-27 午後7 49 04" src="https://github.com/user-attachments/assets/580b87e6-8823-4c18-b05e-6de15b810d2c" />
+<img alt="Curse TUI screenshot" src="./curse.png" />
 
 ## Installation & Setup
 
