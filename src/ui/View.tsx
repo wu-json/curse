@@ -66,19 +66,17 @@ function View(props: { config: CurseConfig }) {
 			{displayMode === "normal" && (
 				<Box flexDirection="row" justifyContent="space-between">
 					<Box flexDirection="row">
-						<Text bold color={Colors.primary}>
-							Curse 🕯
+						<Text bold color={Colors.white}>
+							Curse
 						</Text>
 						<Text color={Colors.darkGray}> v{version}</Text>
 					</Box>
-					{status === ProgramStatus.Quitting && (
-						<Text color={Colors.brightOrange}>Quitting...</Text>
-					)}
+					{status === ProgramStatus.Quitting && <Text color={Colors.amber}>Quitting...</Text>}
 				</Box>
 			)}
 			{displayMode === "normal" && (
 				<Box flexDirection="row">
-					<Text color={Colors.primary}>Config: </Text>
+					<Text color={Colors.white}>Config: </Text>
 					<Text>{props.config.fileName}</Text>
 				</Box>
 			)}

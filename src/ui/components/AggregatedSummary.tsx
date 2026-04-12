@@ -5,13 +5,13 @@ import { useRenderTick } from "../../hooks/useRenderTick";
 import { Colors } from "../../lib/Colors";
 
 const statusColorMap: Record<string, string> = {
-	running: Colors.green,
-	starting: Colors.indigo,
+	running: Colors.mutedGreen,
+	starting: Colors.gray,
 	pending: Colors.darkGray,
-	error: "red",
+	error: Colors.mutedRed,
 	success: Colors.darkGray,
-	killing: Colors.brightOrange,
-	killed: Colors.brightOrange,
+	killing: Colors.amber,
+	killed: Colors.amber,
 };
 
 export function AggregatedSummary(props: { numberPrefix: string; waitingForSecondG: boolean }) {
@@ -65,12 +65,12 @@ export function AggregatedSummary(props: { numberPrefix: string; waitingForSecon
 				</Box>
 			)}
 			<Box>
-				<Text backgroundColor={Colors.indigo} color="white" bold>
+				<Text backgroundColor={Colors.gray} color="white" bold>
 					{" "}
 					{selectedDetail}{" "}
 				</Text>
-				{props.numberPrefix && <Text color={Colors.brightPink}> [{props.numberPrefix}]</Text>}
-				{props.waitingForSecondG && <Text color={Colors.brightGreen}> [g]</Text>}
+				{props.numberPrefix && <Text color={Colors.silver}> [{props.numberPrefix}]</Text>}
+				{props.waitingForSecondG && <Text color={Colors.softGreen}> [g]</Text>}
 			</Box>
 		</Box>
 	);

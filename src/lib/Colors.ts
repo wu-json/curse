@@ -1,11 +1,12 @@
 export const Colors = {
-	primary: "#8b5cf6", // violet
+	white: "#ffffff",
 	darkGray: "#4b5563",
 	mutedCyan: "#5f8a8b",
-	indigo: "#6366f1",
-	purple: "#a78bfa",
-	green: "#10b981",
-	brightGreen: "#34d399",
-	brightPink: "#ec4899",
-	brightOrange: "#f97316",
+	gray: "#6b7280",
+	lightGray: "#e5e7eb",
+	mutedGreen: "#6b9e7e",
+	softGreen: "#7dab8e",
+	silver: "#9ca3af",
+	amber: "#d4a054",
+	mutedRed: "#b07070",
 };

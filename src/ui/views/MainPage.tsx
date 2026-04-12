@@ -33,12 +33,12 @@ function getReadinessDisplay(process: Process): {
 
 	const color =
 		char === "x" || char === "✗"
-			? "red"
+			? Colors.mutedRed
 			: char === "✓"
-				? Colors.green
+				? Colors.mutedGreen
 				: char === "-"
 					? Colors.darkGray
-					: Colors.indigo;
+					: Colors.gray;
 
 	return { char, color };
 }
@@ -76,8 +76,8 @@ function ProcessTable(props: {
 						<Text bold dimColor>
 							READY
 						</Text>
-						{props.numberPrefix && <Text color={Colors.brightPink}> [{props.numberPrefix}]</Text>}
-						{props.waitingForSecondG && <Text color={Colors.brightGreen}> [g]</Text>}
+						{props.numberPrefix && <Text color={Colors.silver}> [{props.numberPrefix}]</Text>}
+						{props.waitingForSecondG && <Text color={Colors.softGreen}> [g]</Text>}
 					</Box>
 				</Box>
 				{processes.map((process: Process, index: number) => {
@@ -93,13 +93,13 @@ function ProcessTable(props: {
 							? Colors.darkGray
 							: isShutdownHookPending
 								? Colors.mutedCyan
-								: Colors.indigo;
+								: Colors.gray;
 					return (
 						<Box
 							key={process.name}
 							flexDirection="row"
 							paddingX={1}
-							backgroundColor={isSelected ? Colors.indigo : undefined}
+							backgroundColor={isSelected ? Colors.gray : undefined}
 						>
 							<Box width={compactNameColumnWidth}>
 								<Text color={textColor} bold={isSelected}>
@@ -157,8 +157,8 @@ function ProcessTable(props: {
 				</Box>
 				<Box width={8} marginLeft={2}>
 					<Text bold>CPU</Text>
-					{props.numberPrefix && <Text color={Colors.brightPink}> [{props.numberPrefix}]</Text>}
-					{props.waitingForSecondG && <Text color={Colors.brightGreen}> [g]</Text>}
+					{props.numberPrefix && <Text color={Colors.silver}> [{props.numberPrefix}]</Text>}
+					{props.waitingForSecondG && <Text color={Colors.softGreen}> [g]</Text>}
 				</Box>
 			</Box>
 			{processes.map((process: Process, index: number) => {
@@ -174,13 +174,13 @@ function ProcessTable(props: {
 						? Colors.darkGray
 						: isShutdownHookPending
 							? Colors.mutedCyan
-							: Colors.indigo;
+							: Colors.gray;
 				return (
 					<Box
 						key={process.name}
 						flexDirection="row"
 						paddingX={1}
-						backgroundColor={isSelected ? Colors.indigo : undefined}
+						backgroundColor={isSelected ? Colors.gray : undefined}
 					>
 						<Box width={nameColumnWidth}>
 							<Text color={textColor} bold={isSelected}>
@@ -237,7 +237,7 @@ function ProcessTable(props: {
 										: isSuccess
 											? Colors.darkGray
 											: process.profile?.memoryUsageMB !== undefined
-												? Colors.indigo
+												? Colors.gray
 												: Colors.darkGray
 								}
 								bold={isSelected}
@@ -255,7 +255,7 @@ function ProcessTable(props: {
 										: isSuccess
 											? Colors.darkGray
 											: process.profile?.cpuUsagePercent !== undefined
-												? Colors.indigo
+												? Colors.gray
 												: Colors.darkGray
 								}
 								bold={isSelected}
