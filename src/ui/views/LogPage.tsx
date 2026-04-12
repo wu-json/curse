@@ -588,9 +588,9 @@ function LogTable(props: {
 	// Helper functions for text colors
 	const getTextColor = (isCursor: boolean, isSelected: boolean, log: string) => {
 		if (isCursor) return "white";
-		if (isSelected) return Colors.purple;
-		if (log.includes("stderr")) return "red";
-		return Colors.purple;
+		if (isSelected) return Colors.lightGray;
+		if (log.includes("stderr")) return Colors.mutedRed;
+		return Colors.lightGray;
 	};
 
 	const getPartTextColor = (
@@ -599,7 +599,7 @@ function LogTable(props: {
 		isSelected: boolean,
 		log: string,
 	) => {
-		if (isHighlight) return Colors.brightOrange;
+		if (isHighlight) return Colors.amber;
 		return getTextColor(isCursor, isSelected, log);
 	};
 
@@ -614,20 +614,20 @@ function LogTable(props: {
 			<Box justifyContent="center" borderBottom borderColor={Colors.darkGray}>
 				<Text color={Colors.darkGray}>
 					Autoscroll:
-					<Text color={autoScroll ? Colors.brightGreen : Colors.darkGray}>
+					<Text color={autoScroll ? Colors.softGreen : Colors.darkGray}>
 						{autoScroll ? "on" : "off"}
 					</Text>
 					{positionLost && (
-						<Text color={Colors.brightOrange}> (position lost, returned to tail)</Text>
+						<Text color={Colors.amber}> (position lost, returned to tail)</Text>
 					)}
-					{numberPrefix && <Text color={Colors.brightPink}> [{numberPrefix}]</Text>}
-					{waitingForSecondG && <Text color={Colors.brightGreen}> [g]</Text>}
-					{isSelectMode && <Text color={Colors.brightOrange}> [SELECT]</Text>}
-					{isSearchMode && <Text color={Colors.brightGreen}> &lt;/{searchQuery}&gt;</Text>}
+					{numberPrefix && <Text color={Colors.silver}> [{numberPrefix}]</Text>}
+					{waitingForSecondG && <Text color={Colors.softGreen}> [g]</Text>}
+					{isSelectMode && <Text color={Colors.amber}> [SELECT]</Text>}
+					{isSearchMode && <Text color={Colors.softGreen}> &lt;/{searchQuery}&gt;</Text>}
 					{!isSearchMode && appliedSearchQuery && (
-						<Text color={Colors.brightGreen}> &lt;/{appliedSearchQuery}&gt;</Text>
+						<Text color={Colors.softGreen}> &lt;/{appliedSearchQuery}&gt;</Text>
 					)}
-					{showCopyIndicator && <Text color={Colors.brightGreen}> ✓ {copyIndicatorText}</Text>}
+					{showCopyIndicator && <Text color={Colors.softGreen}> ✓ {copyIndicatorText}</Text>}
 				</Text>
 			</Box>
 			{logs.map((log, index) => {
@@ -637,7 +637,7 @@ function LogTable(props: {
 				// Determine background color: cursor takes priority, then selection
 				let backgroundColor;
 				if (isCursor) {
-					backgroundColor = Colors.indigo; // Cursor color
+					backgroundColor = Colors.gray; // Cursor color
 				} else if (isSelected) {
 					backgroundColor = Colors.darkGray; // Charcoal for selection
 				}
@@ -800,23 +800,23 @@ export function LogPage() {
 		<>
 			<Box justifyContent="center">
 				<Text>
-					<Text color={Colors.green}>Logs</Text>
-					<Text color={Colors.green}>(</Text>
-					<Text color={Colors.brightPink} bold>
+					<Text color={Colors.mutedGreen}>Logs</Text>
+					<Text color={Colors.mutedGreen}>(</Text>
+					<Text color={Colors.silver} bold>
 						{selectedProcess.name}
 					</Text>
-					<Text color={Colors.green}>)</Text>
-					<Text color={Colors.green}>[</Text>
-					<Text color={Colors.brightGreen}>tail</Text>
-					<Text color={Colors.green}>]</Text>
+					<Text color={Colors.mutedGreen}>)</Text>
+					<Text color={Colors.mutedGreen}>[</Text>
+					<Text color={Colors.softGreen}>tail</Text>
+					<Text color={Colors.mutedGreen}>]</Text>
 				</Text>
 			</Box>
 			{isSearchMode && (
 				<Box paddingX={1}>
-					<Text color={Colors.brightGreen}>Search: </Text>
+					<Text color={Colors.softGreen}>Search: </Text>
 					<Text color="white">
 						{searchQuery}
-						<Text color={Colors.brightGreen}>█</Text>
+						<Text color={Colors.softGreen}>█</Text>
 					</Text>
 				</Box>
 			)}
