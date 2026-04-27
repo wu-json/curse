@@ -9,7 +9,8 @@ import { useProgramState, ProgramStatus } from "../../hooks/useProgramState";
 import { useRenderTick } from "../../hooks/useRenderTick";
 import { Colors } from "../../lib/Colors";
 import { preprocessLog } from "../../lib/LogProcessing";
-import { ShortcutFooter, getShortcutFooterHeight } from "../components/ShortcutFooter";
+import { ShortcutFooter } from "../components/ShortcutFooter";
+import { computeLogPageLayout } from "../layout";
 
 function LogTable(props: {
 	height: number;
@@ -820,14 +821,13 @@ export function LogPage() {
 			)}
 			<LogTable
 				height={
-					// View header (2) + LogPage title (1) = 3 fixed rows.
-					// Footer renders 1 row when collapsed (getShortcutFooterHeight returns 0
-					// in that case, so add 1 to account for the actual rendered row).
-					terminalHeight -
-					3 -
-					(isSearchMode ? 1 : 0) -
-					getShortcutFooterHeight(shortcuts.length, terminalWidth, showShortcuts) -
-					(showShortcuts ? 0 : 1)
+					computeLogPageLayout({
+						terminalHeight,
+						terminalWidth,
+						shortcutsCount: shortcuts.length,
+						showShortcuts,
+						isSearchMode,
+					}).logTableHeight
 				}
 				isSearchMode={isSearchMode}
 				searchQuery={searchQuery}

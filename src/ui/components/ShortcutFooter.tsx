@@ -1,6 +1,10 @@
 import { Box, Text, useStdout } from "ink";
 
 import { Colors } from "../../lib/Colors";
+import { getShortcutFooterColumns, getShortcutFooterHeight } from "../layout";
+
+// Re-export so existing callers can keep importing it from this module.
+export { getShortcutFooterHeight };
 
 interface ShortcutFooterProps {
 	shortcuts: string[];
@@ -15,13 +19,7 @@ export function ShortcutFooter({ shortcuts, showShortcuts }: ShortcutFooterProps
 		<Box marginLeft={1} flexDirection="row">
 			{showShortcuts ? (
 				(() => {
-					// Calculate number of columns based on terminal width
-					let numColumns;
-					if (terminalWidth < 80) numColumns = 1;
-					else if (terminalWidth < 120) numColumns = 2;
-					else if (terminalWidth < 160) numColumns = 3;
-					else numColumns = 4;
-
+					const numColumns = getShortcutFooterColumns(terminalWidth);
 					const itemsPerColumn = Math.ceil(shortcuts.length / numColumns);
 
 					const columns = [];
@@ -48,21 +46,4 @@ export function ShortcutFooter({ shortcuts, showShortcuts }: ShortcutFooterProps
 			)}
 		</Box>
 	);
-}
-
-// Helper function to calculate the height taken by shortcuts
-export function getShortcutFooterHeight(
-	shortcutsCount: number,
-	terminalWidth: number,
-	showShortcuts: boolean,
-): number {
-	if (!showShortcuts) return 0;
-
-	let numColumns;
-	if (terminalWidth < 80) numColumns = 1;
-	else if (terminalWidth < 120) numColumns = 2;
-	else if (terminalWidth < 160) numColumns = 3;
-	else numColumns = 4;
-
-	return Math.ceil(shortcutsCount / numColumns);
 }
