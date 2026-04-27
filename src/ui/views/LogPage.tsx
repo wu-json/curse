@@ -820,11 +820,14 @@ export function LogPage() {
 			)}
 			<LogTable
 				height={
+					// View header (2) + LogPage title (1) = 3 fixed rows.
+					// Footer renders 1 row when collapsed (getShortcutFooterHeight returns 0
+					// in that case, so add 1 to account for the actual rendered row).
 					terminalHeight -
-					6 -
+					3 -
 					(isSearchMode ? 1 : 0) -
-					getShortcutFooterHeight(shortcuts.length, terminalWidth, showShortcuts)
-					+ (showShortcuts ? 0 : 1)
+					getShortcutFooterHeight(shortcuts.length, terminalWidth, showShortcuts) -
+					(showShortcuts ? 0 : 1)
 				}
 				isSearchMode={isSearchMode}
 				searchQuery={searchQuery}

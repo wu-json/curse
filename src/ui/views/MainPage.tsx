@@ -398,10 +398,11 @@ export function MainPage(props: { displayMode: DisplayMode }) {
 
 	const processTableHeight = processes.length + 3;
 
-	const headerHeight = 4;
+	// View header has 2 rows: "Curse v{version}" and "Config: {filename}"
+	const headerHeight = 2;
 	const availableForLogs =
 		terminalHeight - headerHeight - processTableHeight - shortcutFooterHeight;
-	const logPreviewHeight = Math.max(4, availableForLogs - 1);
+	const logPreviewHeight = Math.max(4, availableForLogs);
 
 	return (
 		<Box flexDirection="column">

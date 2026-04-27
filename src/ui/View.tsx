@@ -32,7 +32,7 @@ function View(props: { config: CurseConfig }) {
 
 	const terminalHeight = stdout?.rows ?? 24;
 	const processCount = processesRef.current.length;
-	const normalMinHeight = processCount + 13; // header(4) + table(N+3) + logPreview(5) + footer(1)
+	const normalMinHeight = processCount + 11; // header(2) + table(N+3) + logPreview(5) + footer(1)
 	const compactMinHeight = processCount + 1;
 	const displayMode: DisplayMode =
 		terminalHeight < compactMinHeight
