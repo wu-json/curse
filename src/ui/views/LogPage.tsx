@@ -824,6 +824,7 @@ export function LogPage() {
 					6 -
 					(isSearchMode ? 1 : 0) -
 					getShortcutFooterHeight(shortcuts.length, terminalWidth, showShortcuts)
+					+ (showShortcuts ? 0 : 1)
 				}
 				isSearchMode={isSearchMode}
 				searchQuery={searchQuery}

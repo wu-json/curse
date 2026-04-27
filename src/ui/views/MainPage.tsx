@@ -394,7 +394,7 @@ export function MainPage(props: { displayMode: DisplayMode }) {
 		shortcuts.length,
 		terminalWidth,
 		showShortcuts,
-	);
+	) + (showShortcuts ? 0 : 1);
 
 	const processTableHeight = processes.length + 3;
 
