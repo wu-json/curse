@@ -9,6 +9,7 @@ import { useProcessManager } from "../hooks/useProcessManager";
 import { ProgramStateProvider, useProgramState, ProgramStatus } from "../hooks/useProgramState";
 import { Colors } from "../lib/Colors";
 import type { CurseConfig } from "../parser";
+import { MIN_LOG_PREVIEW_HEIGHT, PROCESS_TABLE_OVERHEAD, VIEW_HEADER_HEIGHT } from "./layout";
 import { LogPage } from "./views/LogPage";
 import { MainPage, type DisplayMode } from "./views/MainPage";
 
@@ -32,7 +33,9 @@ function View(props: { config: CurseConfig }) {
 
 	const terminalHeight = stdout?.rows ?? 24;
 	const processCount = processesRef.current.length;
-	const normalMinHeight = processCount + 13; // header(4) + table(N+3) + logPreview(5) + footer(1)
+	// header + processTable(N + overhead) + minLogPreview + collapsed footer (1 row)
+	const normalMinHeight =
+		VIEW_HEADER_HEIGHT + processCount + PROCESS_TABLE_OVERHEAD + MIN_LOG_PREVIEW_HEIGHT + 1;
 	const compactMinHeight = processCount + 1;
 	const displayMode: DisplayMode =
 		terminalHeight < compactMinHeight

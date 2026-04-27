@@ -8,7 +8,8 @@ import { useRenderTick } from "../../hooks/useRenderTick";
 import { Colors } from "../../lib/Colors";
 import { AggregatedSummary } from "../components/AggregatedSummary";
 import { LogTailPreview } from "../components/LogTailPreview";
-import { ShortcutFooter, getShortcutFooterHeight } from "../components/ShortcutFooter";
+import { ShortcutFooter } from "../components/ShortcutFooter";
+import { computeMainPageLayout } from "../layout";
 
 export type DisplayMode = "normal" | "compact" | "aggregated";
 
@@ -390,18 +391,13 @@ export function MainPage(props: { displayMode: DisplayMode }) {
 	const terminalHeight = stdout?.rows ?? 24;
 	const terminalWidth = stdout?.columns ?? 80;
 
-	const shortcutFooterHeight = getShortcutFooterHeight(
-		shortcuts.length,
+	const { logPreviewHeight } = computeMainPageLayout({
+		terminalHeight,
 		terminalWidth,
+		processCount: processes.length,
+		shortcutsCount: shortcuts.length,
 		showShortcuts,
-	);
-
-	const processTableHeight = processes.length + 3;
-
-	const headerHeight = 4;
-	const availableForLogs =
-		terminalHeight - headerHeight - processTableHeight - shortcutFooterHeight;
-	const logPreviewHeight = Math.max(4, availableForLogs - 1);
+	});
 
 	return (
 		<Box flexDirection="column">
