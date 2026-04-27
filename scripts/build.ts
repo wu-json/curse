@@ -1,7 +1,7 @@
 import { existsSync } from "fs";
 import { mkdir, unlink, readdir } from "fs/promises";
 
-const targets: Bun.Build.Target[] = [
+const targets: Bun.Build.CompileTarget[] = [
 	"bun-linux-x64",
 	"bun-linux-arm64",
 	"bun-darwin-x64",
